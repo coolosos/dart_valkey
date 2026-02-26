@@ -143,5 +143,36 @@ void main() {
 
       expect(receivedError, isA<Exception>());
     });
+
+    test('send should call onError when socket throws', () async {
+      Object? receivedError;
+      var disconnected = false;
+
+      connection = TestConnection(
+        onError: (error) => receivedError = error,
+        respDecoder: mockRespDecoder,
+      )..socketToReturn = mockSocket;
+
+      when(mockSocket.setOption(any, any)).thenReturn(true);
+      when(
+        mockStream.listen(
+          any,
+          onError: anyNamed('onError'),
+          onDone: anyNamed('onDone'),
+          cancelOnError: anyNamed('cancelOnError'),
+        ),
+      ).thenReturn(MockStreamSubscription());
+
+      await connection.connect();
+
+      // Force the internal socket reference to be null to simulate closed connection
+      // or make socket.add throw
+      when(mockSocket.add(any)).thenThrow(Exception('Socket closed'));
+
+      final data = [1, 2, 3];
+      connection.send(data);
+
+      expect(receivedError, isA<Exception>());
+    });
   });
 }
