@@ -146,7 +146,7 @@ void main() {
 
     test('send should call onError when socket throws', () async {
       Object? receivedError;
-      const disconnected = false;
+      // const disconnected = false;
 
       connection = TestConnection(
         onError: (error) => receivedError = error,
