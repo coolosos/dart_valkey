@@ -123,11 +123,11 @@ void main() {
 
     test('should throw when authentication fails with wrong password (RESP3)',
         () async {
-      var errorReceived = false;
+      // var errorReceived = false;
       connection = TestableConnection(
         respDecoder: const Resp3Decoder(),
         onError: (error) {
-          errorReceived = true;
+          // errorReceived = true;
         },
       );
       // Try to connect with a wrong password - this should fail
@@ -144,7 +144,7 @@ void main() {
       } catch (e) {
         // Expected to throw when authentication fails
         expect(e.toString(), contains('Authentication failed'));
-        errorReceived = true;
+        // errorReceived = true;
       }
     });
 
