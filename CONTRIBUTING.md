@@ -6,7 +6,7 @@ First of all, thank you for considering contributing to `dart_valkey`! We apprec
 
 There are many ways to contribute to this project. You can:
 
-- **Report a bug**: If you find a bug, please open an issue on our [issue tracker](https://github.com/coolosos/dart-valkey/issues) and provide a detailed description of the problem.
+- **Report a bug**: If you find a bug, please open an issue on our [issue tracker](https://github.com/coolosos/dart_valkey/issues) and provide a detailed description of the problem.
 - **Suggest a feature**: If you have an idea for a new feature, please open an issue to discuss it.
 - **Submit a pull request**: If you want to contribute with code, you can open a pull request. Please make sure to follow the project's coding style and to add tests for your changes if applicable.
 
