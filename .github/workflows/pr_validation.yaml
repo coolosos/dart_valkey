@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     services:
       valkey:
-        image: valkey/valkey:7.2.5 # Use a specific version
+        image: valkey/valkey:7.2.5  
         ports:
-          - 6379:6379 # Map port 6379 on the host to 6379 in the container
+          - 6379:6379  
         options: >-
           --health-cmd "valkey-cli ping"
           --health-interval 10s
@@ -35,14 +35,14 @@ jobs:
       - name: Analyze project
         run: dart analyze --fatal-infos
 
-      - name: Wait for Valkey to be ready
-        run: |
-          for i in $(seq 1 10); do
-            docker run --network host --rm valkey/valkey:7.2.5 valkey-cli -h 127.0.0.1 -p 6379 ping && break
-            echo "Waiting for Valkey..."
-            sleep 1
-          done
-          docker run --network host --rm valkey/valkey:7.2.5 valkey-cli -h 127.0.0.1 -p 6379 ping
+      # - name: Wait for Valkey to be ready
+      #   run: |
+      #     for i in $(seq 1 10); do
+      #       docker run --network host --rm valkey/valkey:7.2.5 valkey-cli -h 127.0.0.1 -p 6379 ping && break
+      #       echo "Waiting for Valkey..."
+      #       sleep 1
+      #     done
+      #     docker run --network host --rm valkey/valkey:7.2.5 valkey-cli -h 127.0.0.1 -p 6379 ping
 
       - name: Run tests with coverage
         run: dart test --coverage=coverage # Removed --exclude-tags integration
@@ -56,3 +56,5 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage/lcov.info
           fail_ci_if_error: true
+          disable_search: true
+ 
