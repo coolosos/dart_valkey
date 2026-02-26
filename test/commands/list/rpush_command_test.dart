@@ -23,7 +23,9 @@ void main() {
       final command = RPushCommand('mylist', ['item1']);
       final prefixedCommand = command.applyPrefix('myprefix:');
       expect(
-          prefixedCommand.commandParts, ['RPUSH', 'myprefix:mylist', 'item1']);
+        prefixedCommand.commandParts,
+        ['RPUSH', 'myprefix:mylist', 'item1'],
+      );
     });
   });
 }

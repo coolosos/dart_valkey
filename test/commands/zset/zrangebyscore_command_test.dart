@@ -12,15 +12,24 @@ void main() {
     test('should build the correct command with WITHSCORES', () {
       final command =
           ZRangeByScoreCommand('myzset', '-inf', '+inf', withScores: true);
-      expect(command.commandParts,
-          ['ZRANGEBYSCORE', 'myzset', '-inf', '+inf', 'WITHSCORES']);
+      expect(
+        command.commandParts,
+        ['ZRANGEBYSCORE', 'myzset', '-inf', '+inf', 'WITHSCORES'],
+      );
     });
 
     test('should build the correct command with LIMIT', () {
-      final command = ZRangeByScoreCommand('myzset', '-inf', '+inf',
-          limitOffset: 0, limitCount: 1);
-      expect(command.commandParts,
-          ['ZRANGEBYSCORE', 'myzset', '-inf', '+inf', 'LIMIT', '0', '1']);
+      final command = ZRangeByScoreCommand(
+        'myzset',
+        '-inf',
+        '+inf',
+        limitOffset: 0,
+        limitCount: 1,
+      );
+      expect(
+        command.commandParts,
+        ['ZRANGEBYSCORE', 'myzset', '-inf', '+inf', 'LIMIT', '0', '1'],
+      );
     });
 
     test('should parse list of strings correctly (without scores)', () {
@@ -45,8 +54,10 @@ void main() {
     test('should apply prefix to key', () {
       final command = ZRangeByScoreCommand('myzset', '-inf', '+inf');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts,
-          ['ZRANGEBYSCORE', 'myprefix:myzset', '-inf', '+inf']);
+      expect(
+        prefixedCommand.commandParts,
+        ['ZRANGEBYSCORE', 'myprefix:myzset', '-inf', '+inf'],
+      );
     });
   });
 }

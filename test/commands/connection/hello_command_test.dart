@@ -18,7 +18,10 @@ void main() {
         'should build the correct command with protocol, username, and password',
         () {
       final command = HelloCommand(
-          protocolVersion: 3, username: 'myuser', password: 'mypass');
+        protocolVersion: 3,
+        username: 'myuser',
+        password: 'mypass',
+      );
       expect(command.commandParts, ['HELLO', '3', 'AUTH', 'myuser', 'mypass']);
     });
 
@@ -36,8 +39,10 @@ void main() {
 
     test('should parse map response correctly', () {
       final command = HelloCommand();
-      expect(command.parse({'server': 'valkey', 'version': '7.2.0'}),
-          {'server': 'valkey', 'version': '7.2.0'});
+      expect(
+        command.parse({'server': 'valkey', 'version': '7.2.0'}),
+        {'server': 'valkey', 'version': '7.2.0'},
+      );
     });
 
     test('should parse list response correctly', () {

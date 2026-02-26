@@ -23,7 +23,9 @@ void main() {
       final command = SAddCommand('myset', ['member1']);
       final prefixedCommand = command.applyPrefix('myprefix:');
       expect(
-          prefixedCommand.commandParts, ['SADD', 'myprefix:myset', 'member1']);
+        prefixedCommand.commandParts,
+        ['SADD', 'myprefix:myset', 'member1'],
+      );
     });
   });
 }

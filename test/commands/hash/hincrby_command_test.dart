@@ -22,8 +22,10 @@ void main() {
     test('should apply prefix to key', () {
       final command = HIncrByCommand('mykey', 'myfield', 1);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts,
-          ['HINCRBY', 'myprefix:mykey', 'myfield', '1']);
+      expect(
+        prefixedCommand.commandParts,
+        ['HINCRBY', 'myprefix:mykey', 'myfield', '1'],
+      );
     });
   });
 }

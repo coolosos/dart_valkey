@@ -23,7 +23,9 @@ void main() {
       final command = ZRemCommand('myzset', ['member1']);
       final prefixedCommand = command.applyPrefix('myprefix:');
       expect(
-          prefixedCommand.commandParts, ['ZREM', 'myprefix:myzset', 'member1']);
+        prefixedCommand.commandParts,
+        ['ZREM', 'myprefix:myzset', 'member1'],
+      );
     });
   });
 }

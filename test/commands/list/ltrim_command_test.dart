@@ -22,7 +22,9 @@ void main() {
       final command = LTrimCommand('mylist', 0, 0);
       final prefixedCommand = command.applyPrefix('myprefix:');
       expect(
-          prefixedCommand.commandParts, ['LTRIM', 'myprefix:mylist', '0', '0']);
+        prefixedCommand.commandParts,
+        ['LTRIM', 'myprefix:mylist', '0', '0'],
+      );
     });
   });
 }

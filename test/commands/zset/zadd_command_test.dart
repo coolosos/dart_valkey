@@ -6,8 +6,10 @@ void main() {
   group('ZAddCommand', () {
     test('should build the correct command for basic ZADD', () {
       final command = ZAddCommand('myzset', {'member1': 1.0, 'member2': 2.0});
-      expect(command.commandParts,
-          ['ZADD', 'myzset', '1.0', 'member1', '2.0', 'member2']);
+      expect(
+        command.commandParts,
+        ['ZADD', 'myzset', '1.0', 'member1', '2.0', 'member2'],
+      );
     });
 
     test('should build the correct command with NX flag', () {
@@ -30,7 +32,9 @@ void main() {
     test('should build the correct command with INCR flag', () {
       final command = ZAddCommand('myzset', {'member1': 1.0}, incr: true);
       expect(
-          command.commandParts, ['ZADD', 'myzset', 'INCR', '1.0', 'member1']);
+        command.commandParts,
+        ['ZADD', 'myzset', 'INCR', '1.0', 'member1'],
+      );
     });
 
     test('should parse int response correctly (without INCR)', () {
@@ -57,8 +61,10 @@ void main() {
     test('should apply prefix to key', () {
       final command = ZAddCommand('myzset', {'member1': 1.0});
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts,
-          ['ZADD', 'myprefix:myzset', '1.0', 'member1']);
+      expect(
+        prefixedCommand.commandParts,
+        ['ZADD', 'myprefix:myzset', '1.0', 'member1'],
+      );
     });
   });
 }

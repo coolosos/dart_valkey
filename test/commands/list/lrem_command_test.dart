@@ -22,8 +22,10 @@ void main() {
     test('should apply prefix to key', () {
       final command = LRemCommand('mylist', 1, 'item1');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts,
-          ['LREM', 'myprefix:mylist', '1', 'item1']);
+      expect(
+        prefixedCommand.commandParts,
+        ['LREM', 'myprefix:mylist', '1', 'item1'],
+      );
     });
   });
 }

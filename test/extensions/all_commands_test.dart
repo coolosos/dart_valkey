@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:dart_valkey/src/client/valkey_client.dart';
-import 'package:dart_valkey/src/extensions/all_commands.dart';
 import 'package:dart_valkey/src/commands/command.dart';
 import 'package:dart_valkey/src/commands/connection/auth_command.dart';
 import 'package:dart_valkey/src/commands/connection/client_caching_command.dart';
@@ -103,6 +102,7 @@ import 'package:dart_valkey/src/commands/zset/zrevrangebyscore_command.dart';
 import 'package:dart_valkey/src/commands/zset/zrevrangebyscore_with_scores_command.dart';
 import 'package:dart_valkey/src/commands/zset/zrevrank_command.dart';
 import 'package:dart_valkey/src/commands/zset/zscore_command.dart';
+import 'package:dart_valkey/src/extensions/all_commands.dart';
 import 'package:test/test.dart';
 
 // A simple mock ValkeyCommandClient for testing extension methods
@@ -144,7 +144,7 @@ void main() {
       mockClient.mockResponse = 'Hello';
       await mockClient.echo('Hello');
       expect(mockClient.lastExecutedCommand, isA<EchoCommand>());
-      expect((mockClient.lastExecutedCommand as EchoCommand).message, 'Hello');
+      expect((mockClient.lastExecutedCommand! as EchoCommand).message, 'Hello');
     });
 
     test('clientGetname calls ClientGetnameCommand', () async {
@@ -169,23 +169,25 @@ void main() {
       mockClient.mockResponse = 'OK';
       await mockClient.auth(password: 'pass');
       expect(mockClient.lastExecutedCommand, isA<AuthCommand>());
-      expect((mockClient.lastExecutedCommand as AuthCommand).password, 'pass');
+      expect((mockClient.lastExecutedCommand! as AuthCommand).password, 'pass');
     });
 
     test('auth calls AuthCommand with username and password', () async {
       mockClient.mockResponse = 'OK';
       await mockClient.auth(username: 'user', password: 'pass');
       expect(mockClient.lastExecutedCommand, isA<AuthCommand>());
-      expect((mockClient.lastExecutedCommand as AuthCommand).username, 'user');
-      expect((mockClient.lastExecutedCommand as AuthCommand).password, 'pass');
+      expect((mockClient.lastExecutedCommand! as AuthCommand).username, 'user');
+      expect((mockClient.lastExecutedCommand! as AuthCommand).password, 'pass');
     });
 
     test('clientSetname calls ClientSetnameCommand', () async {
       mockClient.mockResponse = 'OK';
       await mockClient.clientSetname('newname');
       expect(mockClient.lastExecutedCommand, isA<ClientSetnameCommand>());
-      expect((mockClient.lastExecutedCommand as ClientSetnameCommand).name,
-          'newname');
+      expect(
+        (mockClient.lastExecutedCommand! as ClientSetnameCommand).name,
+        'newname',
+      );
     });
 
     test('quit calls QuitCommand and closes client', () async {
@@ -205,8 +207,10 @@ void main() {
       mockClient.mockResponse = 'OK';
       await mockClient.clientCaching(enable: true);
       expect(mockClient.lastExecutedCommand, isA<ClientCachingCommand>());
-      expect((mockClient.lastExecutedCommand as ClientCachingCommand).enable,
-          isTrue);
+      expect(
+        (mockClient.lastExecutedCommand! as ClientCachingCommand).enable,
+        isTrue,
+      );
     });
 
     test('clientGetredir calls ClientGetredirCommand', () async {
@@ -219,24 +223,30 @@ void main() {
       mockClient.mockResponse = 'OK';
       await mockClient.clientNoEvict(enable: true);
       expect(mockClient.lastExecutedCommand, isA<ClientNoEvictCommand>());
-      expect((mockClient.lastExecutedCommand as ClientNoEvictCommand).enable,
-          isTrue);
+      expect(
+        (mockClient.lastExecutedCommand! as ClientNoEvictCommand).enable,
+        isTrue,
+      );
     });
 
     test('clientNoTouch calls ClientNoTouchCommand', () async {
       mockClient.mockResponse = 'OK';
       await mockClient.clientNoTouch(enable: true);
       expect(mockClient.lastExecutedCommand, isA<ClientNoTouchCommand>());
-      expect((mockClient.lastExecutedCommand as ClientNoTouchCommand).enable,
-          isTrue);
+      expect(
+        (mockClient.lastExecutedCommand! as ClientNoTouchCommand).enable,
+        isTrue,
+      );
     });
 
     test('clientUnblock calls ClientUnblockCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.clientUnblock(123);
       expect(mockClient.lastExecutedCommand, isA<ClientUnblockCommand>());
-      expect((mockClient.lastExecutedCommand as ClientUnblockCommand).clientId,
-          123);
+      expect(
+        (mockClient.lastExecutedCommand! as ClientUnblockCommand).clientId,
+        123,
+      );
     });
 
     test('clientUnpause calls ClientUnpauseCommand', () async {
@@ -250,7 +260,9 @@ void main() {
       await mockClient.hello(protocolVersion: 3);
       expect(mockClient.lastExecutedCommand, isA<HelloCommand>());
       expect(
-          (mockClient.lastExecutedCommand as HelloCommand).protocolVersion, 3);
+        (mockClient.lastExecutedCommand! as HelloCommand).protocolVersion,
+        3,
+      );
     });
 
     // Hash Commands
@@ -258,77 +270,77 @@ void main() {
       mockClient.mockResponse = 1;
       await mockClient.hset('key', {'field': 'value'});
       expect(mockClient.lastExecutedCommand, isA<HSetCommand>());
-      expect((mockClient.lastExecutedCommand as HSetCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as HSetCommand).key, 'key');
     });
 
     test('hget calls HGetCommand', () async {
       mockClient.mockResponse = 'value';
       await mockClient.hget('key', 'field');
       expect(mockClient.lastExecutedCommand, isA<HGetCommand>());
-      expect((mockClient.lastExecutedCommand as HGetCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as HGetCommand).key, 'key');
     });
 
     test('hgetall calls HGetAllCommand', () async {
       mockClient.mockResponse = ['field', 'value'];
       await mockClient.hgetall('key');
       expect(mockClient.lastExecutedCommand, isA<HGetAllCommand>());
-      expect((mockClient.lastExecutedCommand as HGetAllCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as HGetAllCommand).key, 'key');
     });
 
     test('hdel calls HDelCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.hdel('key', ['field']);
       expect(mockClient.lastExecutedCommand, isA<HDelCommand>());
-      expect((mockClient.lastExecutedCommand as HDelCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as HDelCommand).key, 'key');
     });
 
     test('hexists calls HExistsCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.hexists('key', 'field');
       expect(mockClient.lastExecutedCommand, isA<HExistsCommand>());
-      expect((mockClient.lastExecutedCommand as HExistsCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as HExistsCommand).key, 'key');
     });
 
     test('hincrby calls HIncrByCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.hincrby('key', 'field', 1);
       expect(mockClient.lastExecutedCommand, isA<HIncrByCommand>());
-      expect((mockClient.lastExecutedCommand as HIncrByCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as HIncrByCommand).key, 'key');
     });
 
     test('hlen calls HLenCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.hlen('key');
       expect(mockClient.lastExecutedCommand, isA<HLenCommand>());
-      expect((mockClient.lastExecutedCommand as HLenCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as HLenCommand).key, 'key');
     });
 
     test('hmget calls HMGetCommand', () async {
       mockClient.mockResponse = ['value'];
       await mockClient.hmget('key', ['field']);
       expect(mockClient.lastExecutedCommand, isA<HMGetCommand>());
-      expect((mockClient.lastExecutedCommand as HMGetCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as HMGetCommand).key, 'key');
     });
 
     test('hsetnx calls HSetNxCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.hsetnx('key', 'field', 'value');
       expect(mockClient.lastExecutedCommand, isA<HSetNxCommand>());
-      expect((mockClient.lastExecutedCommand as HSetNxCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as HSetNxCommand).key, 'key');
     });
 
     test('hkeys calls HKeysCommand', () async {
       mockClient.mockResponse = ['field'];
       await mockClient.hkeys('key');
       expect(mockClient.lastExecutedCommand, isA<HKeysCommand>());
-      expect((mockClient.lastExecutedCommand as HKeysCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as HKeysCommand).key, 'key');
     });
 
     test('hvals calls HValsCommand', () async {
       mockClient.mockResponse = ['value'];
       await mockClient.hvals('key');
       expect(mockClient.lastExecutedCommand, isA<HValsCommand>());
-      expect((mockClient.lastExecutedCommand as HValsCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as HValsCommand).key, 'key');
     });
 
     test('hincrbyfloat calls HIncrByFloatCommand', () async {
@@ -336,14 +348,16 @@ void main() {
       await mockClient.hincrbyfloat('key', 'field', 1.5);
       expect(mockClient.lastExecutedCommand, isA<HIncrByFloatCommand>());
       expect(
-          (mockClient.lastExecutedCommand as HIncrByFloatCommand).key, 'key');
+        (mockClient.lastExecutedCommand! as HIncrByFloatCommand).key,
+        'key',
+      );
     });
 
     test('hstrlen calls HStrLenCommand', () async {
       mockClient.mockResponse = 5;
       await mockClient.hstrlen('key', 'field');
       expect(mockClient.lastExecutedCommand, isA<HStrLenCommand>());
-      expect((mockClient.lastExecutedCommand as HStrLenCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as HStrLenCommand).key, 'key');
     });
 
     // Key Commands
@@ -351,56 +365,59 @@ void main() {
       mockClient.mockResponse = 1;
       await mockClient.del(['key']);
       expect(mockClient.lastExecutedCommand, isA<DelCommand>());
-      expect((mockClient.lastExecutedCommand as DelCommand).keys, ['key']);
+      expect((mockClient.lastExecutedCommand! as DelCommand).keys, ['key']);
     });
 
     test('exists calls ExistsCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.exists(['key']);
       expect(mockClient.lastExecutedCommand, isA<ExistsCommand>());
-      expect((mockClient.lastExecutedCommand as ExistsCommand).keys, ['key']);
+      expect((mockClient.lastExecutedCommand! as ExistsCommand).keys, ['key']);
     });
 
     test('ttl calls TtlCommand', () async {
       mockClient.mockResponse = 60;
       await mockClient.ttl('key');
       expect(mockClient.lastExecutedCommand, isA<TtlCommand>());
-      expect((mockClient.lastExecutedCommand as TtlCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as TtlCommand).key, 'key');
     });
 
     test('persist calls PersistCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.persist('key');
       expect(mockClient.lastExecutedCommand, isA<PersistCommand>());
-      expect((mockClient.lastExecutedCommand as PersistCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as PersistCommand).key, 'key');
     });
 
     test('type calls TypeCommand', () async {
       mockClient.mockResponse = 'string';
       await mockClient.type('key');
       expect(mockClient.lastExecutedCommand, isA<TypeCommand>());
-      expect((mockClient.lastExecutedCommand as TypeCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as TypeCommand).key, 'key');
     });
 
     test('rename calls RenameCommand', () async {
       mockClient.mockResponse = 'OK';
       await mockClient.rename('oldkey', 'newkey');
       expect(mockClient.lastExecutedCommand, isA<RenameCommand>());
-      expect((mockClient.lastExecutedCommand as RenameCommand).key, 'oldkey');
+      expect((mockClient.lastExecutedCommand! as RenameCommand).key, 'oldkey');
     });
 
     test('renamenx calls RenameNxCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.renamenx('oldkey', 'newkey');
       expect(mockClient.lastExecutedCommand, isA<RenameNxCommand>());
-      expect((mockClient.lastExecutedCommand as RenameNxCommand).key, 'oldkey');
+      expect(
+        (mockClient.lastExecutedCommand! as RenameNxCommand).key,
+        'oldkey',
+      );
     });
 
     test('expire calls ExpireCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.expire('key', 60);
       expect(mockClient.lastExecutedCommand, isA<ExpireCommand>());
-      expect((mockClient.lastExecutedCommand as ExpireCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as ExpireCommand).key, 'key');
     });
 
     // List Commands
@@ -408,78 +425,80 @@ void main() {
       mockClient.mockResponse = 1;
       await mockClient.lpush('key', ['value']);
       expect(mockClient.lastExecutedCommand, isA<LPushCommand>());
-      expect((mockClient.lastExecutedCommand as LPushCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as LPushCommand).key, 'key');
     });
 
     test('rpush calls RPushCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.rpush('key', ['value']);
       expect(mockClient.lastExecutedCommand, isA<RPushCommand>());
-      expect((mockClient.lastExecutedCommand as RPushCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as RPushCommand).key, 'key');
     });
 
     test('lpop calls LPopCommand', () async {
       mockClient.mockResponse = ['value'];
       await mockClient.lpop('key');
       expect(mockClient.lastExecutedCommand, isA<LPopCommand>());
-      expect((mockClient.lastExecutedCommand as LPopCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as LPopCommand).key, 'key');
     });
 
     test('rpop calls RPopCommand', () async {
       mockClient.mockResponse = ['value'];
       await mockClient.rpop('key');
       expect(mockClient.lastExecutedCommand, isA<RPopCommand>());
-      expect((mockClient.lastExecutedCommand as RPopCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as RPopCommand).key, 'key');
     });
 
     test('llen calls LLenCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.llen('key');
       expect(mockClient.lastExecutedCommand, isA<LLenCommand>());
-      expect((mockClient.lastExecutedCommand as LLenCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as LLenCommand).key, 'key');
     });
 
     test('lrange calls LRangeCommand', () async {
       mockClient.mockResponse = ['value'];
       await mockClient.lrange('key', 0, -1);
       expect(mockClient.lastExecutedCommand, isA<LRangeCommand>());
-      expect((mockClient.lastExecutedCommand as LRangeCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as LRangeCommand).key, 'key');
     });
 
     test('lindex calls LIndexCommand', () async {
       mockClient.mockResponse = 'value';
       await mockClient.lindex('key', 0);
       expect(mockClient.lastExecutedCommand, isA<LIndexCommand>());
-      expect((mockClient.lastExecutedCommand as LIndexCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as LIndexCommand).key, 'key');
     });
 
     test('ltrim calls LTrimCommand', () async {
       mockClient.mockResponse = 'OK';
       await mockClient.ltrim('key', 0, 0);
       expect(mockClient.lastExecutedCommand, isA<LTrimCommand>());
-      expect((mockClient.lastExecutedCommand as LTrimCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as LTrimCommand).key, 'key');
     });
 
     test('linsert calls LInsertCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.linsert('key', 'pivot', 'value', before: true);
       expect(mockClient.lastExecutedCommand, isA<LInsertCommand>());
-      expect((mockClient.lastExecutedCommand as LInsertCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as LInsertCommand).key, 'key');
     });
 
     test('lrem calls LRemCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.lrem('key', 1, 'value');
       expect(mockClient.lastExecutedCommand, isA<LRemCommand>());
-      expect((mockClient.lastExecutedCommand as LRemCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as LRemCommand).key, 'key');
     });
 
     test('rpoplpush calls RPopLPushCommand', () async {
       mockClient.mockResponse = 'value';
       await mockClient.rpoplpush('source', 'destination');
       expect(mockClient.lastExecutedCommand, isA<RPopLPushCommand>());
-      expect((mockClient.lastExecutedCommand as RPopLPushCommand).source,
-          'source');
+      expect(
+        (mockClient.lastExecutedCommand! as RPopLPushCommand).source,
+        'source',
+      );
     });
 
     // Set Commands
@@ -487,116 +506,130 @@ void main() {
       mockClient.mockResponse = 1;
       await mockClient.sadd('key', ['member']);
       expect(mockClient.lastExecutedCommand, isA<SAddCommand>());
-      expect((mockClient.lastExecutedCommand as SAddCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as SAddCommand).key, 'key');
     });
 
     test('srem calls SRemCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.srem('key', ['member']);
       expect(mockClient.lastExecutedCommand, isA<SRemCommand>());
-      expect((mockClient.lastExecutedCommand as SRemCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as SRemCommand).key, 'key');
     });
 
     test('sismember calls SIsMemberCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.sismember('key', 'member');
       expect(mockClient.lastExecutedCommand, isA<SIsMemberCommand>());
-      expect((mockClient.lastExecutedCommand as SIsMemberCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as SIsMemberCommand).key, 'key');
     });
 
     test('scard calls SCardCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.scard('key');
       expect(mockClient.lastExecutedCommand, isA<SCardCommand>());
-      expect((mockClient.lastExecutedCommand as SCardCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as SCardCommand).key, 'key');
     });
 
     test('smembers calls SMembersCommand', () async {
       mockClient.mockResponse = ['member'];
       await mockClient.smembers('key');
       expect(mockClient.lastExecutedCommand, isA<SMembersCommand>());
-      expect((mockClient.lastExecutedCommand as SMembersCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as SMembersCommand).key, 'key');
     });
 
     test('srandmember calls SRandMemberCommand', () async {
       mockClient.mockResponse = 'member';
       await mockClient.srandmember('key');
       expect(mockClient.lastExecutedCommand, isA<SRandMemberCommand>());
-      expect((mockClient.lastExecutedCommand as SRandMemberCommand).key, 'key');
+      expect(
+        (mockClient.lastExecutedCommand! as SRandMemberCommand).key,
+        'key',
+      );
     });
 
     test('srandmemberCount calls SRandMemberCountCommand', () async {
       mockClient.mockResponse = ['member'];
       await mockClient.srandmemberCount('key', 1);
       expect(mockClient.lastExecutedCommand, isA<SRandMemberCountCommand>());
-      expect((mockClient.lastExecutedCommand as SRandMemberCountCommand).key,
-          'key');
+      expect(
+        (mockClient.lastExecutedCommand! as SRandMemberCountCommand).key,
+        'key',
+      );
     });
 
     test('spop calls SPopCommand', () async {
       mockClient.mockResponse = 'member';
       await mockClient.spop('key');
       expect(mockClient.lastExecutedCommand, isA<SPopCommand>());
-      expect((mockClient.lastExecutedCommand as SPopCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as SPopCommand).key, 'key');
     });
 
     test('spopCount calls SPopCountCommand', () async {
       mockClient.mockResponse = ['member'];
       await mockClient.spopCount('key', 1);
       expect(mockClient.lastExecutedCommand, isA<SPopCountCommand>());
-      expect((mockClient.lastExecutedCommand as SPopCountCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as SPopCountCommand).key, 'key');
     });
 
     test('sunion calls SUnionCommand', () async {
       mockClient.mockResponse = ['member'];
       await mockClient.sunion(['key']);
       expect(mockClient.lastExecutedCommand, isA<SUnionCommand>());
-      expect((mockClient.lastExecutedCommand as SUnionCommand).keys, ['key']);
+      expect((mockClient.lastExecutedCommand! as SUnionCommand).keys, ['key']);
     });
 
     test('sinter calls SInterCommand', () async {
       mockClient.mockResponse = ['member'];
       await mockClient.sinter(['key']);
       expect(mockClient.lastExecutedCommand, isA<SInterCommand>());
-      expect((mockClient.lastExecutedCommand as SInterCommand).keys, ['key']);
+      expect((mockClient.lastExecutedCommand! as SInterCommand).keys, ['key']);
     });
 
     test('sdiff calls SDiffCommand', () async {
       mockClient.mockResponse = ['member'];
       await mockClient.sdiff(['key']);
       expect(mockClient.lastExecutedCommand, isA<SDiffCommand>());
-      expect((mockClient.lastExecutedCommand as SDiffCommand).keys, ['key']);
+      expect((mockClient.lastExecutedCommand! as SDiffCommand).keys, ['key']);
     });
 
     test('smove calls SMoveCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.smove('source', 'destination', 'member');
       expect(mockClient.lastExecutedCommand, isA<SMoveCommand>());
-      expect((mockClient.lastExecutedCommand as SMoveCommand).source, 'source');
+      expect(
+        (mockClient.lastExecutedCommand! as SMoveCommand).source,
+        'source',
+      );
     });
 
     test('sunionstore calls SUnionStoreCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.sunionstore('destination', ['key']);
       expect(mockClient.lastExecutedCommand, isA<SUnionStoreCommand>());
-      expect((mockClient.lastExecutedCommand as SUnionStoreCommand).destination,
-          'destination');
+      expect(
+        (mockClient.lastExecutedCommand! as SUnionStoreCommand).destination,
+        'destination',
+      );
     });
 
     test('sinterstore calls SInterStoreCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.sinterstore('destination', ['key']);
       expect(mockClient.lastExecutedCommand, isA<SInterStoreCommand>());
-      expect((mockClient.lastExecutedCommand as SInterStoreCommand).destination,
-          'destination');
+      expect(
+        (mockClient.lastExecutedCommand! as SInterStoreCommand).destination,
+        'destination',
+      );
     });
 
     test('sdiffstore calls SDiffStoreCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.sdiffstore('destination', ['key']);
       expect(mockClient.lastExecutedCommand, isA<SDiffStoreCommand>());
-      expect((mockClient.lastExecutedCommand as SDiffStoreCommand).destination,
-          'destination');
+      expect(
+        (mockClient.lastExecutedCommand! as SDiffStoreCommand).destination,
+        'destination',
+      );
     });
 
     // String Commands
@@ -604,99 +637,101 @@ void main() {
       mockClient.mockResponse = 'value';
       await mockClient.get('key');
       expect(mockClient.lastExecutedCommand, isA<GetCommand>());
-      expect((mockClient.lastExecutedCommand as GetCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as GetCommand).key, 'key');
     });
 
     test('set calls SetCommand', () async {
       mockClient.mockResponse = 'OK';
       await mockClient.set('key', 'value');
       expect(mockClient.lastExecutedCommand, isA<SetCommand>());
-      expect((mockClient.lastExecutedCommand as SetCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as SetCommand).key, 'key');
     });
 
     test('setAndGet calls SetAndGetCommand', () async {
       mockClient.mockResponse = 'oldvalue';
       await mockClient.setAndGet('key', 'value');
       expect(mockClient.lastExecutedCommand, isA<SetAndGetCommand>());
-      expect((mockClient.lastExecutedCommand as SetAndGetCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as SetAndGetCommand).key, 'key');
     });
 
     test('incr calls IncrCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.incr('key');
       expect(mockClient.lastExecutedCommand, isA<IncrCommand>());
-      expect((mockClient.lastExecutedCommand as IncrCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as IncrCommand).key, 'key');
     });
 
     test('decr calls DecrCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.decr('key');
       expect(mockClient.lastExecutedCommand, isA<DecrCommand>());
-      expect((mockClient.lastExecutedCommand as DecrCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as DecrCommand).key, 'key');
     });
 
     test('decrby calls DecrByCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.decrby('key', 1);
       expect(mockClient.lastExecutedCommand, isA<DecrByCommand>());
-      expect((mockClient.lastExecutedCommand as DecrByCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as DecrByCommand).key, 'key');
     });
 
     test('incrby calls IncrByCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.incrby('key', 1);
       expect(mockClient.lastExecutedCommand, isA<IncrByCommand>());
-      expect((mockClient.lastExecutedCommand as IncrByCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as IncrByCommand).key, 'key');
     });
 
     test('mget calls MGetCommand', () async {
       mockClient.mockResponse = ['value'];
       await mockClient.mget(['key']);
       expect(mockClient.lastExecutedCommand, isA<MGetCommand>());
-      expect((mockClient.lastExecutedCommand as MGetCommand).keys, ['key']);
+      expect((mockClient.lastExecutedCommand! as MGetCommand).keys, ['key']);
     });
 
     test('mset calls MSetCommand', () async {
       mockClient.mockResponse = 'OK';
       await mockClient.mset({'key': 'value'});
       expect(mockClient.lastExecutedCommand, isA<MSetCommand>());
-      expect((mockClient.lastExecutedCommand as MSetCommand).keyValuePairs,
-          {'key': 'value'});
+      expect(
+        (mockClient.lastExecutedCommand! as MSetCommand).keyValuePairs,
+        {'key': 'value'},
+      );
     });
 
     test('append calls AppendCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.append('key', 'value');
       expect(mockClient.lastExecutedCommand, isA<AppendCommand>());
-      expect((mockClient.lastExecutedCommand as AppendCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as AppendCommand).key, 'key');
     });
 
     test('getrange calls GetRangeCommand', () async {
       mockClient.mockResponse = 'value';
       await mockClient.getrange('key', 0, 1);
       expect(mockClient.lastExecutedCommand, isA<GetRangeCommand>());
-      expect((mockClient.lastExecutedCommand as GetRangeCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as GetRangeCommand).key, 'key');
     });
 
     test('setrange calls SetRangeCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.setrange('key', 0, 'value');
       expect(mockClient.lastExecutedCommand, isA<SetRangeCommand>());
-      expect((mockClient.lastExecutedCommand as SetRangeCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as SetRangeCommand).key, 'key');
     });
 
     test('getset calls GetSetCommand', () async {
       mockClient.mockResponse = 'oldvalue';
       await mockClient.getset('key', 'newvalue');
       expect(mockClient.lastExecutedCommand, isA<GetSetCommand>());
-      expect((mockClient.lastExecutedCommand as GetSetCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as GetSetCommand).key, 'key');
     });
 
     test('strlen calls StrLenCommand', () async {
       mockClient.mockResponse = 5;
       await mockClient.strlen('key');
       expect(mockClient.lastExecutedCommand, isA<StrLenCommand>());
-      expect((mockClient.lastExecutedCommand as StrLenCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as StrLenCommand).key, 'key');
     });
 
     // ZSet Commands
@@ -704,14 +739,14 @@ void main() {
       mockClient.mockResponse = 1;
       await mockClient.zadd('key', {'member': 1.0});
       expect(mockClient.lastExecutedCommand, isA<ZAddCommand>());
-      expect((mockClient.lastExecutedCommand as ZAddCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as ZAddCommand).key, 'key');
     });
 
     test('zrange calls ZRangeCommand', () async {
       mockClient.mockResponse = ['member'];
       await mockClient.zrange('key', '0', '-1');
       expect(mockClient.lastExecutedCommand, isA<ZRangeCommand>());
-      expect((mockClient.lastExecutedCommand as ZRangeCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as ZRangeCommand).key, 'key');
     });
 
     test('zrangeWithScores calls ZRangeCommand with withScores true', () async {
@@ -719,7 +754,9 @@ void main() {
       await mockClient.zrangeWithScores('key', '0', '-1');
       expect(mockClient.lastExecutedCommand, isA<ZRangeCommand>());
       expect(
-          (mockClient.lastExecutedCommand as ZRangeCommand).withScores, isTrue);
+        (mockClient.lastExecutedCommand! as ZRangeCommand).withScores,
+        isTrue,
+      );
     });
 
     test('zrangebyscore calls ZRangeByScoreCommand', () async {
@@ -727,75 +764,79 @@ void main() {
       await mockClient.zrangebyscore('key', '0', '1');
       expect(mockClient.lastExecutedCommand, isA<ZRangeByScoreCommand>());
       expect(
-          (mockClient.lastExecutedCommand as ZRangeByScoreCommand).key, 'key');
+        (mockClient.lastExecutedCommand! as ZRangeByScoreCommand).key,
+        'key',
+      );
     });
 
     test('zrangebyscoreWithScores calls ZRangeByScoreWithScoresCommand',
         () async {
       mockClient.mockResponse = ['member', '1.0'];
       await mockClient.zrangebyscoreWithScores('key', '0', '1');
-      expect(mockClient.lastExecutedCommand,
-          isA<ZRangeByScoreWithScoresCommand>());
       expect(
-          (mockClient.lastExecutedCommand as ZRangeByScoreWithScoresCommand)
-              .key,
-          'key');
+        mockClient.lastExecutedCommand,
+        isA<ZRangeByScoreWithScoresCommand>(),
+      );
+      expect(
+        (mockClient.lastExecutedCommand! as ZRangeByScoreWithScoresCommand).key,
+        'key',
+      );
     });
 
     test('zrem calls ZRemCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.zrem('key', ['member']);
       expect(mockClient.lastExecutedCommand, isA<ZRemCommand>());
-      expect((mockClient.lastExecutedCommand as ZRemCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as ZRemCommand).key, 'key');
     });
 
     test('zcard calls ZCardCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.zcard('key');
       expect(mockClient.lastExecutedCommand, isA<ZCardCommand>());
-      expect((mockClient.lastExecutedCommand as ZCardCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as ZCardCommand).key, 'key');
     });
 
     test('zscore calls ZScoreCommand', () async {
       mockClient.mockResponse = '1.0';
       await mockClient.zscore('key', 'member');
       expect(mockClient.lastExecutedCommand, isA<ZScoreCommand>());
-      expect((mockClient.lastExecutedCommand as ZScoreCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as ZScoreCommand).key, 'key');
     });
 
     test('zincrby calls ZIncrByCommand', () async {
       mockClient.mockResponse = '1.0';
-      await mockClient.zincrby('key', 1.0, 'member');
+      await mockClient.zincrby('key', 1, 'member');
       expect(mockClient.lastExecutedCommand, isA<ZIncrByCommand>());
-      expect((mockClient.lastExecutedCommand as ZIncrByCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as ZIncrByCommand).key, 'key');
     });
 
     test('zcount calls ZCountCommand', () async {
       mockClient.mockResponse = 1;
       await mockClient.zcount('key', '0', '1');
       expect(mockClient.lastExecutedCommand, isA<ZCountCommand>());
-      expect((mockClient.lastExecutedCommand as ZCountCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as ZCountCommand).key, 'key');
     });
 
     test('zrank calls ZRankCommand', () async {
       mockClient.mockResponse = 0;
       await mockClient.zrank('key', 'member');
       expect(mockClient.lastExecutedCommand, isA<ZRankCommand>());
-      expect((mockClient.lastExecutedCommand as ZRankCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as ZRankCommand).key, 'key');
     });
 
     test('zrevrank calls ZRevRankCommand', () async {
       mockClient.mockResponse = 0;
       await mockClient.zrevrank('key', 'member');
       expect(mockClient.lastExecutedCommand, isA<ZRevRankCommand>());
-      expect((mockClient.lastExecutedCommand as ZRevRankCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as ZRevRankCommand).key, 'key');
     });
 
     test('zrevrange calls ZRevRangeCommand', () async {
       mockClient.mockResponse = ['member'];
       await mockClient.zrevrange('key', '0', '-1');
       expect(mockClient.lastExecutedCommand, isA<ZRevRangeCommand>());
-      expect((mockClient.lastExecutedCommand as ZRevRangeCommand).key, 'key');
+      expect((mockClient.lastExecutedCommand! as ZRevRangeCommand).key, 'key');
     });
 
     test('zrevrangeWithScores calls ZRevRangeCommand with withScores true',
@@ -803,28 +844,35 @@ void main() {
       mockClient.mockResponse = ['member', '1.0'];
       await mockClient.zrevrangeWithScores('key', '0', '-1');
       expect(mockClient.lastExecutedCommand, isA<ZRevRangeCommand>());
-      expect((mockClient.lastExecutedCommand as ZRevRangeCommand).withScores,
-          isTrue);
+      expect(
+        (mockClient.lastExecutedCommand! as ZRevRangeCommand).withScores,
+        isTrue,
+      );
     });
 
     test('zrevrangebyscore calls ZRevRangeByScoreCommand', () async {
       mockClient.mockResponse = ['member'];
       await mockClient.zrevrangebyscore('key', '0', '1');
       expect(mockClient.lastExecutedCommand, isA<ZRevRangeByScoreCommand>());
-      expect((mockClient.lastExecutedCommand as ZRevRangeByScoreCommand).key,
-          'key');
+      expect(
+        (mockClient.lastExecutedCommand! as ZRevRangeByScoreCommand).key,
+        'key',
+      );
     });
 
     test('zrevrangebyscoreWithScores calls ZRevRangeByScoreWithScoresCommand',
         () async {
       mockClient.mockResponse = ['member', '1.0'];
       await mockClient.zrevrangebyscoreWithScores('key', '0', '1');
-      expect(mockClient.lastExecutedCommand,
-          isA<ZRevRangeByScoreWithScoresCommand>());
       expect(
-          (mockClient.lastExecutedCommand as ZRevRangeByScoreWithScoresCommand)
-              .key,
-          'key');
+        mockClient.lastExecutedCommand,
+        isA<ZRevRangeByScoreWithScoresCommand>(),
+      );
+      expect(
+        (mockClient.lastExecutedCommand! as ZRevRangeByScoreWithScoresCommand)
+            .key,
+        'key',
+      );
     });
 
     // Pub/Sub Commands
@@ -832,8 +880,10 @@ void main() {
       mockClient.mockResponse = 1;
       await mockClient.publish('channel', 'message');
       expect(mockClient.lastExecutedCommand, isA<PublishCommand>());
-      expect((mockClient.lastExecutedCommand as PublishCommand).channel,
-          'channel');
+      expect(
+        (mockClient.lastExecutedCommand! as PublishCommand).channel,
+        'channel',
+      );
     });
 
     test('pubsubChannels calls PubsubChannelsCommand', () async {
@@ -852,8 +902,10 @@ void main() {
       mockClient.mockResponse = ['channel', 1];
       await mockClient.pubsubNumsub(['channel']);
       expect(mockClient.lastExecutedCommand, isA<PubsubNumsubCommand>());
-      expect((mockClient.lastExecutedCommand as PubsubNumsubCommand).channels,
-          ['channel']);
+      expect(
+        (mockClient.lastExecutedCommand! as PubsubNumsubCommand).channels,
+        ['channel'],
+      );
     });
 
     test('pubsubHelp calls PubsubHelpCommand', () async {
@@ -866,8 +918,10 @@ void main() {
       mockClient.mockResponse = 1;
       await mockClient.spublish('channel', 'message');
       expect(mockClient.lastExecutedCommand, isA<SpublishCommand>());
-      expect((mockClient.lastExecutedCommand as SpublishCommand).channel,
-          'channel');
+      expect(
+        (mockClient.lastExecutedCommand! as SpublishCommand).channel,
+        'channel',
+      );
     });
 
     test('pubsubShardChannels calls PubsubShardchannelsCommand', () async {
@@ -881,8 +935,9 @@ void main() {
       await mockClient.pubsubShardNumsub(['channel']);
       expect(mockClient.lastExecutedCommand, isA<PubsubShardnumsubCommand>());
       expect(
-          (mockClient.lastExecutedCommand as PubsubShardnumsubCommand).channels,
-          ['channel']);
+        (mockClient.lastExecutedCommand! as PubsubShardnumsubCommand).channels,
+        ['channel'],
+      );
     });
   });
 }

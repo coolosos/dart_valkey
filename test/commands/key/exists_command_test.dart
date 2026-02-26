@@ -22,8 +22,10 @@ void main() {
     test('should apply prefix to keys', () {
       final command = ExistsCommand(['key1', 'key2']);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts,
-          ['EXISTS', 'myprefix:key1', 'myprefix:key2']);
+      expect(
+        prefixedCommand.commandParts,
+        ['EXISTS', 'myprefix:key1', 'myprefix:key2'],
+      );
     });
   });
 }

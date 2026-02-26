@@ -22,8 +22,10 @@ void main() {
     test('should apply prefix to keys', () {
       final command = SInterStoreCommand('newset', ['set1', 'set2']);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts,
-          ['SINTERSTORE', 'myprefix:newset', 'myprefix:set1', 'myprefix:set2']);
+      expect(
+        prefixedCommand.commandParts,
+        ['SINTERSTORE', 'myprefix:newset', 'myprefix:set1', 'myprefix:set2'],
+      );
     });
   });
 }

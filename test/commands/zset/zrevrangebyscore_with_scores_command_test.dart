@@ -9,14 +9,20 @@ void main() {
         () {
       final command =
           ZRevRangeByScoreWithScoresCommand('myzset', '+inf', '-inf');
-      expect(command.commandParts,
-          ['ZREVRANGEBYSCORE', 'myzset', '+inf', '-inf', 'WITHSCORES']);
+      expect(
+        command.commandParts,
+        ['ZREVRANGEBYSCORE', 'myzset', '+inf', '-inf', 'WITHSCORES'],
+      );
     });
 
     test('should build the correct command with LIMIT', () {
       final command = ZRevRangeByScoreWithScoresCommand(
-          'myzset', '+inf', '-inf',
-          limitOffset: 0, limitCount: 1);
+        'myzset',
+        '+inf',
+        '-inf',
+        limitOffset: 0,
+        limitCount: 1,
+      );
       expect(command.commandParts, [
         'ZREVRANGEBYSCORE',
         'myzset',
@@ -25,7 +31,7 @@ void main() {
         'LIMIT',
         '0',
         '1',
-        'WITHSCORES'
+        'WITHSCORES',
       ]);
     });
 
@@ -59,7 +65,7 @@ void main() {
         'myprefix:myzset',
         '+inf',
         '-inf',
-        'WITHSCORES'
+        'WITHSCORES',
       ]);
     });
   });

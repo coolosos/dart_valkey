@@ -28,7 +28,9 @@ void main() {
       final command = SRandMemberCountCommand('myset', 2);
       final prefixedCommand = command.applyPrefix('myprefix:');
       expect(
-          prefixedCommand.commandParts, ['SRANDMEMBER', 'myprefix:myset', '2']);
+        prefixedCommand.commandParts,
+        ['SRANDMEMBER', 'myprefix:myset', '2'],
+      );
     });
   });
 }

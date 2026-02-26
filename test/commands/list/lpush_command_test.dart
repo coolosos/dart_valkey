@@ -23,7 +23,9 @@ void main() {
       final command = LPushCommand('mylist', ['item1']);
       final prefixedCommand = command.applyPrefix('myprefix:');
       expect(
-          prefixedCommand.commandParts, ['LPUSH', 'myprefix:mylist', 'item1']);
+        prefixedCommand.commandParts,
+        ['LPUSH', 'myprefix:mylist', 'item1'],
+      );
     });
   });
 }

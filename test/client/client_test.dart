@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:dart_valkey/dart_valkey.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
@@ -298,8 +299,10 @@ void main() {
 
       test('subscribedChannels should return list of subscribed channels', () {
         subClient.subscribe(['channel1', 'channel2']);
-        expect(subClient.subscribedChannels,
-            containsAll(['channel1', 'channel2']));
+        expect(
+          subClient.subscribedChannels,
+          containsAll(['channel1', 'channel2']),
+        );
       });
     });
 

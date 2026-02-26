@@ -9,28 +9,42 @@ void main() {
     });
 
     test('should build the correct command with strategy', () {
-      final command = SetCommand('mykey', 'myvalue',
-          strategyType: SetStrategyTypes.onlyIfNotExists);
+      final command = SetCommand(
+        'mykey',
+        'myvalue',
+        strategyType: SetStrategyTypes.onlyIfNotExists,
+      );
       expect(command.commandParts, ['SET', 'mykey', 'myvalue', 'NX']);
     });
 
     test('should build the correct command with expire duration (EX)', () {
-      final command = SetCommand('mykey', 'myvalue',
-          expire: const ExpireDuration(Duration(seconds: 60)));
+      final command = SetCommand(
+        'mykey',
+        'myvalue',
+        expire: const ExpireDuration(Duration(seconds: 60)),
+      );
       expect(command.commandParts, ['SET', 'mykey', 'myvalue', 'EX', '60']);
     });
 
     test('should build the correct command with expire duration (PX)', () {
-      final command = SetCommand('mykey', 'myvalue',
-          expire: const ExpireDuration(Duration(milliseconds: 60000),
-              type: ExpireDurationTypes.PX));
+      final command = SetCommand(
+        'mykey',
+        'myvalue',
+        expire: const ExpireDuration(
+          Duration(milliseconds: 60000),
+          type: ExpireDurationTypes.PX,
+        ),
+      );
       expect(command.commandParts, ['SET', 'mykey', 'myvalue', 'PX', '60000']);
     });
 
     test('should build the correct command with expire at (EXAT)', () {
       final expireTime = DateTime.fromMillisecondsSinceEpoch(1700000000000);
-      final command = SetCommand('mykey', 'myvalue',
-          expire: ExpireAt(expireTime, type: ExpireTimeTypes.EXAT));
+      final command = SetCommand(
+        'mykey',
+        'myvalue',
+        expire: ExpireAt(expireTime, type: ExpireTimeTypes.EXAT),
+      );
       final parts = command.commandParts;
       expect(parts[0], 'SET');
       expect(parts[1], 'mykey');
@@ -40,8 +54,11 @@ void main() {
 
     test('should build the correct command with expire at (PXAT)', () {
       final expireTime = DateTime.fromMillisecondsSinceEpoch(1700000000000);
-      final command = SetCommand('mykey', 'myvalue',
-          expire: ExpireAt(expireTime, type: ExpireTimeTypes.PXAT));
+      final command = SetCommand(
+        'mykey',
+        'myvalue',
+        expire: ExpireAt(expireTime, type: ExpireTimeTypes.PXAT),
+      );
       final parts = command.commandParts;
       expect(parts[0], 'SET');
       expect(parts[1], 'mykey');
@@ -55,9 +72,12 @@ void main() {
     });
 
     test('should build correct command with strategy and expire', () {
-      final command = SetCommand('mykey', 'myvalue',
-          strategyType: SetStrategyTypes.onlyIfNotExists,
-          expire: const ExpireDuration(Duration(seconds: 60)));
+      final command = SetCommand(
+        'mykey',
+        'myvalue',
+        strategyType: SetStrategyTypes.onlyIfNotExists,
+        expire: const ExpireDuration(Duration(seconds: 60)),
+      );
       final parts = command.commandParts;
       expect(parts, contains('NX'));
       expect(parts, contains('EX'));
@@ -75,11 +95,16 @@ void main() {
     });
 
     test('should apply prefix to key', () {
-      final command = SetCommand('mykey', 'myvalue',
-          strategyType: SetStrategyTypes.onlyIfExists);
+      final command = SetCommand(
+        'mykey',
+        'myvalue',
+        strategyType: SetStrategyTypes.onlyIfExists,
+      );
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts,
-          ['SET', 'myprefix:mykey', 'myvalue', 'XX']);
+      expect(
+        prefixedCommand.commandParts,
+        ['SET', 'myprefix:mykey', 'myvalue', 'XX'],
+      );
     });
   });
 }

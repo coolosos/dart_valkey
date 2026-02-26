@@ -27,8 +27,10 @@ void main() {
     test('should apply prefix to key', () {
       final command = HSetNxCommand('mykey', 'myfield', 'myvalue');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts,
-          ['HSETNX', 'myprefix:mykey', 'myfield', 'myvalue']);
+      expect(
+        prefixedCommand.commandParts,
+        ['HSETNX', 'myprefix:mykey', 'myfield', 'myvalue'],
+      );
     });
   });
 }

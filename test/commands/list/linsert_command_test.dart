@@ -7,15 +7,19 @@ void main() {
     test('should build the correct command with BEFORE', () {
       final command =
           LInsertCommand('mylist', 'item2', 'newitem', before: true);
-      expect(command.commandParts,
-          ['LINSERT', 'mylist', 'BEFORE', 'item2', 'newitem']);
+      expect(
+        command.commandParts,
+        ['LINSERT', 'mylist', 'BEFORE', 'item2', 'newitem'],
+      );
     });
 
     test('should build the correct command with AFTER', () {
       final command =
           LInsertCommand('mylist', 'item2', 'newitem', before: false);
-      expect(command.commandParts,
-          ['LINSERT', 'mylist', 'AFTER', 'item2', 'newitem']);
+      expect(
+        command.commandParts,
+        ['LINSERT', 'mylist', 'AFTER', 'item2', 'newitem'],
+      );
     });
 
     test('should parse int response correctly', () {
@@ -34,8 +38,10 @@ void main() {
       final command =
           LInsertCommand('mylist', 'item2', 'newitem', before: true);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts,
-          ['LINSERT', 'myprefix:mylist', 'BEFORE', 'item2', 'newitem']);
+      expect(
+        prefixedCommand.commandParts,
+        ['LINSERT', 'myprefix:mylist', 'BEFORE', 'item2', 'newitem'],
+      );
     });
   });
 }

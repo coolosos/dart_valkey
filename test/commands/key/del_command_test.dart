@@ -22,8 +22,10 @@ void main() {
     test('should apply prefix to keys', () {
       final command = DelCommand(['key1', 'key2']);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts,
-          ['DEL', 'myprefix:key1', 'myprefix:key2']);
+      expect(
+        prefixedCommand.commandParts,
+        ['DEL', 'myprefix:key1', 'myprefix:key2'],
+      );
     });
   });
 }

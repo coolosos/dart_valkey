@@ -23,7 +23,9 @@ void main() {
       final command = SRemCommand('myset', ['member1']);
       final prefixedCommand = command.applyPrefix('myprefix:');
       expect(
-          prefixedCommand.commandParts, ['SREM', 'myprefix:myset', 'member1']);
+        prefixedCommand.commandParts,
+        ['SREM', 'myprefix:myset', 'member1'],
+      );
     });
   });
 }

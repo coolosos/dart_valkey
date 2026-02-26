@@ -28,7 +28,9 @@ void main() {
       final command = HGetCommand('mykey', 'myfield');
       final prefixedCommand = command.applyPrefix('myprefix:');
       expect(
-          prefixedCommand.commandParts, ['HGET', 'myprefix:mykey', 'myfield']);
+        prefixedCommand.commandParts,
+        ['HGET', 'myprefix:mykey', 'myfield'],
+      );
     });
   });
 }
