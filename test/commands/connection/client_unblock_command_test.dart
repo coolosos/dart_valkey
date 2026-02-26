@@ -10,7 +10,8 @@ void main() {
     });
 
     test('should build the correct command with TIMEOUT unblockType', () {
-      final command = ClientUnblockCommand(123, unblockType: UnblockType.timeout);
+      final command =
+          ClientUnblockCommand(123, unblockType: UnblockType.timeout);
       expect(command.commandParts, ['CLIENT', 'UNBLOCK', '123', 'TIMEOUT']);
     });
 

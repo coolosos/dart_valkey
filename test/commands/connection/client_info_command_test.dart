@@ -11,7 +11,8 @@ void main() {
 
     test('should parse string response correctly', () {
       final command = ClientInfoCommand();
-      expect(command.parse('id=1 addr=127.0.0.1:50000 fd=6 name=myclient'), 'id=1 addr=127.0.0.1:50000 fd=6 name=myclient');
+      expect(command.parse('id=1 addr=127.0.0.1:50000 fd=6 name=myclient'),
+          'id=1 addr=127.0.0.1:50000 fd=6 name=myclient');
     });
 
     test('should throw an exception for invalid response', () {

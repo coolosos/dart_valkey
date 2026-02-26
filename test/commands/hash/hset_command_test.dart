@@ -9,8 +9,10 @@ void main() {
       // Order of map entries is not guaranteed, so check parts individually
       expect(command.commandParts[0], 'HSET');
       expect(command.commandParts[1], 'mykey');
-      expect(command.commandParts.sublist(2), containsAllInOrder(['field1', 'value1']));
-      expect(command.commandParts.sublist(2), containsAllInOrder(['field2', '123']));
+      expect(command.commandParts.sublist(2),
+          containsAllInOrder(['field1', 'value1']));
+      expect(command.commandParts.sublist(2),
+          containsAllInOrder(['field2', '123']));
       expect(command.commandParts.length, 6);
     });
 
@@ -30,7 +32,8 @@ void main() {
       // Order of map entries is not guaranteed, so check parts individually
       expect(prefixedCommand.commandParts[0], 'HSET');
       expect(prefixedCommand.commandParts[1], 'myprefix:mykey');
-      expect(prefixedCommand.commandParts.sublist(2), containsAllInOrder(['field1', 'value1']));
+      expect(prefixedCommand.commandParts.sublist(2),
+          containsAllInOrder(['field1', 'value1']));
       expect(prefixedCommand.commandParts.length, 4);
     });
   });

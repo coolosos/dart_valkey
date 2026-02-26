@@ -22,7 +22,8 @@ void main() {
     test('should apply prefix to key', () {
       final command = HMGetCommand('mykey', ['field1', 'field2']);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['HMGET', 'myprefix:mykey', 'field1', 'field2']);
+      expect(prefixedCommand.commandParts,
+          ['HMGET', 'myprefix:mykey', 'field1', 'field2']);
     });
   });
 }

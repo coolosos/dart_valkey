@@ -27,7 +27,8 @@ void main() {
     test('should apply prefix to keys', () {
       final command = RPopLPushCommand('mysource', 'mydestination');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['RPOPLPUSH', 'myprefix:mysource', 'myprefix:mydestination']);
+      expect(prefixedCommand.commandParts,
+          ['RPOPLPUSH', 'myprefix:mysource', 'myprefix:mydestination']);
     });
   });
 }

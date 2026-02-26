@@ -23,7 +23,8 @@ void main() {
     test('should apply prefix to key', () {
       final command = ZIncrByCommand('myzset', 1.5, 'member1');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['ZINCRBY', 'myprefix:myzset', '1.5', 'member1']);
+      expect(prefixedCommand.commandParts,
+          ['ZINCRBY', 'myprefix:myzset', '1.5', 'member1']);
     });
   });
 }

@@ -27,7 +27,8 @@ void main() {
     test('should apply prefix to key', () {
       final command = GetSetCommand('mykey', 'newvalue');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['GETSET', 'myprefix:mykey', 'newvalue']);
+      expect(prefixedCommand.commandParts,
+          ['GETSET', 'myprefix:mykey', 'newvalue']);
     });
   });
 }

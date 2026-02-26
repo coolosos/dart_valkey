@@ -27,7 +27,8 @@ void main() {
     test('should apply prefix to keys', () {
       final command = RenameNxCommand('oldkey', 'newkey');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['RENAMENX', 'myprefix:oldkey', 'myprefix:newkey']);
+      expect(prefixedCommand.commandParts,
+          ['RENAMENX', 'myprefix:oldkey', 'myprefix:newkey']);
     });
   });
 }

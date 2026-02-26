@@ -11,12 +11,14 @@ void main() {
 
     test('should build the correct command with channels', () {
       final command = PubsubNumsubCommand(['channel1', 'channel2']);
-      expect(command.commandParts, ['PUBSUB', 'NUMSUB', 'channel1', 'channel2']);
+      expect(
+          command.commandParts, ['PUBSUB', 'NUMSUB', 'channel1', 'channel2']);
     });
 
     test('should parse list response correctly', () {
       final command = PubsubNumsubCommand();
-      expect(command.parse(['channel1', 5, 'channel2', 10]), {'channel1': 5, 'channel2': 10});
+      expect(command.parse(['channel1', 5, 'channel2', 10]),
+          {'channel1': 5, 'channel2': 10});
     });
 
     test('should parse empty list response correctly', () {

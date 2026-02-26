@@ -27,7 +27,8 @@ void main() {
     test('should apply prefix to keys', () {
       final command = SInterCommand(['set1', 'set2']);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['SINTER', 'myprefix:set1', 'myprefix:set2']);
+      expect(prefixedCommand.commandParts,
+          ['SINTER', 'myprefix:set1', 'myprefix:set2']);
     });
   });
 }

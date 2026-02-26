@@ -27,7 +27,8 @@ void main() {
     test('should apply prefix to key', () {
       final command = ZRevRankCommand('myzset', 'member2');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['ZREVRANK', 'myprefix:myzset', 'member2']);
+      expect(prefixedCommand.commandParts,
+          ['ZREVRANK', 'myprefix:myzset', 'member2']);
     });
   });
 }

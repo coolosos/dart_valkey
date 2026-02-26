@@ -22,7 +22,8 @@ void main() {
     test('should apply prefix to key', () {
       final command = GetRangeCommand('mykey', 0, 4);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['GETRANGE', 'myprefix:mykey', '0', '4']);
+      expect(prefixedCommand.commandParts,
+          ['GETRANGE', 'myprefix:mykey', '0', '4']);
     });
   });
 }

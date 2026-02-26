@@ -10,13 +10,17 @@ void main() {
     });
 
     test('should build the correct command with WITHSCORES', () {
-      final command = ZRangeByScoreCommand('myzset', '-inf', '+inf', withScores: true);
-      expect(command.commandParts, ['ZRANGEBYSCORE', 'myzset', '-inf', '+inf', 'WITHSCORES']);
+      final command =
+          ZRangeByScoreCommand('myzset', '-inf', '+inf', withScores: true);
+      expect(command.commandParts,
+          ['ZRANGEBYSCORE', 'myzset', '-inf', '+inf', 'WITHSCORES']);
     });
 
     test('should build the correct command with LIMIT', () {
-      final command = ZRangeByScoreCommand('myzset', '-inf', '+inf', limitOffset: 0, limitCount: 1);
-      expect(command.commandParts, ['ZRANGEBYSCORE', 'myzset', '-inf', '+inf', 'LIMIT', '0', '1']);
+      final command = ZRangeByScoreCommand('myzset', '-inf', '+inf',
+          limitOffset: 0, limitCount: 1);
+      expect(command.commandParts,
+          ['ZRANGEBYSCORE', 'myzset', '-inf', '+inf', 'LIMIT', '0', '1']);
     });
 
     test('should parse list of strings correctly (without scores)', () {
@@ -25,12 +29,12 @@ void main() {
     });
 
     test('should parse list of maps correctly (with scores)', () {
-      final command = ZRangeByScoreCommand('myzset', '-inf', '+inf', withScores: true);
-      expect(command.parse(['member1', '1.0', 'member2', '2.0']),
-          [
-            {'member': 'member1', 'score': '1.0'},
-            {'member': 'member2', 'score': '2.0'},
-          ]);
+      final command =
+          ZRangeByScoreCommand('myzset', '-inf', '+inf', withScores: true);
+      expect(command.parse(['member1', '1.0', 'member2', '2.0']), [
+        {'member': 'member1', 'score': '1.0'},
+        {'member': 'member2', 'score': '2.0'},
+      ]);
     });
 
     test('should throw an exception for invalid response', () {
@@ -41,7 +45,8 @@ void main() {
     test('should apply prefix to key', () {
       final command = ZRangeByScoreCommand('myzset', '-inf', '+inf');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['ZRANGEBYSCORE', 'myprefix:myzset', '-inf', '+inf']);
+      expect(prefixedCommand.commandParts,
+          ['ZRANGEBYSCORE', 'myprefix:myzset', '-inf', '+inf']);
     });
   });
 }

@@ -11,7 +11,8 @@ void main() {
 
     test('should parse list response correctly', () {
       final command = ClientTrackinginfoCommand();
-      expect(command.parse(['redirect', 0, 'prefixes', []]), {'redirect': 0, 'prefixes': []});
+      expect(command.parse(['redirect', 0, 'prefixes', []]),
+          {'redirect': 0, 'prefixes': []});
     });
 
     test('should parse empty list response correctly', () {

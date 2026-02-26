@@ -22,7 +22,8 @@ void main() {
     test('should apply prefix to key', () {
       final command = ZCountCommand('myzset', '0', '10');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['ZCOUNT', 'myprefix:myzset', '0', '10']);
+      expect(prefixedCommand.commandParts,
+          ['ZCOUNT', 'myprefix:myzset', '0', '10']);
     });
   });
 }

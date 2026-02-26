@@ -8,8 +8,10 @@ void main() {
       final command = MSetCommand({'key1': 'value1', 'key2': 'value2'});
       // Order of map entries is not guaranteed, so check parts individually
       expect(command.commandParts[0], 'MSET');
-      expect(command.commandParts.sublist(1), containsAllInOrder(['key1', 'value1']));
-      expect(command.commandParts.sublist(1), containsAllInOrder(['key2', 'value2']));
+      expect(command.commandParts.sublist(1),
+          containsAllInOrder(['key1', 'value1']));
+      expect(command.commandParts.sublist(1),
+          containsAllInOrder(['key2', 'value2']));
       expect(command.commandParts.length, 5);
     });
 
@@ -28,8 +30,10 @@ void main() {
       final prefixedCommand = command.applyPrefix('myprefix:');
       // Order of map entries is not guaranteed, so check parts individually
       expect(prefixedCommand.commandParts[0], 'MSET');
-      expect(prefixedCommand.commandParts.sublist(1), containsAllInOrder(['myprefix:key1', 'value1']));
-      expect(prefixedCommand.commandParts.sublist(1), containsAllInOrder(['myprefix:key2', 'value2']));
+      expect(prefixedCommand.commandParts.sublist(1),
+          containsAllInOrder(['myprefix:key1', 'value1']));
+      expect(prefixedCommand.commandParts.sublist(1),
+          containsAllInOrder(['myprefix:key2', 'value2']));
       expect(prefixedCommand.commandParts.length, 5);
     });
   });

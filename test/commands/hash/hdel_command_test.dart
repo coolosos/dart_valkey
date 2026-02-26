@@ -22,7 +22,8 @@ void main() {
     test('should apply prefix to key', () {
       final command = HDelCommand('mykey', ['field1']);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['HDEL', 'myprefix:mykey', 'field1']);
+      expect(
+          prefixedCommand.commandParts, ['HDEL', 'myprefix:mykey', 'field1']);
     });
   });
 }
