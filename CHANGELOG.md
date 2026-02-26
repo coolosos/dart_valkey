@@ -5,7 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.0.4 - 2026-02-27
+
+### Added
+
+- Implemented comprehensive tests for Valkey client, achieving 96.4% coverage.
+- Added tests for `SecureConnection` and `InsecureConnection`.
+- Added tests for `SetCommand` options (PX, PXAT, KeepTtl, strategy + expire).
+- Added tests for `SetAndGetCommand`.
+- Added tests for `ValkeyCommandClient` (secure/insecure).
+- Added tests for `ValkeySubscriptionClient` (resubscription, pending commands on errors).
+- Added test for sending data when socket is closed (`base_connection`).
+- Added tests for authentication failures (RESP2 and RESP3).
+
+### Fixed
+
+- Fixed issues with `valkey_command_client.dart` imports and constructor.
+- Corrected test imports in `all_commands_test.dart`.
+- Updated mock client in `all_commands_test.dart` for accurate testing.
+- Fixed response parsing in tests for commands like `HincrByFloatCommand`, `ZRangeCommand`, etc.
+
+### Refactored
+
+- Improved test coverage across the project, focusing on edge cases and error handling.
+
 ## 0.0.3 - 2025-10-20
+
 ### Changed
 - Enhanced repository quality and project standards with a wide range of documentation, CI, and metadata improvements.
 - Added community standards files: `AUTHORS.md`, `CONTRIBUTING.md`.
