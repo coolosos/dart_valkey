@@ -22,7 +22,10 @@ void main() {
     test('should apply prefix to keys', () {
       final command = SUnionStoreCommand('newset', ['set1', 'set2']);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['SUNIONSTORE', 'myprefix:newset', 'myprefix:set1', 'myprefix:set2']);
+      expect(
+        prefixedCommand.commandParts,
+        ['SUNIONSTORE', 'myprefix:newset', 'myprefix:set1', 'myprefix:set2'],
+      );
     });
   });
 }

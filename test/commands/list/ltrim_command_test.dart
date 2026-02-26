@@ -21,7 +21,10 @@ void main() {
     test('should apply prefix to key', () {
       final command = LTrimCommand('mylist', 0, 0);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['LTRIM', 'myprefix:mylist', '0', '0']);
+      expect(
+        prefixedCommand.commandParts,
+        ['LTRIM', 'myprefix:mylist', '0', '0'],
+      );
     });
   });
 }

@@ -6,16 +6,18 @@ void main() {
   group('ZRangeWithScoresCommand', () {
     test('should build the correct command', () {
       final command = ZRangeWithScoresCommand('myzset', 0, -1);
-      expect(command.commandParts, ['ZRANGE', 'myzset', '0', '-1', 'WITHSCORES']);
+      expect(
+        command.commandParts,
+        ['ZRANGE', 'myzset', '0', '-1', 'WITHSCORES'],
+      );
     });
 
     test('should parse list of maps correctly', () {
       final command = ZRangeWithScoresCommand('myzset', 0, -1);
-      expect(command.parse(['member1', '1.0', 'member2', '2.0']),
-          [
-            {'member': 'member1', 'score': '1.0'},
-            {'member': 'member2', 'score': '2.0'},
-          ]);
+      expect(command.parse(['member1', '1.0', 'member2', '2.0']), [
+        {'member': 'member1', 'score': '1.0'},
+        {'member': 'member2', 'score': '2.0'},
+      ]);
     });
 
     test('should parse empty list correctly', () {
@@ -31,7 +33,10 @@ void main() {
     test('should apply prefix to key', () {
       final command = ZRangeWithScoresCommand('myzset', 0, -1);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['ZRANGE', 'myprefix:myzset', '0', '-1', 'WITHSCORES']);
+      expect(
+        prefixedCommand.commandParts,
+        ['ZRANGE', 'myprefix:myzset', '0', '-1', 'WITHSCORES'],
+      );
     });
   });
 }

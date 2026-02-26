@@ -56,7 +56,7 @@ This project is a robust, type-safe Dart client for Redis (and Valkey) that mana
 
 To connect and execute commands, first import the client library:
 
-````dart
+```dart
 import 'package:dart_valkey/dart_valkey.dart';
 
 Future<void> main() async {
@@ -78,13 +78,13 @@ Future<void> main() async {
   // Close the client when done
   await client.close();
 }
-````
+```
 
 #### Pub/Sub Example
 
 Subscribing to channels and listening for messages is simple with the `ValkeySubscriptionClient`:
 
-````dart
+```dart
 import 'package:dart_valkey/dart_valkey.dart';
 import 'dart:async';
 
@@ -110,9 +110,25 @@ Future<void> main() async {
   await subClient.close();
   await subscription.cancel();
 }
-````
- 
- 
+```
+
+### Running Tests
+
+To run the tests, you need a Valkey or Redis server running on `localhost:6379`.
+
+```bash
+# Start Valkey server (if not running)
+valkey-server --daemonize yes
+
+# Run all tests (requires server)
+dart test
+
+# Run only unit tests (without integration tests)
+dart test -x integration
+```
+
+---
+
 ## Commands Implementation Status
 
 The implementation status of the Valkey commands is shown below, as indicated in the official documentation. Commands marked with `[x]` are implemented, while those marked with `[ ]` are not yet implemented.

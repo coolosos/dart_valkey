@@ -6,16 +6,21 @@ void main() {
   group('ZAddCommand', () {
     test('should build the correct command for basic ZADD', () {
       final command = ZAddCommand('myzset', {'member1': 1.0, 'member2': 2.0});
-      expect(command.commandParts, ['ZADD', 'myzset', '1.0', 'member1', '2.0', 'member2']);
+      expect(
+        command.commandParts,
+        ['ZADD', 'myzset', '1.0', 'member1', '2.0', 'member2'],
+      );
     });
 
     test('should build the correct command with NX flag', () {
-      final command = ZAddCommand('myzset', {'member1': 1.0}, onlyIfNotExists: true);
+      final command =
+          ZAddCommand('myzset', {'member1': 1.0}, onlyIfNotExists: true);
       expect(command.commandParts, ['ZADD', 'myzset', 'NX', '1.0', 'member1']);
     });
 
     test('should build the correct command with XX flag', () {
-      final command = ZAddCommand('myzset', {'member1': 1.0}, onlyIfAlreadyExists: true);
+      final command =
+          ZAddCommand('myzset', {'member1': 1.0}, onlyIfAlreadyExists: true);
       expect(command.commandParts, ['ZADD', 'myzset', 'XX', '1.0', 'member1']);
     });
 
@@ -26,7 +31,10 @@ void main() {
 
     test('should build the correct command with INCR flag', () {
       final command = ZAddCommand('myzset', {'member1': 1.0}, incr: true);
-      expect(command.commandParts, ['ZADD', 'myzset', 'INCR', '1.0', 'member1']);
+      expect(
+        command.commandParts,
+        ['ZADD', 'myzset', 'INCR', '1.0', 'member1'],
+      );
     });
 
     test('should parse int response correctly (without INCR)', () {
@@ -44,7 +52,8 @@ void main() {
       expect(() => command.parse('invalid'), throwsA(isA<ValkeyException>()));
     });
 
-    test('should throw an exception for invalid double response (with INCR)', () {
+    test('should throw an exception for invalid double response (with INCR)',
+        () {
       final command = ZAddCommand('myzset', {'member1': 1.0}, incr: true);
       expect(() => command.parse(123), throwsA(isA<ValkeyException>()));
     });
@@ -52,7 +61,10 @@ void main() {
     test('should apply prefix to key', () {
       final command = ZAddCommand('myzset', {'member1': 1.0});
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['ZADD', 'myprefix:myzset', '1.0', 'member1']);
+      expect(
+        prefixedCommand.commandParts,
+        ['ZADD', 'myprefix:myzset', '1.0', 'member1'],
+      );
     });
   });
 }

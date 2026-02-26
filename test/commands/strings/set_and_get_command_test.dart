@@ -11,7 +11,11 @@ void main() {
     });
 
     test('should build the correct command with strategy', () {
-      final command = SetAndGetCommand('mykey', 'myvalue', strategyType: SetStrategyTypes.onlyIfExists);
+      final command = SetAndGetCommand(
+        'mykey',
+        'myvalue',
+        strategyType: SetStrategyTypes.onlyIfExists,
+      );
       expect(command.commandParts, ['SET', 'mykey', 'myvalue', 'XX', 'GET']);
     });
 
@@ -33,7 +37,22 @@ void main() {
     test('should apply prefix to key', () {
       final command = SetAndGetCommand('mykey', 'myvalue');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['SET', 'myprefix:mykey', 'myvalue', 'GET']);
+      expect(
+        prefixedCommand.commandParts,
+        ['SET', 'myprefix:mykey', 'myvalue', 'GET'],
+      );
+    });
+
+    test('should build correct command with expire', () {
+      final command = SetAndGetCommand(
+        'mykey',
+        'myvalue',
+        expire: const ExpireDuration(Duration(seconds: 60)),
+      );
+      final parts = command.commandParts;
+      expect(parts, contains('EX'));
+      expect(parts, contains('60'));
+      expect(parts, contains('GET'));
     });
   });
 }

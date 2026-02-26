@@ -22,7 +22,10 @@ void main() {
     test('should apply prefix to key', () {
       final command = SetRangeCommand('mykey', 6, 'World');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['SETRANGE', 'myprefix:mykey', '6', 'World']);
+      expect(
+        prefixedCommand.commandParts,
+        ['SETRANGE', 'myprefix:mykey', '6', 'World'],
+      );
     });
   });
 }

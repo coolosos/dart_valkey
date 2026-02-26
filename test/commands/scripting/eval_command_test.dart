@@ -15,7 +15,10 @@ void main() {
         keys: ['mykey'],
         args: ['myarg'],
       );
-      expect(command.commandParts, ['EVAL', 'return {KEYS[1], ARGV[1]}', '1', 'mykey', 'myarg']);
+      expect(
+        command.commandParts,
+        ['EVAL', 'return {KEYS[1], ARGV[1]}', '1', 'mykey', 'myarg'],
+      );
     });
 
     test('should parse string response correctly', () {

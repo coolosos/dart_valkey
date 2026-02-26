@@ -27,7 +27,10 @@ void main() {
     test('should apply prefix to key', () {
       final command = HExistsCommand('mykey', 'myfield');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['HEXISTS', 'myprefix:mykey', 'myfield']);
+      expect(
+        prefixedCommand.commandParts,
+        ['HEXISTS', 'myprefix:mykey', 'myfield'],
+      );
     });
   });
 }

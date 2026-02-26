@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:dart_valkey/dart_valkey.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
@@ -31,6 +32,22 @@ void main() {
       when(mockConnection.connect()).thenAnswer((_) async {
         when(mockConnection.isConnected).thenReturn(true);
       });
+    });
+
+    test('should create client with secure true', () {
+      ValkeyCommandClient(
+        host: 'localhost',
+        port: 6379,
+        secure: true,
+      );
+    });
+
+    test('should create client with secure false', () {
+      ValkeyCommandClient(
+        host: 'localhost',
+        port: 6379,
+        secure: false,
+      );
     });
 
     test('execute should enqueue command and send encoded data', () async {
@@ -279,6 +296,14 @@ void main() {
         subClient.unsubscribe();
         verifyNever(mockConnection.send(any));
       });
+
+      test('subscribedChannels should return list of subscribed channels', () {
+        subClient.subscribe(['channel1', 'channel2']);
+        expect(
+          subClient.subscribedChannels,
+          containsAll(['channel1', 'channel2']),
+        );
+      });
     });
 
     group('PatternSubscriptionMixin', () {
@@ -300,6 +325,11 @@ void main() {
         subClient.punsubscribe();
         verifyNever(mockConnection.send(any));
       });
+
+      test('subscribedPatterns should return list of subscribed patterns', () {
+        subClient.psubscribe(['pattern*']);
+        expect(subClient.subscribedPatterns, contains('pattern*'));
+      });
     });
 
     group('ShardSubscriptionMixin', () {
@@ -320,6 +350,13 @@ void main() {
           () {
         subClient.sunsubscribe();
         verifyNever(mockConnection.send(any));
+      });
+
+      test(
+          'subscribedShardChannels should return list of subscribed shard channels',
+          () {
+        subClient.ssubscribe(['shard-channel']);
+        expect(subClient.subscribedShardChannels, contains('shard-channel'));
       });
     });
 
@@ -343,6 +380,21 @@ void main() {
       when(mockConnection.close()).thenAnswer((_) async {});
       await subClient.close();
       verify(mockConnection.close()).called(1);
+    });
+
+    test('_onConnected should resubscribe after reconnection', () async {
+      when(mockConnection.send(any)).thenAnswer((_) async {});
+
+      subClient.subscribe(['channel1']);
+      await subClient.handleOnConnectedMock();
+    });
+
+    test('_onConnected should resubscribe to shard channels after reconnection',
+        () async {
+      when(mockConnection.send(any)).thenAnswer((_) async {});
+
+      subClient.ssubscribe(['shard-channel']);
+      await subClient.handleOnConnectedMock();
     });
   });
 }

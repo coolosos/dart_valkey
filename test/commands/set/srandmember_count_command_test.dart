@@ -27,7 +27,10 @@ void main() {
     test('should apply prefix to key', () {
       final command = SRandMemberCountCommand('myset', 2);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(prefixedCommand.commandParts, ['SRANDMEMBER', 'myprefix:myset', '2']);
+      expect(
+        prefixedCommand.commandParts,
+        ['SRANDMEMBER', 'myprefix:myset', '2'],
+      );
     });
   });
 }
