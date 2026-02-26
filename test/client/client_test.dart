@@ -386,7 +386,7 @@ void main() {
       when(mockConnection.send(any)).thenAnswer((_) async {});
 
       subClient.subscribe(['channel1']);
-      subClient.handleOnConnectedMock();
+      await subClient.handleOnConnectedMock();
     });
 
     test('_onConnected should resubscribe to shard channels after reconnection',
@@ -394,7 +394,7 @@ void main() {
       when(mockConnection.send(any)).thenAnswer((_) async {});
 
       subClient.ssubscribe(['shard-channel']);
-      subClient.handleOnConnectedMock();
+      await subClient.handleOnConnectedMock();
     });
   });
 }
