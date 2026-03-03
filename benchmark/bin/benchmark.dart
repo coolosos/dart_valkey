@@ -1,9 +1,5 @@
-import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
-
-import 'package:dart_valkey/dart_valkey.dart';
-import 'package:redis/redis.dart';
-import 'package:shorebird_redis_client/shorebird_redis_client.dart';
 
 class BenchmarkResult {
   BenchmarkResult({
@@ -15,11 +11,20 @@ class BenchmarkResult {
     required this.latencyP99,
     required this.avgLatency,
     required this.throughput,
-    required this.memoryBefore,
-    required this.memoryAfter,
-    required this.memoryDelta,
   });
 
+  factory BenchmarkResult.fromJson(Map<String, dynamic> json) {
+    return BenchmarkResult(
+      name: json['name'] as String,
+      iterations: 0,
+      warmupIterations: 0,
+      latencyP50: (json['latencyP50'] as num).toDouble(),
+      latencyP95: (json['latencyP95'] as num).toDouble(),
+      latencyP99: (json['latencyP99'] as num).toDouble(),
+      avgLatency: (json['avgLatency'] as num).toDouble(),
+      throughput: (json['throughput'] as num).toDouble(),
+    );
+  }
   final String name;
   final int iterations;
   final int warmupIterations;
@@ -28,9 +33,6 @@ class BenchmarkResult {
   final double latencyP99;
   final double avgLatency;
   final double throughput;
-  final int memoryBefore;
-  final int memoryAfter;
-  final int memoryDelta;
 
   Map<String, dynamic> toJson() => {
         'name': name,
@@ -41,241 +43,40 @@ class BenchmarkResult {
         'latencyP99': latencyP99,
         'avgLatency': avgLatency,
         'throughput': throughput,
-        'memoryBefore': memoryBefore,
-        'memoryAfter': memoryAfter,
-        'memoryDelta': memoryDelta,
       };
 }
 
-int getMemoryKB() {
-  return ProcessInfo.currentRss ~/ 1024;
-}
+Future<BenchmarkResult> runClientScript(
+  String scriptPath,
+  int iterations,
+  int warmup,
+) async {
+  print('--- Running: $scriptPath ---');
 
-double percentile(List<double> sorted, double p) {
-  if (sorted.isEmpty) return 0;
-  final index = ((sorted.length - 1) * p).round();
-  return sorted[index];
-}
-
-Future<BenchmarkResult> benchmarkDartValkey({
-  int iterations = 10000,
-  int warmupIterations = 10000,
-}) async {
-  print('--- Benchmark: dart_valkey ---');
-
-  final memBefore = getMemoryKB();
-  final client = ValkeyCommandClient(host: 'localhost', port: 6379);
-  await client.connect();
-  print('  Connected');
-
-  // Warmup - allow JIT to optimize
-  print('  Warmup: $warmupIterations iterations...');
-  for (int i = 0; i < warmupIterations; i++) {
-    await client.set('warmup_$i', 'value_$i');
-    await client.get('warmup_$i');
-    await client.ping();
-  }
-
-  // Actual benchmark
-  print('  Running: $iterations iterations...');
-  final latencies = <double>[];
-  final swTotal = Stopwatch()..start();
-
-  for (int i = 0; i < iterations; i++) {
-    final sw = Stopwatch()..start();
-    await client.set('key_$i', 'value_$i');
-    await client.get('key_$i');
-    await client.ping();
-    sw.stop();
-    latencies.add(sw.elapsedMicroseconds / 1000.0);
-  }
-
-  swTotal.stop();
-
-  final memAfter = getMemoryKB();
-  await client.close();
-  print('  Closed');
-
-  // Calculate statistics
-  final sortedLatencies = List<double>.from(latencies)..sort();
-  final p50 = percentile(sortedLatencies, 0.50);
-  final p95 = percentile(sortedLatencies, 0.95);
-  final p99 = percentile(sortedLatencies, 0.99);
-  final avgLatency = latencies.reduce((a, b) => a + b) / latencies.length;
-  final throughput = iterations * 3 / (swTotal.elapsedMilliseconds / 1000.0);
-
-  print('  Results:');
-  print('    Latency p50: ${p50.toStringAsFixed(3)} ms');
-  print('    Latency p95: ${p95.toStringAsFixed(3)} ms');
-  print('    Latency p99: ${p99.toStringAsFixed(3)} ms');
-  print('    Avg Latency: ${avgLatency.toStringAsFixed(3)} ms');
-  print('    Throughput: ${throughput.toStringAsFixed(2)} ops/sec');
-  print(
-      '    Memory: $memBefore KB -> $memAfter KB (delta: ${memAfter - memBefore} KB)');
-  print('');
-
-  return BenchmarkResult(
-    name: 'dart_valkey',
-    iterations: iterations,
-    warmupIterations: warmupIterations,
-    latencyP50: p50,
-    latencyP95: p95,
-    latencyP99: p99,
-    avgLatency: avgLatency,
-    throughput: throughput,
-    memoryBefore: memBefore,
-    memoryAfter: memAfter,
-    memoryDelta: memAfter - memBefore,
+  final process = await Process.start(
+    'dart',
+    ['run', scriptPath, '$iterations', '$warmup'],
+    workingDirectory: Directory.current.path,
   );
-}
 
-Future<BenchmarkResult> benchmarkRedisPackage({
-  int iterations = 10000,
-  int warmupIterations = 10000,
-}) async {
-  print('--- Benchmark: redis package ---');
+  final stdout = await process.stdout.transform(utf8.decoder).join();
+  final stderr = await process.stderr.transform(utf8.decoder).join();
+  final exitCode = await process.exitCode;
 
-  final memBefore = getMemoryKB();
-  final redisConnection = RedisConnection();
-  final redisCommand = await redisConnection.connect('localhost', 6379);
-  print('  Connected');
-
-  // Warmup
-  print('  Warmup: $warmupIterations iterations...');
-  for (int i = 0; i < warmupIterations; i++) {
-    await redisCommand.send_object(['SET', 'warmup_$i', 'value_$i']);
-    await redisCommand.send_object(['GET', 'warmup_$i']);
-    await redisCommand.send_object(['PING']);
+  if (exitCode != 0) {
+    print('Error running $scriptPath:');
+    print(stderr);
+    throw Exception('Failed to run $scriptPath');
   }
 
-  // Actual benchmark
-  print('  Running: $iterations iterations...');
-  final latencies = <double>[];
-  final swTotal = Stopwatch()..start();
-
-  for (int i = 0; i < iterations; i++) {
-    final sw = Stopwatch()..start();
-    await redisCommand.send_object(['SET', 'key_$i', 'value_$i']);
-    await redisCommand.send_object(['GET', 'key_$i']);
-    await redisCommand.send_object(['PING']);
-    sw.stop();
-    latencies.add(sw.elapsedMicroseconds / 1000.0);
-  }
-
-  swTotal.stop();
-
-  final memAfter = getMemoryKB();
-  await redisConnection.close();
-  print('  Closed');
-
-  final sortedLatencies = List<double>.from(latencies)..sort();
-  final p50 = percentile(sortedLatencies, 0.50);
-  final p95 = percentile(sortedLatencies, 0.95);
-  final p99 = percentile(sortedLatencies, 0.99);
-  final avgLatency = latencies.reduce((a, b) => a + b) / latencies.length;
-  final throughput = iterations * 3 / (swTotal.elapsedMilliseconds / 1000.0);
-
-  print('  Results:');
-  print('    Latency p50: ${p50.toStringAsFixed(3)} ms');
-  print('    Latency p95: ${p95.toStringAsFixed(3)} ms');
-  print('    Latency p99: ${p99.toStringAsFixed(3)} ms');
-  print('    Avg Latency: ${avgLatency.toStringAsFixed(3)} ms');
-  print('    Throughput: ${throughput.toStringAsFixed(2)} ops/sec');
-  print(
-      '    Memory: $memBefore KB -> $memAfter KB (delta: ${memAfter - memBefore} KB)');
-  print('');
-
-  return BenchmarkResult(
-    name: 'redis package',
-    iterations: iterations,
-    warmupIterations: warmupIterations,
-    latencyP50: p50,
-    latencyP95: p95,
-    latencyP99: p99,
-    avgLatency: avgLatency,
-    throughput: throughput,
-    memoryBefore: memBefore,
-    memoryAfter: memAfter,
-    memoryDelta: memAfter - memBefore,
-  );
-}
-
-Future<BenchmarkResult> benchmarkShorebirdRedisClient({
-  int iterations = 10000,
-  int warmupIterations = 10000,
-}) async {
-  print('--- Benchmark: shorebird_redis_client ---');
-
-  final memBefore = getMemoryKB();
-  final client = RedisClient();
-  await client.connect();
-  print('  Connected');
-
-  // Warmup
-  print('  Warmup: $warmupIterations iterations...');
-  for (int i = 0; i < warmupIterations; i++) {
-    await client.execute(['SET', 'warmup_$i', 'value_$i']);
-    await client.execute(['GET', 'warmup_$i']);
-    await client.execute(['PING']);
-  }
-
-  // Actual benchmark
-  print('  Running: $iterations iterations...');
-  final latencies = <double>[];
-  final swTotal = Stopwatch()..start();
-
-  for (int i = 0; i < iterations; i++) {
-    final sw = Stopwatch()..start();
-    await client.execute(['SET', 'key_$i', 'value_$i']);
-    await client.execute(['GET', 'key_$i']);
-    await client.execute(['PING']);
-    sw.stop();
-    latencies.add(sw.elapsedMicroseconds / 1000.0);
-  }
-
-  swTotal.stop();
-
-  final memAfter = getMemoryKB();
-  await client.close();
-  print('  Closed');
-
-  final sortedLatencies = List<double>.from(latencies)..sort();
-  final p50 = percentile(sortedLatencies, 0.50);
-  final p95 = percentile(sortedLatencies, 0.95);
-  final p99 = percentile(sortedLatencies, 0.99);
-  final avgLatency = latencies.reduce((a, b) => a + b) / latencies.length;
-  final throughput = iterations * 3 / (swTotal.elapsedMilliseconds / 1000.0);
-
-  print('  Results:');
-  print('    Latency p50: ${p50.toStringAsFixed(3)} ms');
-  print('    Latency p95: ${p95.toStringAsFixed(3)} ms');
-  print('    Latency p99: ${p99.toStringAsFixed(3)} ms');
-  print('    Avg Latency: ${avgLatency.toStringAsFixed(3)} ms');
-  print('    Throughput: ${throughput.toStringAsFixed(2)} ops/sec');
-  print(
-      '    Memory: $memBefore KB -> $memAfter KB (delta: ${memAfter - memBefore} KB)');
-  print('');
-
-  return BenchmarkResult(
-    name: 'shorebird_redis_client',
-    iterations: iterations,
-    warmupIterations: warmupIterations,
-    latencyP50: p50,
-    latencyP95: p95,
-    latencyP99: p99,
-    avgLatency: avgLatency,
-    throughput: throughput,
-    memoryBefore: memBefore,
-    memoryAfter: memAfter,
-    memoryDelta: memAfter - memBefore,
-  );
+  final json = jsonDecode(stdout.trim()) as Map<String, dynamic>;
+  return BenchmarkResult.fromJson(json);
 }
 
 String generateMarkdown(List<BenchmarkResult> results) {
-  final buffer = StringBuffer();
-
-  // Environment info
   final dartVersion = Platform.version.split(' ').first;
+
+  final buffer = StringBuffer();
 
   buffer.writeln('# Benchmark Results');
   buffer.writeln();
@@ -298,7 +99,8 @@ String generateMarkdown(List<BenchmarkResult> results) {
 
   for (final r in results) {
     buffer.writeln(
-        '| ${r.name} | ${r.latencyP50.toStringAsFixed(3)} | ${r.latencyP95.toStringAsFixed(3)} | ${r.latencyP99.toStringAsFixed(3)} | ${r.avgLatency.toStringAsFixed(3)} |');
+      '| ${r.name} | ${r.latencyP50.toStringAsFixed(3)} | ${r.latencyP95.toStringAsFixed(3)} | ${r.latencyP99.toStringAsFixed(3)} | ${r.avgLatency.toStringAsFixed(3)} |',
+    );
   }
   buffer.writeln();
 
@@ -313,30 +115,16 @@ String generateMarkdown(List<BenchmarkResult> results) {
   }
   buffer.writeln();
 
-  // Memory table
-  buffer.writeln('## Memory Usage');
-  buffer.writeln();
-  buffer.writeln('| Library | Before (KB) | After (KB) | Delta (KB) |');
-  buffer.writeln('|---------|-------------|------------|------------|');
-
-  for (final r in results) {
-    buffer.writeln(
-        '| ${r.name} | ${r.memoryBefore} | ${r.memoryAfter} | ${r.memoryDelta} |');
-  }
-  buffer.writeln();
-
-  // Summary
   buffer.writeln('---');
   buffer.writeln();
-  buffer.writeln('*Generated automatically*');
 
   return buffer.toString();
 }
 
 Future<void> main() async {
-  const int rounds = 10;
-  const int iterations = 10000;
-  const int warmupIterations = 10000;
+  const rounds = 10;
+  const iterations = 10000;
+  const warmupIterations = 10000;
 
   print('===========================================');
   print('       Redis/Dart Client Benchmark       ');
@@ -347,26 +135,46 @@ Future<void> main() async {
   print('  Iterations per round: $iterations');
   print('  Warmup iterations: $warmupIterations');
   print('');
+  print('Note: Each client runs in a separate process');
+  print('');
 
-  // Collect results per round
+  final clientScripts = [
+    'bin/clients/dart_valkey.dart',
+    'bin/clients/dart_valkey_commands.dart',
+    'bin/clients/dart_valkey_reuse.dart',
+    'bin/clients/redis_package.dart',
+    'bin/clients/shorebird.dart',
+    'bin/clients/keyscope_client.dart',
+  ];
+
   final allResults = <List<BenchmarkResult>>[];
 
-  for (int round = 1; round <= rounds; round++) {
+  for (var round = 1; round <= rounds; round++) {
     print('=== Round $round / $rounds ===');
     print('');
 
-    allResults.add([
-      await benchmarkDartValkey(
-          iterations: iterations, warmupIterations: warmupIterations),
-      await benchmarkRedisPackage(
-          iterations: iterations, warmupIterations: warmupIterations),
-      await benchmarkShorebirdRedisClient(
-          iterations: iterations, warmupIterations: warmupIterations),
-    ]);
+    final roundResults = <BenchmarkResult>[];
+
+    for (final script in clientScripts) {
+      final result =
+          await runClientScript(script, iterations, warmupIterations);
+      roundResults.add(result);
+
+      print('  ${result.name}:');
+      print('    p50: ${result.latencyP50.toStringAsFixed(3)} ms');
+      print('    p95: ${result.latencyP95.toStringAsFixed(3)} ms');
+      print('    p99: ${result.latencyP99.toStringAsFixed(3)} ms');
+      print('    Throughput: ${result.throughput.toStringAsFixed(2)} ops/sec');
+      print('');
+
+      // Delay between clients
+      await Future.delayed(const Duration(seconds: 1));
+    }
+
+    allResults.add(roundResults);
 
     // Delay between rounds
     if (round < rounds) {
-      print('Waiting 2 seconds before next round...');
       await Future.delayed(const Duration(seconds: 2));
     }
     print('');
@@ -380,12 +188,15 @@ Future<void> main() async {
 
   final clientNames = [
     'dart_valkey',
+    'dart_valkey (commands)',
+    'dart_valkey (reuse)',
     'redis package',
-    'shorebird_redis_client'
+    'shorebird_redis_client',
+    'keyscope_client',
   ];
   final averagedResults = <BenchmarkResult>[];
 
-  for (int i = 0; i < 3; i++) {
+  for (var i = 0; i < 6; i++) {
     final roundResults = allResults.map((r) => r[i]).toList();
 
     final avgP50 =
@@ -398,27 +209,19 @@ Future<void> main() async {
         roundResults.map((r) => r.avgLatency).reduce((a, b) => a + b) / rounds;
     final avgThroughput =
         roundResults.map((r) => r.throughput).reduce((a, b) => a + b) / rounds;
-    final avgMemDelta =
-        roundResults.map((r) => r.memoryDelta).reduce((a, b) => a + b) / rounds;
-    final avgMemBefore =
-        roundResults.map((r) => r.memoryBefore).reduce((a, b) => a + b) /
-            rounds;
-    final avgMemAfter =
-        roundResults.map((r) => r.memoryAfter).reduce((a, b) => a + b) / rounds;
 
-    averagedResults.add(BenchmarkResult(
-      name: clientNames[i],
-      iterations: iterations,
-      warmupIterations: warmupIterations,
-      latencyP50: avgP50,
-      latencyP95: avgP95,
-      latencyP99: avgP99,
-      avgLatency: avgLatency,
-      throughput: avgThroughput,
-      memoryBefore: avgMemBefore.round(),
-      memoryAfter: avgMemAfter.round(),
-      memoryDelta: avgMemDelta.round(),
-    ));
+    averagedResults.add(
+      BenchmarkResult(
+        name: clientNames[i],
+        iterations: iterations,
+        warmupIterations: warmupIterations,
+        latencyP50: avgP50,
+        latencyP95: avgP95,
+        latencyP99: avgP99,
+        avgLatency: avgLatency,
+        throughput: avgThroughput,
+      ),
+    );
   }
 
   // Print summary
@@ -429,7 +232,6 @@ Future<void> main() async {
     print('  Latency p99: ${r.latencyP99.toStringAsFixed(3)} ms');
     print('  Avg Latency: ${r.avgLatency.toStringAsFixed(3)} ms');
     print('  Throughput: ${r.throughput.toStringAsFixed(2)} ops/sec');
-    print('  Memory Delta: ${r.memoryDelta} KB');
     print('');
   }
 

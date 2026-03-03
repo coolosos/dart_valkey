@@ -1,10 +1,11 @@
 name: benchmark
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ^3.10.0
 
 dependencies:
   dart_valkey:
     path: ../
   redis: ^4.0.0
   shorebird_redis_client: ^0.0.10
+  keyscope_client: ^4.6.1

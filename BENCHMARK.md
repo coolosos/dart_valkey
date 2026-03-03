@@ -14,26 +14,23 @@
 
 | Library | p50 | p95 | p99 | Avg |
 |---------|-----|-----|-----|-----|
-| dart_valkey | 0.119 | 0.184 | 0.237 | 0.128 |
-| redis package | 0.125 | 0.205 | 0.296 | 0.137 |
-| shorebird_redis_client | 0.148 | 0.241 | 0.322 | 0.163 |
+| dart_valkey | 0.120 | 0.189 | 0.253 | 0.130 |
+| dart_valkey (commands) | 0.121 | 0.189 | 0.251 | 0.131 |
+| dart_valkey (reuse) | 0.121 | 0.187 | 0.240 | 0.129 |
+| redis package | 0.121 | 0.186 | 0.252 | 0.130 |
+| shorebird_redis_client | 0.148 | 0.223 | 0.283 | 0.159 |
+| keyscope_client | 0.148 | 0.219 | 0.296 | 0.158 |
 
 ## Throughput
 
 | Library | ops/sec |
 |---------|---------|
-| dart_valkey | 23419.73 |
-| redis package | 22121.36 |
-| shorebird_redis_client | 18555.64 |
-
-## Memory Usage
-
-| Library | Before (KB) | After (KB) | Delta (KB) |
-|---------|-------------|------------|------------|
-| dart_valkey | 136246 | 133960 | -2286 |
-| redis package | 134037 | 129754 | -4283 |
-| shorebird_redis_client | 129778 | 122282 | -7496 |
+| dart_valkey | 23029.13 |
+| dart_valkey (commands) | 22910.96 |
+| dart_valkey (reuse) | 23296.62 |
+| redis package | 22981.75 |
+| shorebird_redis_client | 18888.20 |
+| keyscope_client | 18938.28 |
 
 ---
 
-*Generated automatically*
