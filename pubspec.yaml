@@ -1,6 +1,6 @@
 name: dart_valkey
 description: Dart client for Valkey (and Redis-compatible servers)
-version: 0.0.4
+version: 0.0.5
 
 repository: https://github.com/coolosos/dart_valkey
 issue_tracker: https://github.com/coolosos/dart_valkey/issues
