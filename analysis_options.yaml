@@ -2,4 +2,4 @@ include: package:coolint/dart.yaml
 
 analyzer:
   exclude:
-    - brenchmark/**
+    - benchmark/**
