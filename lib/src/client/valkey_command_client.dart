@@ -48,7 +48,7 @@ class ValkeyCommandClient extends BaseValkeyClient {
     super.maxReconnectAttempts = 5,
     super.respDecoder = const Resp3Decoder(),
     super.disableNagle = true,
-    this.commandTimeout = const Duration(seconds: 2),
+    this.commandTimeout = const Duration(seconds: 1),
   })  : _db = db,
         keyPrefix =
             (keyPrefix?.endsWith(':') ?? false) ? keyPrefix : '$keyPrefix:';
