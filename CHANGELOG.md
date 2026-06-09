@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.0.6 - 2026-06-09
+
+### Added
+
+- Added `commandTimeout` parameter to `ValkeyCommandClient` constructor (defaults to 2 seconds).
+- Added support for command-specific timeout overriding in the `execute` method.
+- Added option to disable timeouts globally or per command by passing `Duration.zero` or negative durations.
+
+### Fixed
+
+- Fixed a critical issue where commands queued up indefinitely and futures never completed when the connection was lost, preventing consuming application servers (like Shelf) from hanging forever.
+
 ## 0.0.5 - 2026-03-05
 
 ### Fixed
