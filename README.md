@@ -130,13 +130,13 @@ Future<void> main() async {
 > Without a command timeout, if the connection to the server drops, any commands sent will queue up in memory indefinitely and their returned `Future`s will never resolve. This can block the event loop and cause consuming application servers (like Shelf) to hang forever. Setting a command timeout ensures that these futures complete with a `TimeoutException`, releasing memory and allowing the server to fail-fast.
 
 #### Global Timeout Configuration
-By default, the client is initialized with a global command timeout of **2 seconds**:
+By default, the client is initialized with a global command timeout of **1 seconds**:
 
 ```dart
 final client = ValkeyCommandClient(
   host: 'localhost',
   port: 6379,
-  commandTimeout: const Duration(seconds: 2), // Default value
+  commandTimeout: const Duration(seconds: 1), // Default value
 );
 ```
 
