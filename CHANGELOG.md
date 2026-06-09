@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added `commandTimeout` parameter to `ValkeyCommandClient` constructor (defaults to 2 seconds).
+- Added `commandTimeout` parameter to `ValkeyCommandClient` constructor (defaults to 1 seconds).
 - Added support for command-specific timeout overriding in the `execute` method.
 - Added option to disable timeouts globally or per command by passing `Duration.zero` or negative durations.
 
