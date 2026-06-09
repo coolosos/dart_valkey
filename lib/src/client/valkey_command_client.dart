@@ -48,19 +48,21 @@ class ValkeyCommandClient extends BaseValkeyClient {
     super.maxReconnectAttempts = 5,
     super.respDecoder = const Resp3Decoder(),
     super.disableNagle = true,
+    this.commandTimeout = const Duration(seconds: 1),
   })  : _db = db,
         keyPrefix =
             (keyPrefix?.endsWith(':') ?? false) ? keyPrefix : '$keyPrefix:';
 
   final int _db;
   final String? keyPrefix;
+  final Duration? commandTimeout;
   final Queue<Completer<dynamic>> _commandQueue = Queue();
   final Map<Completer<dynamic>, ValkeyCommand<dynamic>> _pendingCompleters = {};
 
   /// Executes a [ValkeyCommand] and returns a [Future] that completes with the command\'s result.
   /// - [command]: The [ValkeyCommand] instance to execute.
 
-  Future<T> execute<T>(ValkeyCommand<T> command) {
+  Future<T> execute<T>(ValkeyCommand<T> command, {Duration? timeout}) {
     final commandToExecute = switch (command) {
       final KeyedCommand<T> c when (keyPrefix?.isNotEmpty ?? false) =>
         c.applyPrefix(keyPrefix!),
@@ -70,7 +72,20 @@ class ValkeyCommandClient extends BaseValkeyClient {
     _pendingCompleters[completer] = commandToExecute;
     _commandQueue.add(completer);
     _send(commandToExecute.encoded);
-    return completer.future;
+
+    final effectiveTimeout = timeout ?? commandTimeout;
+    if (effectiveTimeout == null || effectiveTimeout <= Duration.zero) {
+      return completer.future;
+    }
+
+    return completer.future.timeout(
+      effectiveTimeout,
+      onTimeout: () {
+        _commandQueue.remove(completer);
+        _pendingCompleters.remove(completer);
+        throw TimeoutException('Command timed out after $effectiveTimeout');
+      },
+    );
   }
 
   @override

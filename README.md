@@ -122,6 +122,45 @@ Future<void> main() async {
 }
 ```
 
+### Command Timeout
+
+`ValkeyCommandClient` supports command timeout execution to prevent operations from hanging indefinitely due to lost network connections or slow database responses.
+
+> [!IMPORTANT]
+> Without a command timeout, if the connection to the server drops, any commands sent will queue up in memory indefinitely and their returned `Future`s will never resolve. This can block the event loop and cause consuming application servers (like Shelf) to hang forever. Setting a command timeout ensures that these futures complete with a `TimeoutException`, releasing memory and allowing the server to fail-fast.
+
+#### Global Timeout Configuration
+By default, the client is initialized with a global command timeout of **1 seconds**:
+
+```dart
+final client = ValkeyCommandClient(
+  host: 'localhost',
+  port: 6379,
+  commandTimeout: const Duration(seconds: 1), // Default value
+);
+```
+
+To disable the global timeout completely, set it to `null`:
+```dart
+final client = ValkeyCommandClient(
+  host: 'localhost',
+  port: 6379,
+  commandTimeout: null, // No timeout by default for any command
+);
+```
+
+#### Customizing Timeout per Command
+You can override or disable the global timeout for individual commands:
+
+```dart
+// Override with a specific timeout for a single command
+await client.execute(PingCommand(), timeout: const Duration(milliseconds: 500));
+
+// Disable timeout for a heavy command (unlimited execution time)
+await client.execute(KeysCommand('*'), timeout: Duration.zero);
+```
+Passing `Duration.zero` or a negative duration to the `timeout` parameter disables the timeout mechanism for that command execution.
+
 ---
 
 ## Running Tests

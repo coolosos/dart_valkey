@@ -18,6 +18,7 @@ void main() {
         host: 'localhost',
         port: 6379,
         connection: mockConnection,
+        commandTimeout: null,
       );
     });
 
