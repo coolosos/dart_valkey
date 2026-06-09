@@ -29,6 +29,7 @@ import 'package:mockito/src/dummies.dart' as _i6;
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
+// ignore_for_file: invalid_use_of_internal_member
 
 class _FakeInternetAddress_0 extends _i1.SmartFake
     implements _i2.InternetAddress {
@@ -173,10 +174,10 @@ class MockSocket extends _i1.Mock implements _i2.Socket {
       ) as _i3.Encoding);
 
   @override
-  set encoding(_i3.Encoding? _encoding) => super.noSuchMethod(
+  set encoding(_i3.Encoding? value) => super.noSuchMethod(
         Invocation.setter(
           #encoding,
-          _encoding,
+          value,
         ),
         returnValueForMissingStub: null,
       );
@@ -2122,11 +2123,15 @@ class MockValkeyCommandClient extends _i1.Mock
   }
 
   @override
-  _i4.Future<T> execute<T>(_i10.ValkeyCommand<T>? command) =>
+  _i4.Future<T> execute<T>(
+    _i10.ValkeyCommand<T>? command, {
+    Duration? timeout,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #execute,
           [command],
+          {#timeout: timeout},
         ),
         returnValue: _i6.ifNotNull(
               _i6.dummyValueOrNull<T>(
@@ -2134,6 +2139,7 @@ class MockValkeyCommandClient extends _i1.Mock
                 Invocation.method(
                   #execute,
                   [command],
+                  {#timeout: timeout},
                 ),
               ),
               (T v) => _i4.Future<T>.value(v),
@@ -2143,6 +2149,7 @@ class MockValkeyCommandClient extends _i1.Mock
               Invocation.method(
                 #execute,
                 [command],
+                {#timeout: timeout},
               ),
             ),
       ) as _i4.Future<T>);

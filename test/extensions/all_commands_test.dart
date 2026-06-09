@@ -113,7 +113,7 @@ class MockValkeyCommandClient extends ValkeyCommandClient {
   dynamic mockResponse;
 
   @override
-  Future<T> execute<T>(ValkeyCommand<T> command) async {
+  Future<T> execute<T>(ValkeyCommand<T> command, {Duration? timeout}) async {
     lastExecutedCommand = command;
     return command.parse(mockResponse);
   }
