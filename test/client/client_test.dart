@@ -27,6 +27,7 @@ void main() {
         host: 'localhost',
         port: 6379,
         connection: mockConnection,
+        commandTimeout: null,
       );
       when(mockConnection.isConnected).thenReturn(false);
       when(mockConnection.connect()).thenAnswer((_) async {
@@ -113,6 +114,7 @@ void main() {
           port: 6379,
           connection: mockConnection,
           keyPrefix: 'test:',
+          commandTimeout: null,
         );
         when(mockConnection.isConnected).thenReturn(true);
       });
@@ -310,6 +312,7 @@ void main() {
           host: 'localhost',
           port: 6379,
           connection: mockConnection,
+          commandTimeout: null,
         );
       });
 
