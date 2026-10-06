@@ -26,16 +26,16 @@ class ClientResult {
   final int memoryDelta;
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'latencyP50': latencyP50,
-        'latencyP95': latencyP95,
-        'latencyP99': latencyP99,
-        'avgLatency': avgLatency,
-        'throughput': throughput,
-        'memoryBefore': memoryBefore,
-        'memoryAfter': memoryAfter,
-        'memoryDelta': memoryDelta,
-      };
+    'name': name,
+    'latencyP50': latencyP50,
+    'latencyP95': latencyP95,
+    'latencyP99': latencyP99,
+    'avgLatency': avgLatency,
+    'throughput': throughput,
+    'memoryBefore': memoryBefore,
+    'memoryAfter': memoryAfter,
+    'memoryDelta': memoryDelta,
+  };
 }
 
 double percentile(List<double> sorted, double p) {
