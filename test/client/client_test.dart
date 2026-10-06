@@ -8,7 +8,7 @@ import '../mocks.dart';
 import '../mocks.mocks.dart';
 
 base class FakeFailingCommand extends FakeCommand<String> {
-  FakeFailingCommand() : super(fakeEncoded: [1], fakeResult: 'wont happen');
+  new() : super(fakeEncoded: [1], fakeResult: 'wont happen');
 
   @override
   String parse(dynamic data) {
@@ -36,19 +36,11 @@ void main() {
     });
 
     test('should create client with secure true', () {
-      ValkeyCommandClient(
-        host: 'localhost',
-        port: 6379,
-        secure: true,
-      );
+      ValkeyCommandClient(host: 'localhost', port: 6379, secure: true);
     });
 
     test('should create client with secure false', () {
-      ValkeyCommandClient(
-        host: 'localhost',
-        port: 6379,
-        secure: false,
-      );
+      ValkeyCommandClient(host: 'localhost', port: 6379, secure: false);
     });
 
     test('execute should enqueue command and send encoded data', () async {
@@ -132,174 +124,191 @@ void main() {
     });
 
     group('command timeout', () {
-      test('should complete with TimeoutException when timeout is reached',
-          () async {
-        final timeoutClient = ValkeyCommandClient(
-          host: 'localhost',
-          port: 6379,
-          connection: mockConnection,
-          commandTimeout: const Duration(milliseconds: 100),
-        );
+      test(
+        'should complete with TimeoutException when timeout is reached',
+        () async {
+          final timeoutClient = ValkeyCommandClient(
+            host: 'localhost',
+            port: 6379,
+            connection: mockConnection,
+            commandTimeout: const Duration(milliseconds: 100),
+          );
 
-        final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
-        final future = timeoutClient.execute(command);
+          final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
+          final future = timeoutClient.execute(command);
 
-        await expectLater(future, throwsA(isA<TimeoutException>()));
-      });
-
-      test('should remove command from queue when timeout is reached',
-          () async {
-        final timeoutClient = ValkeyCommandClient(
-          host: 'localhost',
-          port: 6379,
-          connection: mockConnection,
-          commandTimeout: const Duration(milliseconds: 100),
-        );
-
-        final command1 = FakeCommand(fakeEncoded: [1], fakeResult: 'OK1');
-        final command2 = FakeCommand(fakeEncoded: [2], fakeResult: 'OK2');
-
-        // Ejecutamos command1 que va a expirar
-        final future1 = timeoutClient.execute(command1);
-        await expectLater(future1, throwsA(isA<TimeoutException>()));
-
-        // Ahora ejecutamos command2
-        final future2 = timeoutClient.execute(command2);
-
-        // Si command1 fue removido de la cola, handleDataMock('OK2') completará a command2.
-        timeoutClient.handleDataMock('OK2');
-
-        expect(await future2, equals('OK2'));
-      });
+          await expectLater(future, throwsA(isA<TimeoutException>()));
+        },
+      );
 
       test(
-          'should complete successfully if response is received before timeout',
-          () async {
-        final timeoutClient = ValkeyCommandClient(
-          host: 'localhost',
-          port: 6379,
-          connection: mockConnection,
-          commandTimeout: const Duration(seconds: 1),
-        );
+        'should remove command from queue when timeout is reached',
+        () async {
+          final timeoutClient = ValkeyCommandClient(
+            host: 'localhost',
+            port: 6379,
+            connection: mockConnection,
+            commandTimeout: const Duration(milliseconds: 100),
+          );
 
-        final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
-        final future = timeoutClient.execute(command);
+          final command1 = FakeCommand(fakeEncoded: [1], fakeResult: 'OK1');
+          final command2 = FakeCommand(fakeEncoded: [2], fakeResult: 'OK2');
 
-        timeoutClient.handleDataMock('OK');
+          // Ejecutamos command1 que va a expirar
+          final future1 = timeoutClient.execute(command1);
+          await expectLater(future1, throwsA(isA<TimeoutException>()));
 
-        expect(await future, equals('OK'));
-      });
+          // Ahora ejecutamos command2
+          final future2 = timeoutClient.execute(command2);
 
-      test('should override global timeout with command-specific timeout',
-          () async {
-        final timeoutClient = ValkeyCommandClient(
-          host: 'localhost',
-          port: 6379,
-          connection: mockConnection,
-          commandTimeout: const Duration(seconds: 10),
-        );
+          // Si command1 fue removido de la cola, handleDataMock('OK2') completará a command2.
+          timeoutClient.handleDataMock('OK2');
 
-        final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
-        final future = timeoutClient.execute(
-          command,
-          timeout: const Duration(milliseconds: 100),
-        );
-
-        await expectLater(future, throwsA(isA<TimeoutException>()));
-      });
+          expect(await future2, equals('OK2'));
+        },
+      );
 
       test(
-          'should disable timeout when command-specific timeout is Duration.zero',
-          () async {
-        final timeoutClient = ValkeyCommandClient(
-          host: 'localhost',
-          port: 6379,
-          connection: mockConnection,
-          commandTimeout: const Duration(milliseconds: 100),
-        );
+        'should complete successfully if response is received before timeout',
+        () async {
+          final timeoutClient = ValkeyCommandClient(
+            host: 'localhost',
+            port: 6379,
+            connection: mockConnection,
+            commandTimeout: const Duration(seconds: 1),
+          );
 
-        final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
-        final future = timeoutClient.execute(command, timeout: Duration.zero);
+          final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
+          final future = timeoutClient.execute(command);
 
-        await Future.delayed(const Duration(milliseconds: 150));
-        timeoutClient.handleDataMock('OK');
+          timeoutClient.handleDataMock('OK');
 
-        expect(await future, equals('OK'));
-      });
-
-      test('should disable timeout when command-specific timeout is negative',
-          () async {
-        final timeoutClient = ValkeyCommandClient(
-          host: 'localhost',
-          port: 6379,
-          connection: mockConnection,
-          commandTimeout: const Duration(milliseconds: 100),
-        );
-
-        final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
-        final future = timeoutClient.execute(
-          command,
-          timeout: const Duration(seconds: -1),
-        );
-
-        await Future.delayed(const Duration(milliseconds: 150));
-        timeoutClient.handleDataMock('OK');
-
-        expect(await future, equals('OK'));
-      });
+          expect(await future, equals('OK'));
+        },
+      );
 
       test(
-          'should allow client with null commandTimeout (no timeout by default)',
-          () async {
-        final timeoutClient = ValkeyCommandClient(
-          host: 'localhost',
-          port: 6379,
-          connection: mockConnection,
-          commandTimeout: null,
-        );
+        'should override global timeout with command-specific timeout',
+        () async {
+          final timeoutClient = ValkeyCommandClient(
+            host: 'localhost',
+            port: 6379,
+            connection: mockConnection,
+            commandTimeout: const Duration(seconds: 10),
+          );
 
-        final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
-        final future = timeoutClient.execute(command);
+          final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
+          final future = timeoutClient.execute(
+            command,
+            timeout: const Duration(milliseconds: 100),
+          );
 
-        await Future.delayed(const Duration(milliseconds: 100));
-        timeoutClient.handleDataMock('OK');
+          await expectLater(future, throwsA(isA<TimeoutException>()));
+        },
+      );
 
-        expect(await future, equals('OK'));
-      });
+      test(
+        'should disable timeout when command-specific timeout is Duration.zero',
+        () async {
+          final timeoutClient = ValkeyCommandClient(
+            host: 'localhost',
+            port: 6379,
+            connection: mockConnection,
+            commandTimeout: const Duration(milliseconds: 100),
+          );
 
-      test('should disable timeout globally when commandTimeout is Duration.zero', () async {
-        final timeoutClient = ValkeyCommandClient(
-          host: 'localhost',
-          port: 6379,
-          connection: mockConnection,
-          commandTimeout: Duration.zero,
-        );
+          final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
+          final future = timeoutClient.execute(command, timeout: Duration.zero);
 
-        final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
-        final future = timeoutClient.execute(command);
+          await Future<void>.delayed(const Duration(milliseconds: 150));
+          timeoutClient.handleDataMock('OK');
 
-        await Future.delayed(const Duration(milliseconds: 100));
-        timeoutClient.handleDataMock('OK');
+          expect(await future, equals('OK'));
+        },
+      );
 
-        expect(await future, equals('OK'));
-      });
+      test(
+        'should disable timeout when command-specific timeout is negative',
+        () async {
+          final timeoutClient = ValkeyCommandClient(
+            host: 'localhost',
+            port: 6379,
+            connection: mockConnection,
+            commandTimeout: const Duration(milliseconds: 100),
+          );
 
-      test('should disable timeout globally when commandTimeout is negative', () async {
-        final timeoutClient = ValkeyCommandClient(
-          host: 'localhost',
-          port: 6379,
-          connection: mockConnection,
-          commandTimeout: const Duration(seconds: -1),
-        );
+          final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
+          final future = timeoutClient.execute(
+            command,
+            timeout: const Duration(seconds: -1),
+          );
 
-        final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
-        final future = timeoutClient.execute(command);
+          await Future<void>.delayed(const Duration(milliseconds: 150));
+          timeoutClient.handleDataMock('OK');
 
-        await Future.delayed(const Duration(milliseconds: 100));
-        timeoutClient.handleDataMock('OK');
+          expect(await future, equals('OK'));
+        },
+      );
 
-        expect(await future, equals('OK'));
-      });
+      test(
+        'should allow client with null commandTimeout (no timeout by default)',
+        () async {
+          final timeoutClient = ValkeyCommandClient(
+            host: 'localhost',
+            port: 6379,
+            connection: mockConnection,
+            commandTimeout: null,
+          );
+
+          final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
+          final future = timeoutClient.execute(command);
+
+          await Future<void>.delayed(const Duration(milliseconds: 100));
+          timeoutClient.handleDataMock('OK');
+
+          expect(await future, equals('OK'));
+        },
+      );
+
+      test(
+        'should disable timeout globally when commandTimeout is Duration.zero',
+        () async {
+          final timeoutClient = ValkeyCommandClient(
+            host: 'localhost',
+            port: 6379,
+            connection: mockConnection,
+            commandTimeout: Duration.zero,
+          );
+
+          final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
+          final future = timeoutClient.execute(command);
+
+          await Future<void>.delayed(const Duration(milliseconds: 100));
+          timeoutClient.handleDataMock('OK');
+
+          expect(await future, equals('OK'));
+        },
+      );
+
+      test(
+        'should disable timeout globally when commandTimeout is negative',
+        () async {
+          final timeoutClient = ValkeyCommandClient(
+            host: 'localhost',
+            port: 6379,
+            connection: mockConnection,
+            commandTimeout: const Duration(seconds: -1),
+          );
+
+          final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
+          final future = timeoutClient.execute(command);
+
+          await Future<void>.delayed(const Duration(milliseconds: 100));
+          timeoutClient.handleDataMock('OK');
+
+          expect(await future, equals('OK'));
+        },
+      );
     });
 
     group('_onConnected (simpler test)', () {
@@ -316,31 +325,33 @@ void main() {
         );
       });
 
-      test('should call execute for SelectCommand and resend queued commands',
-          () async {
-        final command = FakeCommand(fakeEncoded: [1, 2, 3], fakeResult: 'OK');
+      test(
+        'should call execute for SelectCommand and resend queued commands',
+        () async {
+          final command = FakeCommand(fakeEncoded: [1, 2, 3], fakeResult: 'OK');
 
-        Future.delayed(
-          const Duration(),
-          () => client.handleDataMock('ok'),
-        );
+          Future<void>.delayed(
+            Duration.zero,
+            () => client.handleDataMock('ok'),
+          );
 
-        await client.execute(command);
-        client.handleDataMock('ok');
-        Future.delayed(
-          const Duration(),
-          () => client.handleDataMock('ok'),
-        );
-        unawaited(client.handleOnConnectedMock());
-        Future.delayed(
-          const Duration(),
-          () => client.handleDataMock('ok'),
-        );
-        await client.execute(command);
+          await client.execute(command);
+          client.handleDataMock('ok');
+          Future<void>.delayed(
+            Duration.zero,
+            () => client.handleDataMock('ok'),
+          );
+          unawaited(client.handleOnConnectedMock());
+          Future<void>.delayed(
+            Duration.zero,
+            () => client.handleDataMock('ok'),
+          );
+          await client.execute(command);
 
-        verify(mockConnection.send(command.encoded)).called(3);
-        verify(mockConnection.send(argThat(isA<List<int>>()))).called(1);
-      });
+          verify(mockConnection.send(command.encoded)).called(3);
+          verify(mockConnection.send(argThat(isA<List<int>>()))).called(1);
+        },
+      );
     });
   });
 
@@ -363,17 +374,17 @@ void main() {
 
       subClient.handleDataMock(['message', 'channel1', 'hello']);
 
-      await Future.delayed(const Duration());
+      await Future<void>.delayed(Duration.zero);
 
       expect(messages.first.message, equals('hello'));
     });
 
     test('onData with unknown type should emit error', () async {
       Object? receivedError;
-      subClient.messages.listen(null, onError: (e) => receivedError = e);
+      subClient.messages.listen(null, onError: (Object e) => receivedError = e);
 
       subClient.handleDataMock(['wtf', '???']);
-      await Future.delayed(const Duration());
+      await Future<void>.delayed(Duration.zero);
 
       expect(receivedError, isA<ValkeyException>());
     });
@@ -464,9 +475,7 @@ void main() {
         verify(mockConnection.send(any)).called(2);
       });
 
-      test(
-          'unsubscribe with no channels should not send command if not subscribed',
-          () {
+      test('unsubscribe with no channels should not send command if not subscribed', () {
         subClient.unsubscribe();
         verifyNever(mockConnection.send(any));
       });
@@ -493,9 +502,7 @@ void main() {
         verify(mockConnection.send(any)).called(2);
       });
 
-      test(
-          'punsubscribe with no patterns should not send command if not subscribed',
-          () {
+      test('punsubscribe with no patterns should not send command if not subscribed', () {
         subClient.punsubscribe();
         verifyNever(mockConnection.send(any));
       });
@@ -519,16 +526,12 @@ void main() {
         verify(mockConnection.send(any)).called(2);
       });
 
-      test(
-          'sunsubscribe with no channels should not send command if not subscribed',
-          () {
+      test('sunsubscribe with no channels should not send command if not subscribed', () {
         subClient.sunsubscribe();
         verifyNever(mockConnection.send(any));
       });
 
-      test(
-          'subscribedShardChannels should return list of subscribed shard channels',
-          () {
+      test('subscribedShardChannels should return list of subscribed shard channels', () {
         subClient.ssubscribe(['shard-channel']);
         expect(subClient.subscribedShardChannels, contains('shard-channel'));
       });
@@ -537,8 +540,10 @@ void main() {
     group('Lifecycle event handlers', () {
       test('_onError should forward error to message stream', () async {
         final testException = Exception('test error');
-        final expectation =
-            expectLater(subClient.messages, emitsError(testException));
+        final expectation = expectLater(
+          subClient.messages,
+          emitsError(testException),
+        );
         subClient.handleErrorMock(testException);
         await expectation;
       });
@@ -563,12 +568,14 @@ void main() {
       await subClient.handleOnConnectedMock();
     });
 
-    test('_onConnected should resubscribe to shard channels after reconnection',
-        () async {
-      when(mockConnection.send(any)).thenAnswer((_) async {});
+    test(
+      '_onConnected should resubscribe to shard channels after reconnection',
+      () async {
+        when(mockConnection.send(any)).thenAnswer((_) async {});
 
-      subClient.ssubscribe(['shard-channel']);
-      await subClient.handleOnConnectedMock();
-    });
+        subClient.ssubscribe(['shard-channel']);
+        await subClient.handleOnConnectedMock();
+      },
+    );
   });
 }

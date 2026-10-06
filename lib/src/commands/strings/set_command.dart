@@ -1,66 +1,61 @@
 import 'dart:core';
+
 import 'package:meta/meta.dart';
+
 import '../command.dart';
 
 enum SetStrategyTypes {
   onlyIfNotExists('NX'),
   onlyIfExists('XX'),
-  always(''),
-  ;
+  always('');
 
-  const SetStrategyTypes(this.command);
+  new(this.command);
 
   final String command;
 }
 
-enum ExpireDurationTypes {
-  EX,
-  PX,
-}
+enum ExpireDurationTypes { EX, PX }
 
-enum ExpireTimeTypes {
-  EXAT,
-  PXAT,
-}
+enum ExpireTimeTypes { EXAT, PXAT }
 
 sealed class ExpireOption {
-  const ExpireOption();
+  const new();
   List<String> get commandParts;
 }
 
 class ExpireDuration extends ExpireOption {
-  const ExpireDuration(this.duration, {this.type = ExpireDurationTypes.EX});
+  const new(this.duration, {this.type = ExpireDurationTypes.EX});
   final Duration duration;
   final ExpireDurationTypes type;
 
   @override
   List<String> get commandParts => [
-        type.name,
-        switch (type) {
-          ExpireDurationTypes.EX => duration.inSeconds.toString(),
-          ExpireDurationTypes.PX => duration.inMilliseconds.toString(),
-        },
-      ];
+    type.name,
+    switch (type) {
+      ExpireDurationTypes.EX => duration.inSeconds.toString(),
+      ExpireDurationTypes.PX => duration.inMilliseconds.toString(),
+    },
+  ];
 }
 
 class ExpireAt extends ExpireOption {
-  const ExpireAt(this.dateTime, {this.type = ExpireTimeTypes.EXAT});
+  const new(this.dateTime, {this.type = ExpireTimeTypes.EXAT});
   final DateTime dateTime;
   final ExpireTimeTypes type;
 
   @override
   List<String> get commandParts => [
-        type.name,
-        switch (type) {
-          ExpireTimeTypes.EXAT =>
-            (dateTime.millisecondsSinceEpoch / 1000).round().toString(),
-          ExpireTimeTypes.PXAT => dateTime.millisecondsSinceEpoch.toString(),
-        },
-      ];
+    type.name,
+    switch (type) {
+      ExpireTimeTypes.EXAT =>
+        (dateTime.millisecondsSinceEpoch / 1000).round().toString(),
+      ExpireTimeTypes.PXAT => dateTime.millisecondsSinceEpoch.toString(),
+    },
+  ];
 }
 
 class KeepTtl extends ExpireOption {
-  const KeepTtl();
+  const new();
 
   @override
   List<String> get commandParts => ['KEEPTTL'];
@@ -68,7 +63,7 @@ class KeepTtl extends ExpireOption {
 
 abstract base class BaseSetCommand<T> extends ValkeyCommand<T>
     with KeyedCommand<T> {
-  BaseSetCommand(
+  new(
     this.key,
     this.value, {
     this.expire,
@@ -96,7 +91,7 @@ abstract base class BaseSetCommand<T> extends ValkeyCommand<T>
 
 @immutable
 final class SetCommand extends BaseSetCommand<bool> {
-  SetCommand(
+  new(
     super.key,
     super.value, {
     super.expire,

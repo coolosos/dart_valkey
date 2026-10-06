@@ -16,12 +16,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `bool` resolving to `true` (key renamed) or `false` (newkey already exists)
-final class RenameNxCommand extends ValkeyCommand<bool>
+final class RenameNxCommand(final String key, final String newKey)
+    extends ValkeyCommand<bool>
     with KeyedCommand<bool> {
-  RenameNxCommand(this.key, this.newKey);
-  final String key;
-  final String newKey;
-
   @override
   List<String> get commandParts => ['RENAMENX', key, newKey];
 

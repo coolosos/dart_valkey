@@ -7,9 +7,22 @@ void main() {
   group('RespEncoder', () {
     test('should encode a simple command', () {
       final command = ['PING'];
-      final expected = Uint8List.fromList(
-        [42, 49, 13, 10, 36, 52, 13, 10, 80, 73, 78, 71, 13, 10],
-      );
+      final expected = Uint8List.fromList([
+        42,
+        49,
+        13,
+        10,
+        36,
+        52,
+        13,
+        10,
+        80,
+        73,
+        78,
+        71,
+        13,
+        10,
+      ]);
       expect(RespEncoder.encode(command), expected);
     });
 

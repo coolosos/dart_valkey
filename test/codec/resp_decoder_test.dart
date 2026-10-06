@@ -78,14 +78,16 @@ void main() {
 
     group('BigNumber', () {
       test('should decode positive big number', () async {
-        final result =
-            await testDecode('(34928903284092385093248509438509438250\r\n');
+        final result = await testDecode(
+          '(34928903284092385093248509438509438250\r\n',
+        );
         expect(result, BigInt.parse('34928903284092385093248509438509438250'));
       });
 
       test('should decode negative big number', () async {
-        final result =
-            await testDecode('(-34928903284092385093248509438509438250\r\n');
+        final result = await testDecode(
+          '(-34928903284092385093248509438509438250\r\n',
+        );
         expect(result, BigInt.parse('-34928903284092385093248509438509438250'));
       });
     });
@@ -99,8 +101,9 @@ void main() {
 
     group('Maps', () {
       test('should decode a map', () async {
-        final result =
-            await testDecode('%2\r\n+first\r\n:1\r\n+second\r\n:2\r\n');
+        final result = await testDecode(
+          '%2\r\n+first\r\n:1\r\n+second\r\n:2\r\n',
+        );
         expect(result, {'first': 1, 'second': 2});
       });
 
@@ -121,8 +124,9 @@ void main() {
       });
 
       test('should decode a set with different value types', () async {
-        final result =
-            await testDecode('~4\r\n+apple\r\n:1\r\n#f\r\n,4.56\r\n');
+        final result = await testDecode(
+          '~4\r\n+apple\r\n:1\r\n#f\r\n,4.56\r\n',
+        );
         expect(result, {'apple', 1, false, 4.56});
       });
     });
@@ -160,10 +164,12 @@ void main() {
         final result = await testDecode('_\r\n');
         expect(result, isNull);
       });
-      test('should throw RespException for invalid bulk string length',
-          () async {
-        expect(testDecode('\$-2\r\n'), throwsA(isA<RespException>()));
-      });
+      test(
+        'should throw RespException for invalid bulk string length',
+        () async {
+          expect(testDecode('\$-2\r\n'), throwsA(isA<RespException>()));
+        },
+      );
     });
   });
 }

@@ -21,12 +21,9 @@ import '../command.dart';
 /// Parameters:
 /// - [key]: The key to set.
 /// - [value]: The new value to set.
-final class GetSetCommand extends ValkeyCommand<String?>
+final class GetSetCommand(final String key, final String value)
+    extends ValkeyCommand<String?>
     with KeyedCommand<String?> {
-  GetSetCommand(this.key, this.value);
-  final String key;
-  final String value;
-
   @override
   List<String> get commandParts => ['GETSET', key, value];
 

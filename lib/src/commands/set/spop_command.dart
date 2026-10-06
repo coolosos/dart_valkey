@@ -17,11 +17,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `String?` resolving to `'member1'` or `null`
-final class SPopCommand extends ValkeyCommand<String?>
+final class SPopCommand(final String key)
+    extends ValkeyCommand<String?>
     with KeyedCommand<String?> {
-  SPopCommand(this.key);
-  final String key;
-
   @override
   List<String> get commandParts => ['SPOP', key];
 

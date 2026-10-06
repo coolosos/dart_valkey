@@ -10,25 +10,25 @@ typedef ItemParser = ParseResult<dynamic> Function(
 );
 
 class RespException implements Exception {
-  const RespException(this.message);
+  const new(this.message);
   final String message;
   @override
   String toString() => 'RespException: $message';
 }
 
 class _IncompleteDataException implements Exception {
-  const _IncompleteDataException();
+  const new();
 }
 
 final class ParseResult<T> {
-  const ParseResult(this.value, this.bytesConsumed);
+  const new(this.value, this.bytesConsumed);
   final T value;
   final int bytesConsumed;
 }
 
 // Base codec class
 sealed class BaseRespCodec extends StreamTransformerBase<Uint8List, dynamic> {
-  const BaseRespCodec();
+  const new();
 
   @override
   Stream<dynamic> bind(Stream<Uint8List> stream) {
@@ -170,7 +170,7 @@ mixin Resp2ParsingHelpers {
 }
 
 class Resp2Decoder extends BaseRespCodec with Resp2ParsingHelpers {
-  const Resp2Decoder();
+  const new();
 
   @override
   ParseResult<dynamic> _parse(Uint8List buffer, int offset) {
@@ -223,7 +223,7 @@ mixin Resp3ParsingHelpers on Resp2ParsingHelpers {
     );
   }
 
-  ParseResult parseNull(Uint8List buffer, int offset) {
+  ParseResult<dynamic> parseNull(Uint8List buffer, int offset) {
     if (offset + 2 >= buffer.length) throw const _IncompleteDataException();
     if (buffer[offset + 1] != respCarriageReturn ||
         buffer[offset + 2] != respLineFeed) {
@@ -268,10 +268,7 @@ mixin Resp3ParsingHelpers on Resp2ParsingHelpers {
     if (buffer.length < totalLength) throw const _IncompleteDataException();
 
     final errorMessage = decodeString(buffer, dataStart, dataStart + length);
-    return ParseResult(
-      RespException(errorMessage),
-      totalLength - offset,
-    );
+    return ParseResult(RespException(errorMessage), totalLength - offset);
   }
 
   ParseResult<String?> parseVerbatimString(Uint8List buffer, int offset) {
@@ -287,10 +284,7 @@ mixin Resp3ParsingHelpers on Resp2ParsingHelpers {
 
     final fullString = decodeString(buffer, dataStart, dataStart + length);
 
-    return ParseResult(
-      fullString,
-      totalLength - offset,
-    );
+    return ParseResult(fullString, totalLength - offset);
   }
 
   ParseResult<BigInt> parseBigNumber(Uint8List buffer, int offset) {
@@ -347,7 +341,7 @@ mixin Resp3ParsingHelpers on Resp2ParsingHelpers {
 // RESP3 Decoder
 class Resp3Decoder extends BaseRespCodec
     with Resp2ParsingHelpers, Resp3ParsingHelpers {
-  const Resp3Decoder();
+  const new();
 
   @override
   ParseResult<dynamic> _parse(Uint8List buffer, int offset) {

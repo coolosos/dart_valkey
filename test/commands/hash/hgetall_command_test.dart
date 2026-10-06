@@ -11,15 +11,15 @@ void main() {
 
     test('should parse list response correctly', () {
       final command = HGetAllCommand('mykey');
-      expect(
-        command.parse(['name', 'Alice', 'age', '30']),
-        {'name': 'Alice', 'age': '30'},
-      );
+      expect(command.parse(['name', 'Alice', 'age', '30']), {
+        'name': 'Alice',
+        'age': '30',
+      });
     });
 
     test('should parse empty list response correctly', () {
       final command = HGetAllCommand('mykey');
-      expect(command.parse([]), {});
+      expect(command.parse(<dynamic>[]), <String, String>{});
     });
 
     test('should throw an exception for invalid response', () {

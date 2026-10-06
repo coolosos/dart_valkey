@@ -50,10 +50,12 @@ void main() {
         strategyType: ExpireStrategyTypes.onlyIfExists,
       );
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['EXPIRE', 'myprefix:mykey', '60', 'XX'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'EXPIRE',
+        'myprefix:mykey',
+        '60',
+        'XX',
+      ]);
     });
   });
 }

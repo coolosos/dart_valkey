@@ -35,15 +35,15 @@ class BenchmarkResult {
   final double throughput;
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'iterations': iterations,
-        'warmupIterations': warmupIterations,
-        'latencyP50': latencyP50,
-        'latencyP95': latencyP95,
-        'latencyP99': latencyP99,
-        'avgLatency': avgLatency,
-        'throughput': throughput,
-      };
+    'name': name,
+    'iterations': iterations,
+    'warmupIterations': warmupIterations,
+    'latencyP50': latencyP50,
+    'latencyP95': latencyP95,
+    'latencyP99': latencyP99,
+    'avgLatency': avgLatency,
+    'throughput': throughput,
+  };
 }
 
 Future<BenchmarkResult> runClientScript(
@@ -53,11 +53,12 @@ Future<BenchmarkResult> runClientScript(
 ) async {
   print('--- Running: $scriptPath ---');
 
-  final process = await Process.start(
-    'dart',
-    ['run', scriptPath, '$iterations', '$warmup'],
-    workingDirectory: Directory.current.path,
-  );
+  final process = await Process.start('dart', [
+    'run',
+    scriptPath,
+    '$iterations',
+    '$warmup',
+  ], workingDirectory: Directory.current.path);
 
   final stdout = await process.stdout.transform(utf8.decoder).join();
   final stderr = await process.stderr.transform(utf8.decoder).join();
@@ -156,8 +157,11 @@ Future<void> main() async {
     final roundResults = <BenchmarkResult>[];
 
     for (final script in clientScripts) {
-      final result =
-          await runClientScript(script, iterations, warmupIterations);
+      final result = await runClientScript(
+        script,
+        iterations,
+        warmupIterations,
+      );
       roundResults.add(result);
 
       print('  ${result.name}:');

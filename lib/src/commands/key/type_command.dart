@@ -16,11 +16,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `String` resolving to `'string'`, `'hash'`, `'list'`, `'set'`, `'zset'`, or `'none'`
-final class TypeCommand extends ValkeyCommand<String>
+final class TypeCommand(final String key)
+    extends ValkeyCommand<String>
     with KeyedCommand<String> {
-  TypeCommand(this.key);
-  final String key;
-
   @override
   List<String> get commandParts => ['TYPE', key];
 

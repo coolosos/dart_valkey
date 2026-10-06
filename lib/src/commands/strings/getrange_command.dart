@@ -22,16 +22,16 @@ import '../command.dart';
 /// - [key]: The key to retrieve the substring from.
 /// - [start]: The starting offset.
 /// - [end]: The ending offset (inclusive).
-final class GetRangeCommand extends ValkeyCommand<String>
+final class GetRangeCommand(final String key, final int start, final int end)
+    extends ValkeyCommand<String>
     with KeyedCommand<String> {
-  GetRangeCommand(this.key, this.start, this.end);
-  final String key;
-  final int start;
-  final int end;
-
   @override
-  List<String> get commandParts =>
-      ['GETRANGE', key, start.toString(), end.toString()];
+  List<String> get commandParts => [
+    'GETRANGE',
+    key,
+    start.toString(),
+    end.toString(),
+  ];
 
   @override
   String parse(dynamic data) {

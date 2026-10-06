@@ -12,7 +12,7 @@ import '../../dart_valkey.dart';
 /// This class uses the Template Method pattern, requiring subclasses to only
 /// implement how the socket is physically created (insecure vs secure).
 abstract class BaseConnection implements Connection {
-  BaseConnection({
+  new({
     required this.respDecoder,
     this.host = '127.00.1',
     this.port = 6379,
@@ -43,7 +43,7 @@ abstract class BaseConnection implements Connection {
   String? password;
 
   Socket? _socket;
-  StreamSubscription? _socketSubscription;
+  StreamSubscription<dynamic>? _socketSubscription;
 
   @visibleForTesting
   Socket? get testSocket => _socket;
@@ -54,10 +54,7 @@ abstract class BaseConnection implements Connection {
   @override
   bool get isConnected => _socket != null;
   @override
-  Future<void> connect({
-    String? username,
-    String? password,
-  }) async {
+  Future<void> connect({String? username, String? password}) async {
     if (isConnected) return;
     _reconnectAttempts = 0;
     this.username = username;
@@ -80,26 +77,27 @@ abstract class BaseConnection implements Connection {
 
       final initialCommand = switch (respDecoder) {
         Resp2Decoder() when (password?.isNotEmpty ?? false) => AuthCommand(
-            username: username,
-            password: password!,
-          ),
+          username: username,
+          password: password!,
+        ),
         Resp3Decoder() => HelloCommand(
-            protocolVersion: 3,
-            username: username,
-            password: password,
-          ),
+          protocolVersion: 3,
+          username: username,
+          password: password,
+        ),
         _ => null,
       };
 
-      if (initialCommand case final ValkeyCommand initialCommand) {
+      if (initialCommand case final ValkeyCommand<dynamic> initialCommand) {
         socket.add(initialCommand.encoded);
         final response = await decoder.first;
         final parsedResponse = initialCommand.parse(response);
 
         final authSuccess = switch (initialCommand) {
           AuthCommand() => parsedResponse == 'OK',
-          HelloCommand() => parsedResponse is Map<String, dynamic> &&
-              parsedResponse['proto'] == 3,
+          HelloCommand() =>
+            parsedResponse is Map<String, dynamic> &&
+                parsedResponse['proto'] == 3,
           _ => false, // Should not happen for these commands
         };
 
@@ -110,7 +108,7 @@ abstract class BaseConnection implements Connection {
 
       _socketSubscription = decoder.listen(
         onData,
-        onError: (error) {
+        onError: (Object error) {
           onError?.call(error);
           _handleDisconnect();
         },
@@ -142,13 +140,11 @@ abstract class BaseConnection implements Connection {
   void _scheduleReconnect() {
     if (_reconnectTimer != null) return;
 
-    final milliseconds = min(30000, 500 * pow(2, _reconnectAttempts)).toInt() +
+    final milliseconds =
+        min(30000, 500 * pow(2, _reconnectAttempts)).toInt() +
         Random().nextInt(500);
 
-    _reconnectTimer = Timer(
-        Duration(
-          milliseconds: milliseconds,
-        ), () {
+    _reconnectTimer = Timer(Duration(milliseconds: milliseconds), () {
       _reconnectAttempts++;
       _performConnection();
 

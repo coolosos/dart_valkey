@@ -17,15 +17,9 @@ import '../command.dart';
 ///
 /// Parameters:
 /// - [message]: (Optional) A message to be echoed back by the server.
-final class PingCommand extends ValkeyCommand<bool> {
-  PingCommand([this.message]);
-  final String? message;
-
+final class PingCommand([final String? message])
+    extends ValkeyCommand<bool>
+    with PongBoolResponse {
   @override
-  List<String> get commandParts => ['PING', if (message != null) message!];
-
-  @override
-  bool parse(dynamic data) {
-    return (data == 'PONG');
-  }
+  List<String> get commandParts => ['PING', ?message];
 }

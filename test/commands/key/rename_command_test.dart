@@ -21,10 +21,11 @@ void main() {
     test('should apply prefix to keys', () {
       final command = RenameCommand('oldkey', 'newkey');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['RENAME', 'myprefix:oldkey', 'myprefix:newkey'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'RENAME',
+        'myprefix:oldkey',
+        'myprefix:newkey',
+      ]);
     });
   });
 }

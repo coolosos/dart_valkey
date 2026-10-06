@@ -15,12 +15,11 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `bool` resolving to `true`
-final class SMoveCommand extends ValkeyCommand<bool> with KeyedCommand<bool> {
-  SMoveCommand(this.source, this.destination, this.member);
-  final String source;
-  final String destination;
-  final String member;
-
+final class SMoveCommand(
+  final String source,
+  final String destination,
+  final String member,
+) extends ValkeyCommand<bool> with KeyedCommand<bool> {
   @override
   List<String> get commandParts => ['SMOVE', source, destination, member];
 

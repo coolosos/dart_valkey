@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 import '../mocks.mocks.dart';
 
 class TestConnection extends BaseConnection {
-  TestConnection({
+  new({
     required super.respDecoder,
     super.onConnected,
     super.onData,
@@ -37,38 +37,36 @@ void main() {
       mockSocket = MockSocket();
       mockStream = MockStream();
       mockRespDecoder = MockResp2Decoder();
-      connection = TestConnection(
-        respDecoder: mockRespDecoder,
-      )..socketToReturn = mockSocket;
+      connection = TestConnection(respDecoder: mockRespDecoder)
+        ..socketToReturn = mockSocket;
 
       when(mockRespDecoder.bind(any))
           .thenAnswer((_) => mockStream as Stream<Uint8List>);
       when(mockStream.asBroadcastStream()).thenAnswer((_) => mockStream);
     });
 
-    test('connect should call performSocketConnection and set socket options',
-        () async {
-      when(mockSocket.setOption(any, any)).thenReturn(true);
-      // Explicitly stub listen for this test to allow connect to complete
-      when(
-        mockStream.listen(
-          any,
-          onError: anyNamed('onError'),
-          onDone: anyNamed('onDone'),
-          cancelOnError: anyNamed('cancelOnError'),
-        ),
-      ).thenReturn(MockStreamSubscription());
+    test(
+      'connect should call performSocketConnection and set socket options',
+      () async {
+        when(mockSocket.setOption(any, any)).thenReturn(true);
+        // Explicitly stub listen for this test to allow connect to complete
+        when(
+          mockStream.listen(
+            any,
+            onError: anyNamed('onError'),
+            onDone: anyNamed('onDone'),
+            cancelOnError: anyNamed('cancelOnError'),
+          ),
+        ).thenReturn(MockStreamSubscription<Uint8List>());
 
-      await connection.connect();
+        await connection.connect();
 
-      verify(
-        mockSocket.setOption(
-          argThat(equals(SocketOption.tcpNoDelay)),
-          true,
-        ),
-      ).called(1);
-      expect(connection.host, '127.00.1'); // default value
-    });
+        verify(
+          mockSocket.setOption(argThat(equals(SocketOption.tcpNoDelay)), true),
+        ).called(1);
+        expect(connection.host, '127.00.1'); // default value
+      },
+    );
 
     test('send should forward data to socket.add', () async {
       when(mockSocket.setOption(any, any)).thenReturn(true);
@@ -81,7 +79,7 @@ void main() {
           onDone: anyNamed('onDone'),
           cancelOnError: anyNamed('cancelOnError'),
         ),
-      ).thenReturn(MockStreamSubscription());
+      ).thenReturn(MockStreamSubscription<Uint8List>());
 
       await connection.connect();
 
@@ -92,7 +90,7 @@ void main() {
     });
 
     test('close should cancel subscription and destroy the socket', () async {
-      final mockSub = MockStreamSubscription();
+      final mockSub = MockStreamSubscription<Uint8List>();
 
       when(mockSocket.setOption(any, any)).thenReturn(true);
       // Explicitly stub listen for this test to allow connect to complete
@@ -103,7 +101,7 @@ void main() {
           onDone: anyNamed('onDone'),
           cancelOnError: anyNamed('cancelOnError'),
         ),
-      ).thenReturn(MockStreamSubscription());
+      ).thenReturn(MockStreamSubscription<Uint8List>());
 
       await connection.connect();
       // force close
@@ -131,12 +129,13 @@ void main() {
           cancelOnError: anyNamed('cancelOnError'),
         ),
       ).thenAnswer((invocation) {
-        final Function? onErrorCallback = invocation.namedArguments[#onError];
+        final onErrorCallback =
+            invocation.namedArguments[#onError] as Function?;
         if (onErrorCallback != null) {
           // ignore: avoid_dynamic_calls test
           onErrorCallback(Exception('simulated error'));
         }
-        return MockStreamSubscription();
+        return MockStreamSubscription<Uint8List>();
       });
 
       await connection.connect();
@@ -161,7 +160,7 @@ void main() {
           onDone: anyNamed('onDone'),
           cancelOnError: anyNamed('cancelOnError'),
         ),
-      ).thenReturn(MockStreamSubscription());
+      ).thenReturn(MockStreamSubscription<Uint8List>());
 
       await connection.connect();
 

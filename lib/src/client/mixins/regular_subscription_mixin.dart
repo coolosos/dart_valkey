@@ -7,16 +7,18 @@ mixin RegularSubscriptionMixin on BaseValkeyClient {
 
   void subscribe(List<String> channels) {
     if (channels.isEmpty) return;
-    final newChannels =
-        channels.where((c) => !_subscribedChannels.contains(c)).toList();
+    final newChannels = channels
+        .where((c) => !_subscribedChannels.contains(c))
+        .toList();
     if (newChannels.isEmpty) return;
     _sendSubscribeCommand(newChannels);
     _subscribedChannels.addAll(newChannels);
   }
 
   void unsubscribe([List<String> channels = const []]) {
-    final channelsToUnsubscribe =
-        channels.isEmpty ? _subscribedChannels.toList() : channels;
+    final channelsToUnsubscribe = channels.isEmpty
+        ? _subscribedChannels.toList()
+        : channels;
     if (channelsToUnsubscribe.isEmpty) return;
 
     _sendUnsubscribeCommand(channelsToUnsubscribe);

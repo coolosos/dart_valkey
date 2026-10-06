@@ -15,10 +15,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `bool` resolving to `true` (TTL removed) or `false` (key does not exist or no TTL)
-final class PersistCommand extends ValkeyCommand<bool> with KeyedCommand<bool> {
-  PersistCommand(this.key);
-  final String key;
-
+final class PersistCommand(final String key)
+    extends ValkeyCommand<bool>
+    with KeyedCommand<bool> {
   @override
   List<String> get commandParts => ['PERSIST', key];
 

@@ -6,10 +6,13 @@ void main() {
   group('ZRangeWithScoresCommand', () {
     test('should build the correct command', () {
       final command = ZRangeWithScoresCommand('myzset', 0, -1);
-      expect(
-        command.commandParts,
-        ['ZRANGE', 'myzset', '0', '-1', 'WITHSCORES'],
-      );
+      expect(command.commandParts, [
+        'ZRANGE',
+        'myzset',
+        '0',
+        '-1',
+        'WITHSCORES',
+      ]);
     });
 
     test('should parse list of maps correctly', () {
@@ -22,7 +25,7 @@ void main() {
 
     test('should parse empty list correctly', () {
       final command = ZRangeWithScoresCommand('myzset', 0, -1);
-      expect(command.parse([]), []);
+      expect(command.parse(<dynamic>[]), <Map<String, String>>[]);
     });
 
     test('should throw an exception for invalid response', () {
@@ -33,10 +36,13 @@ void main() {
     test('should apply prefix to key', () {
       final command = ZRangeWithScoresCommand('myzset', 0, -1);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['ZRANGE', 'myprefix:myzset', '0', '-1', 'WITHSCORES'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'ZRANGE',
+        'myprefix:myzset',
+        '0',
+        '-1',
+        'WITHSCORES',
+      ]);
     });
   });
 }

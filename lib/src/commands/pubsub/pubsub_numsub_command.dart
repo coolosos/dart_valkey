@@ -3,10 +3,8 @@ import '../command.dart';
 
 /// Represents the 'PUBSUB NUMSUB [channel-1 ... channel-N]' command.
 /// Returns the number of subscribers for the specified channels.
-final class PubsubNumsubCommand extends ValkeyCommand<Map<String, int>> {
-  PubsubNumsubCommand([this.channels = const []]);
-  final List<String> channels;
-
+final class PubsubNumsubCommand([final List<String> channels = const []])
+    extends ValkeyCommand<Map<String, int>> {
   @override
   List<String> get commandParts => ['PUBSUB', 'NUMSUB', ...channels];
 

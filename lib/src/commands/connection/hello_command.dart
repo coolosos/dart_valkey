@@ -15,18 +15,12 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `Map<String, dynamic>` resolving to the server properties.
-final class HelloCommand extends ValkeyCommand<Map<String, dynamic>> {
-  HelloCommand({
-    this.protocolVersion,
-    this.username,
-    this.password,
-    this.clientName,
-  });
-  final int? protocolVersion;
-  final String? username;
-  final String? password;
-  final String? clientName;
-
+final class HelloCommand({
+  final int? protocolVersion,
+  final String? username,
+  final String? password,
+  final String? clientName,
+}) extends ValkeyCommand<Map<String, dynamic>> {
   @override
   List<String> get commandParts {
     final parts = ['HELLO'];

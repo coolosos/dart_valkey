@@ -22,10 +22,11 @@ void main() {
     test('should apply prefix to key', () {
       final command = HStrLenCommand('mykey', 'myfield');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['HSTRLEN', 'myprefix:mykey', 'myfield'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'HSTRLEN',
+        'myprefix:mykey',
+        'myfield',
+      ]);
     });
   });
 }

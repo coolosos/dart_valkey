@@ -24,16 +24,16 @@ import '../command.dart';
 /// - [key]: The key of the list.
 /// - [start]: The starting offset.
 /// - [stop]: The ending offset (inclusive).
-final class LRangeCommand extends ValkeyCommand<List<String>>
+final class LRangeCommand(final String key, final int start, final int stop)
+    extends ValkeyCommand<List<String>>
     with KeyedCommand<List<String>> {
-  LRangeCommand(this.key, this.start, this.stop);
-  final String key;
-  final int start;
-  final int stop;
-
   @override
-  List<String> get commandParts =>
-      ['LRANGE', key, start.toString(), stop.toString()];
+  List<String> get commandParts => [
+    'LRANGE',
+    key,
+    start.toString(),
+    stop.toString(),
+  ];
 
   @override
   List<String> parse(dynamic data) {

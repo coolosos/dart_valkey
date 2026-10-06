@@ -1,23 +1,14 @@
-import '../../codec/valkey_exception.dart';
 import '../command.dart';
 
-/// Represents the 'CLIENT PAUSE timeout [WRITE]' command.
-final class ClientPauseCommand extends ValkeyCommand<bool> {
-  ClientPauseCommand(this.timeout, {this.write = false});
-  final int timeout;
-  final bool write;
-
+/// Represents the `CLIENT PAUSE timeout [WRITE]` command.
+final class ClientPauseCommand(final int timeout, {final bool write = false})
+    extends ValkeyCommand<bool>
+    with ExpectOkBoolResponse {
   @override
-  List<String> get commandParts =>
-      ['CLIENT', 'PAUSE', timeout.toString(), if (write) 'WRITE'];
-
-  @override
-  bool parse(dynamic data) {
-    if (data is String) {
-      if (data == 'OK') return true;
-    }
-    throw ValkeyException(
-      'Invalid response for CLIENT PAUSE: expected OK, got ${data.runtimeType} "$data"',
-    );
-  }
+  List<String> get commandParts => [
+    'CLIENT',
+    'PAUSE',
+    timeout.toString(),
+    if (write) 'WRITE',
+  ];
 }

@@ -20,12 +20,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `List<String>` resolving to `['member1', 'member2']`
-final class SPopCountCommand extends ValkeyCommand<List<String>>
+final class SPopCountCommand(final String key, final int count)
+    extends ValkeyCommand<List<String>>
     with KeyedCommand<List<String>> {
-  SPopCountCommand(this.key, this.count);
-  final String key;
-  final int count;
-
   @override
   List<String> get commandParts => ['SPOP', key, count.toString()];
 

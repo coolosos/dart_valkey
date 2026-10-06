@@ -19,11 +19,9 @@ import '../command.dart';
 /// Parameters:
 /// - [key]: The key of the list.
 /// - [values]: The values to push to the list.
-final class RPushCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  RPushCommand(this.key, this.values);
-  final String key;
-  final List<String> values;
-
+final class RPushCommand(final String key, final List<String> values)
+    extends ValkeyCommand<int>
+    with KeyedCommand<int> {
   @override
   List<String> get commandParts => ['RPUSH', key, ...values];
 

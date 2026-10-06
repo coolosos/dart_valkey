@@ -37,10 +37,12 @@ void main() {
     test('should apply prefix to key', () {
       final command = SetAndGetCommand('mykey', 'myvalue');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['SET', 'myprefix:mykey', 'myvalue', 'GET'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'SET',
+        'myprefix:mykey',
+        'myvalue',
+        'GET',
+      ]);
     });
 
     test('should build correct command with expire', () {

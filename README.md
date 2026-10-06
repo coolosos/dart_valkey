@@ -59,7 +59,7 @@ Or with a specific version:
 
 ```yaml
 dependencies:
-  dart_valkey: ^0.0.4
+  dart_valkey: ^0.0.6
 ```
 
 Then run:
@@ -122,6 +122,36 @@ Future<void> main() async {
 }
 ```
 
+### SSL / TLS & Self-Signed Certificates
+
+Connect securely using TLS/SSL with optional certificate verification override (ideal for internal environments, staging, or self-signed certs):
+
+```dart
+final client = ValkeyCommandClient(
+  host: 'valkey.internal',
+  port: 6379,
+  secure: true,
+  onBadCertificate: (certificate) {
+    // Return true to accept self-signed or internal CA certificates
+    return true;
+  },
+);
+```
+
+### Advanced Client Configuration
+
+Customize database index, key prefix, or protocol decoder:
+
+```dart
+final client = ValkeyCommandClient(
+  host: 'localhost',
+  port: 6379,
+  db: 1, // Select database 1 on connect
+  keyPrefix: 'myapp', // Automatically prefixes keys with 'myapp:'
+  respDecoder: const Resp3Decoder(), // or Resp2Decoder() for legacy Redis 5/6
+);
+```
+
 ### Command Timeout
 
 `ValkeyCommandClient` supports command timeout execution to prevent operations from hanging indefinitely due to lost network connections or slow database responses.
@@ -130,7 +160,7 @@ Future<void> main() async {
 > Without a command timeout, if the connection to the server drops, any commands sent will queue up in memory indefinitely and their returned `Future`s will never resolve. This can block the event loop and cause consuming application servers (like Shelf) to hang forever. Setting a command timeout ensures that these futures complete with a `TimeoutException`, releasing memory and allowing the server to fail-fast.
 
 #### Global Timeout Configuration
-By default, the client is initialized with a global command timeout of **1 seconds**:
+By default, the client is initialized with a global command timeout of **1 second**:
 
 ```dart
 final client = ValkeyCommandClient(
@@ -157,9 +187,31 @@ You can override or disable the global timeout for individual commands:
 await client.execute(PingCommand(), timeout: const Duration(milliseconds: 500));
 
 // Disable timeout for a heavy command (unlimited execution time)
-await client.execute(KeysCommand('*'), timeout: Duration.zero);
+await client.execute(HGetAllCommand('large_dataset'), timeout: Duration.zero);
 ```
 Passing `Duration.zero` or a negative duration to the `timeout` parameter disables the timeout mechanism for that command execution.
+
+### Creating Custom Commands
+
+You can implement custom or unsupported commands easily by extending `ValkeyCommand<T>`:
+
+```dart
+import 'package:dart_valkey/dart_valkey.dart';
+
+final class CustomCommand extends ValkeyCommand<String?> {
+  CustomCommand(this.key);
+  final String key;
+
+  @override
+  List<String> get commandParts => ['CUSTOM.CMD', key];
+
+  @override
+  String? parse(dynamic data) => data as String?;
+}
+
+// Execution
+final result = await client.execute(CustomCommand('my_key'));
+```
 
 ---
 

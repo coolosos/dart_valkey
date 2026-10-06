@@ -107,9 +107,9 @@ import 'package:test/test.dart';
 
 // A simple mock ValkeyCommandClient for testing extension methods
 class MockValkeyCommandClient extends ValkeyCommandClient {
-  MockValkeyCommandClient() : super(host: 'localhost', port: 6379);
+  new() : super(host: 'localhost', port: 6379);
 
-  Command? lastExecutedCommand;
+  Command<dynamic>? lastExecutedCommand;
   dynamic mockResponse;
 
   @override
@@ -693,10 +693,9 @@ void main() {
       mockClient.mockResponse = 'OK';
       await mockClient.mset({'key': 'value'});
       expect(mockClient.lastExecutedCommand, isA<MSetCommand>());
-      expect(
-        (mockClient.lastExecutedCommand! as MSetCommand).keyValuePairs,
-        {'key': 'value'},
-      );
+      expect((mockClient.lastExecutedCommand! as MSetCommand).keyValuePairs, {
+        'key': 'value',
+      });
     });
 
     test('append calls AppendCommand', () async {
@@ -769,19 +768,22 @@ void main() {
       );
     });
 
-    test('zrangebyscoreWithScores calls ZRangeByScoreWithScoresCommand',
-        () async {
-      mockClient.mockResponse = ['member', '1.0'];
-      await mockClient.zrangebyscoreWithScores('key', '0', '1');
-      expect(
-        mockClient.lastExecutedCommand,
-        isA<ZRangeByScoreWithScoresCommand>(),
-      );
-      expect(
-        (mockClient.lastExecutedCommand! as ZRangeByScoreWithScoresCommand).key,
-        'key',
-      );
-    });
+    test(
+      'zrangebyscoreWithScores calls ZRangeByScoreWithScoresCommand',
+      () async {
+        mockClient.mockResponse = ['member', '1.0'];
+        await mockClient.zrangebyscoreWithScores('key', '0', '1');
+        expect(
+          mockClient.lastExecutedCommand,
+          isA<ZRangeByScoreWithScoresCommand>(),
+        );
+        expect(
+          (mockClient.lastExecutedCommand! as ZRangeByScoreWithScoresCommand)
+              .key,
+          'key',
+        );
+      },
+    );
 
     test('zrem calls ZRemCommand', () async {
       mockClient.mockResponse = 1;
@@ -839,16 +841,18 @@ void main() {
       expect((mockClient.lastExecutedCommand! as ZRevRangeCommand).key, 'key');
     });
 
-    test('zrevrangeWithScores calls ZRevRangeCommand with withScores true',
-        () async {
-      mockClient.mockResponse = ['member', '1.0'];
-      await mockClient.zrevrangeWithScores('key', '0', '-1');
-      expect(mockClient.lastExecutedCommand, isA<ZRevRangeCommand>());
-      expect(
-        (mockClient.lastExecutedCommand! as ZRevRangeCommand).withScores,
-        isTrue,
-      );
-    });
+    test(
+      'zrevrangeWithScores calls ZRevRangeCommand with withScores true',
+      () async {
+        mockClient.mockResponse = ['member', '1.0'];
+        await mockClient.zrevrangeWithScores('key', '0', '-1');
+        expect(mockClient.lastExecutedCommand, isA<ZRevRangeCommand>());
+        expect(
+          (mockClient.lastExecutedCommand! as ZRevRangeCommand).withScores,
+          isTrue,
+        );
+      },
+    );
 
     test('zrevrangebyscore calls ZRevRangeByScoreCommand', () async {
       mockClient.mockResponse = ['member'];
@@ -860,20 +864,22 @@ void main() {
       );
     });
 
-    test('zrevrangebyscoreWithScores calls ZRevRangeByScoreWithScoresCommand',
-        () async {
-      mockClient.mockResponse = ['member', '1.0'];
-      await mockClient.zrevrangebyscoreWithScores('key', '0', '1');
-      expect(
-        mockClient.lastExecutedCommand,
-        isA<ZRevRangeByScoreWithScoresCommand>(),
-      );
-      expect(
-        (mockClient.lastExecutedCommand! as ZRevRangeByScoreWithScoresCommand)
-            .key,
-        'key',
-      );
-    });
+    test(
+      'zrevrangebyscoreWithScores calls ZRevRangeByScoreWithScoresCommand',
+      () async {
+        mockClient.mockResponse = ['member', '1.0'];
+        await mockClient.zrevrangebyscoreWithScores('key', '0', '1');
+        expect(
+          mockClient.lastExecutedCommand,
+          isA<ZRevRangeByScoreWithScoresCommand>(),
+        );
+        expect(
+          (mockClient.lastExecutedCommand! as ZRevRangeByScoreWithScoresCommand)
+              .key,
+          'key',
+        );
+      },
+    );
 
     // Pub/Sub Commands
     test('publish calls PublishCommand', () async {

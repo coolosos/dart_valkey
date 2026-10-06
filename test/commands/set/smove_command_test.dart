@@ -5,10 +5,12 @@ void main() {
   group('SMoveCommand', () {
     test('should build the correct command', () {
       final command = SMoveCommand('mysource', 'mydestination', 'mymember');
-      expect(
-        command.commandParts,
-        ['SMOVE', 'mysource', 'mydestination', 'mymember'],
-      );
+      expect(command.commandParts, [
+        'SMOVE',
+        'mysource',
+        'mydestination',
+        'mymember',
+      ]);
     });
 
     test('should parse true response correctly', () {
@@ -24,10 +26,12 @@ void main() {
     test('should apply prefix to keys', () {
       final command = SMoveCommand('mysource', 'mydestination', 'mymember');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['SMOVE', 'myprefix:mysource', 'myprefix:mydestination', 'mymember'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'SMOVE',
+        'myprefix:mysource',
+        'myprefix:mydestination',
+        'mymember',
+      ]);
     });
   });
 }

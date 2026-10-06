@@ -1,7 +1,6 @@
-import '../../codec/valkey_exception.dart';
 import '../command.dart';
 
-/// Represents the 'MSET key value [key value ...]' command.
+/// Represents the `MSET key value [key value ...]` command.
 /// Sets multiple key-value pairs in a single atomic operation.
 ///
 /// **Redis Command:**
@@ -19,11 +18,9 @@ import '../command.dart';
 ///
 /// Parameters:
 /// - [keyValuePairs]: A map of key-value pairs to set.
-final class MSetCommand extends ValkeyCommand<String>
-    with KeyedCommand<String> {
-  MSetCommand(this.keyValuePairs);
-  final Map<String, String> keyValuePairs;
-
+final class MSetCommand(final Map<String, String> keyValuePairs)
+    extends ValkeyCommand<String>
+    with KeyedCommand<String>, OkStringResponse {
   @override
   List<String> get commandParts {
     final parts = <String>['MSET'];
@@ -33,14 +30,6 @@ final class MSetCommand extends ValkeyCommand<String>
         ..add(value);
     });
     return parts;
-  }
-
-  @override
-  String parse(dynamic data) {
-    if (data == 'OK') return data;
-    throw ValkeyException(
-      'Invalid response for MSET: expected "OK", got "$data"',
-    );
   }
 
   @override

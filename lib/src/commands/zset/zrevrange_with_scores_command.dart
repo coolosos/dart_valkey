@@ -24,26 +24,16 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `List<Map<String, String>>` resolving to `[{'member': 'member2', 'score': '2.0'}, {'member': 'member1', 'score': '1.0'}]`
-final class ZRevRangeWithScoresCommand
-    extends ValkeyCommand<List<Map<String, String>>>
+final class ZRevRangeWithScoresCommand(
+  final String key,
+  final String start,
+  final String stop, {
+  final bool byLex = false,
+  final bool byScore = false,
+  final int? limitOffset,
+  final int? limitCount,
+}) extends ValkeyCommand<List<Map<String, String>>>
     with KeyedCommand<List<Map<String, String>>> {
-  ZRevRangeWithScoresCommand(
-    this.key,
-    this.start,
-    this.stop, {
-    this.byLex = false,
-    this.byScore = false,
-    this.limitOffset,
-    this.limitCount,
-  });
-  final String key;
-  final String start;
-  final String stop;
-  final bool byLex;
-  final bool byScore;
-  final int? limitOffset;
-  final int? limitCount;
-
   @override
   List<String> get commandParts {
     final parts = ['ZREVRANGE', key, start, stop];
@@ -64,8 +54,10 @@ final class ZRevRangeWithScoresCommand
     if (data is List) {
       final result = <Map<String, String>>[];
       for (var i = 0; i < data.length; i += 2) {
-        result
-            .add({'member': data[i] as String, 'score': data[i + 1] as String});
+        result.add({
+          'member': data[i] as String,
+          'score': data[i + 1] as String,
+        });
       }
       return result;
     }

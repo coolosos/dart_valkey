@@ -15,18 +15,11 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `String` resolving to `'OK'`
-final class RenameCommand extends ValkeyCommand<bool> with KeyedCommand<bool> {
-  RenameCommand(this.key, this.newKey);
-  final String key;
-  final String newKey;
-
+final class RenameCommand(final String key, final String newKey)
+    extends ValkeyCommand<bool>
+    with KeyedCommand<bool>, OkBoolResponse {
   @override
   List<String> get commandParts => ['RENAME', key, newKey];
-
-  @override
-  bool parse(dynamic data) {
-    return data == 'OK';
-  }
 
   @override
   ValkeyCommand<bool> applyPrefix(String prefix) {

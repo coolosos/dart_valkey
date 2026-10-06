@@ -20,23 +20,14 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `List<String>` or `List<Map<String, String>>` (if WITHSCORES is true)
-final class ZRevRangeByScoreCommand extends ValkeyCommand<dynamic>
-    with KeyedCommand<dynamic> {
-  ZRevRangeByScoreCommand(
-    this.key,
-    this.max,
-    this.min, {
-    this.withScores = false,
-    this.limitOffset,
-    this.limitCount,
-  });
-  final String key;
-  final String max;
-  final String min;
-  final bool withScores;
-  final int? limitOffset;
-  final int? limitCount;
-
+final class ZRevRangeByScoreCommand(
+  final String key,
+  final String max,
+  final String min, {
+  final bool withScores = false,
+  final int? limitOffset,
+  final int? limitCount,
+}) extends ValkeyCommand<dynamic> with KeyedCommand<dynamic> {
   @override
   List<String> get commandParts {
     final parts = ['ZREVRANGEBYSCORE', key, max, min];
@@ -55,9 +46,10 @@ final class ZRevRangeByScoreCommand extends ValkeyCommand<dynamic>
       if (withScores) {
         final result = <Map<String, String>>[];
         for (var i = 0; i < data.length; i += 2) {
-          result.add(
-            {'member': data[i] as String, 'score': data[i + 1] as String},
-          );
+          result.add({
+            'member': data[i] as String,
+            'score': data[i + 1] as String,
+          });
         }
         return result;
       } else {

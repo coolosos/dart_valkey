@@ -17,11 +17,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `String?` resolving to `'member1'` or `null`
-final class SRandMemberCommand extends ValkeyCommand<String?>
+final class SRandMemberCommand(final String key)
+    extends ValkeyCommand<String?>
     with KeyedCommand<String?> {
-  SRandMemberCommand(this.key);
-  final String key;
-
   @override
   List<String> get commandParts => ['SRANDMEMBER', key];
 

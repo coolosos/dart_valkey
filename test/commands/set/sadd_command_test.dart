@@ -22,10 +22,11 @@ void main() {
     test('should apply prefix to key', () {
       final command = SAddCommand('myset', ['member1']);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['SADD', 'myprefix:myset', 'member1'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'SADD',
+        'myprefix:myset',
+        'member1',
+      ]);
     });
   });
 }

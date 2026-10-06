@@ -11,15 +11,16 @@ void main() {
 
     test('should parse list of strings correctly', () {
       final command = SUnionCommand(['set1']);
-      expect(
-        command.parse(['member1', 'member2', 'member3']),
-        ['member1', 'member2', 'member3'],
-      );
+      expect(command.parse(['member1', 'member2', 'member3']), [
+        'member1',
+        'member2',
+        'member3',
+      ]);
     });
 
     test('should parse empty list correctly', () {
       final command = SUnionCommand(['set1']);
-      expect(command.parse([]), []);
+      expect(command.parse(<dynamic>[]), <String>[]);
     });
 
     test('should throw an exception for invalid response', () {
@@ -30,10 +31,11 @@ void main() {
     test('should apply prefix to keys', () {
       final command = SUnionCommand(['set1', 'set2']);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['SUNION', 'myprefix:set1', 'myprefix:set2'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'SUNION',
+        'myprefix:set1',
+        'myprefix:set2',
+      ]);
     });
   });
 }

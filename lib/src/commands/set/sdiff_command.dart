@@ -18,11 +18,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `List<String>` resolving to `['member2']`
-final class SDiffCommand extends ValkeyCommand<List<String>>
+final class SDiffCommand(final List<String> keys)
+    extends ValkeyCommand<List<String>>
     with KeyedCommand<List<String>> {
-  SDiffCommand(this.keys);
-  final List<String> keys;
-
   @override
   List<String> get commandParts => ['SDIFF', ...keys];
 

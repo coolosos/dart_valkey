@@ -16,10 +16,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `int` resolving to `60` (TTL in seconds), `-1` (no expire), or `-2` (key does not exist)
-final class TtlCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  TtlCommand(this.key);
-  final String key;
-
+final class TtlCommand(final String key)
+    extends ValkeyCommand<int>
+    with KeyedCommand<int> {
   @override
   List<String> get commandParts => ['TTL', key];
 

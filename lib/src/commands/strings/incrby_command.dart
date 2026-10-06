@@ -20,11 +20,9 @@ import '../command.dart';
 /// Parameters:
 /// - [key]: The key to increment.
 /// - [increment]: The amount to increment by.
-final class IncrByCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  IncrByCommand(this.key, this.increment);
-  final String key;
-  final int increment;
-
+final class IncrByCommand(final String key, final int increment)
+    extends ValkeyCommand<int>
+    with KeyedCommand<int> {
   @override
   List<String> get commandParts => ['INCRBY', key, increment.toString()];
 

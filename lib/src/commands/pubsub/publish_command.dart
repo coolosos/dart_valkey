@@ -4,11 +4,9 @@ import '../command.dart';
 /// Represents the `PUBLISH channel message` command.
 ///
 /// Posts a message to the given channel.
-final class PublishCommand extends ValkeyCommand<int> {
-  PublishCommand(this.channel, this.message);
+final class PublishCommand(final String channel, final String message)
+    extends ValkeyCommand<int> {
   // Changed extends
-  final String channel;
-  final String message;
 
   @override
   List<String> get commandParts => ['PUBLISH', channel, message];

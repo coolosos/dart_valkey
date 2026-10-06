@@ -15,11 +15,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `int` resolving to `2` (number of members added)
-final class SAddCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  SAddCommand(this.key, this.members);
-  final String key;
-  final List<String> members;
-
+final class SAddCommand(final String key, final List<String> members)
+    extends ValkeyCommand<int>
+    with KeyedCommand<int> {
   @override
   List<String> get commandParts => ['SADD', key, ...members];
 

@@ -16,7 +16,7 @@ void main() {
 
     test('should parse empty list correctly', () {
       final command = SPopCountCommand('myset', 2);
-      expect(command.parse([]), []);
+      expect(command.parse(<dynamic>[]), <String>[]);
     });
 
     test('should throw an exception for invalid response', () {

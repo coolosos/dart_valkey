@@ -1,7 +1,7 @@
 import '../../codec/valkey_exception.dart';
 import '../command.dart';
 
-/// Represents the 'ZRANGE key start stop [BYLEX|BYSCORE] [REV] [LIMIT offset count] [WITHSCORES]' command.
+/// Represents the `ZRANGE key start stop [BYLEX|BYSCORE] [REV] [LIMIT offset count] [WITHSCORES]` command.
 /// Returns the specified range of elements in the sorted set stored at key.
 ///
 /// **Redis Command:**
@@ -13,28 +13,17 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `List<String>` or `List<Map<String, String>>` (if WITHSCORES is true)
-final class ZRangeCommand extends ValkeyCommand<List> with KeyedCommand<List> {
-  ZRangeCommand(
-    this.key,
-    this.start,
-    this.stop, {
-    this.byLex = false,
-    this.byScore = false,
-    this.rev = false,
-    this.limitOffset,
-    this.limitCount,
-    this.withScores = false,
-  });
-  final String key;
-  final String start;
-  final String stop;
-  final bool byLex;
-  final bool byScore;
-  final bool rev;
-  final int? limitOffset;
-  final int? limitCount;
-  final bool withScores;
-
+final class ZRangeCommand(
+  final String key,
+  final String start,
+  final String stop, {
+  final bool byLex = false,
+  final bool byScore = false,
+  final bool rev = false,
+  final int? limitOffset,
+  final int? limitCount,
+  final bool withScores = false,
+}) extends ValkeyCommand<List<dynamic>> with KeyedCommand<List<dynamic>> {
   @override
   List<String> get commandParts {
     final parts = ['ZRANGE', key, start, stop];
@@ -56,14 +45,15 @@ final class ZRangeCommand extends ValkeyCommand<List> with KeyedCommand<List> {
   }
 
   @override
-  List parse(dynamic data) {
+  List<dynamic> parse(dynamic data) {
     if (data is List) {
       if (withScores) {
         final result = <Map<String, String>>[];
         for (var i = 0; i < data.length; i += 2) {
-          result.add(
-            {'member': data[i] as String, 'score': data[i + 1] as String},
-          );
+          result.add({
+            'member': data[i] as String,
+            'score': data[i + 1] as String,
+          });
         }
         return result;
       } else {

@@ -22,11 +22,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `List<String>` resolving to `['member1', 'member2', 'member3']`
-final class SUnionCommand extends ValkeyCommand<List<String>>
+final class SUnionCommand(final List<String> keys)
+    extends ValkeyCommand<List<String>>
     with KeyedCommand<List<String>> {
-  SUnionCommand(this.keys);
-  final List<String> keys;
-
   @override
   List<String> get commandParts => ['SUNION', ...keys];
 

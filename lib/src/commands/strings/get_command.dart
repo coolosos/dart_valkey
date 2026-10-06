@@ -19,11 +19,9 @@ import '../command.dart';
 ///
 /// Parameters:
 /// - [key]: The key to retrieve the value from.
-final class GetCommand extends ValkeyCommand<String?>
+final class GetCommand(final String key)
+    extends ValkeyCommand<String?>
     with KeyedCommand<String?> {
-  GetCommand(this.key);
-  final String key;
-
   @override
   List<String> get commandParts => ['GET', key];
 

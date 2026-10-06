@@ -20,15 +20,18 @@ import '../command.dart';
 /// - [key]: The key of the hash.
 /// - [field]: The field to increment.
 /// - [increment]: The amount to increment by.
-final class HIncrByCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  HIncrByCommand(this.key, this.field, this.increment);
-  final String key;
-  final String field;
-  final int increment;
-
+final class HIncrByCommand(
+  final String key,
+  final String field,
+  final int increment,
+) extends ValkeyCommand<int> with KeyedCommand<int> {
   @override
-  List<String> get commandParts =>
-      ['HINCRBY', key, field, increment.toString()];
+  List<String> get commandParts => [
+    'HINCRBY',
+    key,
+    field,
+    increment.toString(),
+  ];
 
   @override
   int parse(dynamic data) {

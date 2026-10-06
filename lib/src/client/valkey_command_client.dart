@@ -11,7 +11,7 @@ part of 'valkey_client.dart';
 ///
 /// Example usage:
 /// ```dart
-/// final client = ValkeyClient(host: 'localhost', port: 6379);
+/// final client = ValkeyCommandClient(host: 'localhost', port: 6379);
 /// await client.connect();
 ///
 /// // Use extension methods for commands
@@ -29,15 +29,15 @@ class ValkeyCommandClient extends BaseValkeyClient {
   ///
   /// - [host]: The hostname or IP address of the Valkey/Redis server.
   /// - [port]: The port number of the Valkey/Redis server (default is 6379).
-  /// - [db]: The database index to select upon connection (defaults to 0).
+  /// - [_db]: The database index to select upon connection (defaults to 0).
   /// - [keyPrefix]: An optional prefix to apply to all keys sent to the server.
   /// - [secure]: If `true`, a TLS/SSL connection will be used. Defaults to `false`.
   /// - [connectionTimeout]: The maximum duration to wait for the initial connection to be established.
   /// - [onBadCertificate]: A callback function for handling bad TLS certificates when [secure] is `true`.
-  ValkeyCommandClient({
+  new({
     required super.host,
     required super.port,
-    int db = 0,
+    this._db = 0,
     String? keyPrefix,
     super.secure,
     super.connectionTimeout,
@@ -49,9 +49,9 @@ class ValkeyCommandClient extends BaseValkeyClient {
     super.respDecoder = const Resp3Decoder(),
     super.disableNagle = true,
     this.commandTimeout = const Duration(seconds: 1),
-  })  : _db = db,
-        keyPrefix =
-            (keyPrefix?.endsWith(':') ?? false) ? keyPrefix : '$keyPrefix:';
+  }) : keyPrefix = (keyPrefix?.endsWith(':') ?? false)
+           ? keyPrefix
+           : '$keyPrefix:';
 
   final int _db;
   final String? keyPrefix;
@@ -108,7 +108,7 @@ class ValkeyCommandClient extends BaseValkeyClient {
       final command = _pendingCompleters.remove(completer);
       if (command != null) {
         try {
-          completer.complete(command.parse(data));
+          completer.complete(command.parse(data) as Object?);
         } catch (e, s) {
           completer.completeError(e, s);
         }

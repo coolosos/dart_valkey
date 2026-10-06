@@ -16,7 +16,7 @@ void main() {
 
     test('should parse empty list correctly', () {
       final command = SRandMemberCountCommand('myset', 2);
-      expect(command.parse([]), []);
+      expect(command.parse(<dynamic>[]), <String>[]);
     });
 
     test('should throw an exception for invalid response', () {
@@ -27,10 +27,11 @@ void main() {
     test('should apply prefix to key', () {
       final command = SRandMemberCountCommand('myset', 2);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['SRANDMEMBER', 'myprefix:myset', '2'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'SRANDMEMBER',
+        'myprefix:myset',
+        '2',
+      ]);
     });
   });
 }

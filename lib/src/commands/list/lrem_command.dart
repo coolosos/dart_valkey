@@ -16,12 +16,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `int` resolving to `1` (number of elements removed)
-final class LRemCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  LRemCommand(this.key, this.count, this.value);
-  final String key;
-  final int count;
-  final String value;
-
+final class LRemCommand(final String key, final int count, final String value)
+    extends ValkeyCommand<int>
+    with KeyedCommand<int> {
   @override
   List<String> get commandParts => ['LREM', key, count.toString(), value];
 

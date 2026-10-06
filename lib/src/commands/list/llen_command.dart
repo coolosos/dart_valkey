@@ -18,10 +18,9 @@ import '../command.dart';
 ///
 /// Parameters:
 /// - [key]: The key of the list.
-final class LLenCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  LLenCommand(this.key);
-  final String key;
-
+final class LLenCommand(final String key)
+    extends ValkeyCommand<int>
+    with KeyedCommand<int> {
   @override
   List<String> get commandParts => ['LLEN', key];
 
