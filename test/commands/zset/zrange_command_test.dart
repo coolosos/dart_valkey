@@ -25,20 +25,33 @@ void main() {
     });
 
     test('should build the correct command with LIMIT', () {
-      final command =
-          ZRangeCommand('myzset', '0', '-1', limitOffset: 0, limitCount: 1);
-      expect(
-        command.commandParts,
-        ['ZRANGE', 'myzset', '0', '-1', 'LIMIT', '0', '1'],
+      final command = ZRangeCommand(
+        'myzset',
+        '0',
+        '-1',
+        limitOffset: 0,
+        limitCount: 1,
       );
+      expect(command.commandParts, [
+        'ZRANGE',
+        'myzset',
+        '0',
+        '-1',
+        'LIMIT',
+        '0',
+        '1',
+      ]);
     });
 
     test('should build the correct command with WITHSCORES', () {
       final command = ZRangeCommand('myzset', '0', '-1', withScores: true);
-      expect(
-        command.commandParts,
-        ['ZRANGE', 'myzset', '0', '-1', 'WITHSCORES'],
-      );
+      expect(command.commandParts, [
+        'ZRANGE',
+        'myzset',
+        '0',
+        '-1',
+        'WITHSCORES',
+      ]);
     });
 
     test('should parse list of strings correctly (without scores)', () {
@@ -62,10 +75,12 @@ void main() {
     test('should apply prefix to key', () {
       final command = ZRangeCommand('myzset', '0', '-1');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['ZRANGE', 'myprefix:myzset', '0', '-1'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'ZRANGE',
+        'myprefix:myzset',
+        '0',
+        '-1',
+      ]);
     });
   });
 }

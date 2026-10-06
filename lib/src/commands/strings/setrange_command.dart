@@ -21,12 +21,11 @@ import '../command.dart';
 /// - [key]: The key to modify.
 /// - [offset]: The zero-based offset at which to start overwriting.
 /// - [value]: The string to overwrite with.
-final class SetRangeCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  SetRangeCommand(this.key, this.offset, this.value);
-  final String key;
-  final int offset;
-  final String value;
-
+final class SetRangeCommand(
+  final String key,
+  final int offset,
+  final String value,
+) extends ValkeyCommand<int> with KeyedCommand<int> {
   @override
   List<String> get commandParts => ['SETRANGE', key, offset.toString(), value];
 

@@ -22,26 +22,20 @@ import '../command.dart';
 /// - [before]: If true, insert before the pivot; otherwise, insert after.
 /// - [pivot]: The element to insert relative to.
 /// - [value]: The value to insert.
-final class LInsertCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  LInsertCommand(
-    this.key,
-    this.pivot,
-    this.value, {
-    required this.before,
-  });
-  final String key;
-  final bool before;
-  final String pivot;
-  final String value;
-
+final class LInsertCommand(
+  final String key,
+  final String pivot,
+  final String value, {
+  required final bool before,
+}) extends ValkeyCommand<int> with KeyedCommand<int> {
   @override
   List<String> get commandParts => [
-        'LINSERT',
-        key,
-        if (before) 'BEFORE' else 'AFTER',
-        pivot,
-        value,
-      ];
+    'LINSERT',
+    key,
+    if (before) 'BEFORE' else 'AFTER',
+    pivot,
+    value,
+  ];
 
   @override
   int parse(dynamic data) {

@@ -101,10 +101,12 @@ void main() {
         strategyType: SetStrategyTypes.onlyIfExists,
       );
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['SET', 'myprefix:mykey', 'myvalue', 'XX'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'SET',
+        'myprefix:mykey',
+        'myvalue',
+        'XX',
+      ]);
     });
   });
 }

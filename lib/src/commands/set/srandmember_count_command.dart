@@ -20,12 +20,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `List<String>` resolving to `['member1', 'member2']`
-final class SRandMemberCountCommand extends ValkeyCommand<List<String>>
+final class SRandMemberCountCommand(final String key, final int count)
+    extends ValkeyCommand<List<String>>
     with KeyedCommand<List<String>> {
-  SRandMemberCountCommand(this.key, this.count);
-  final String key;
-  final int count;
-
   @override
   List<String> get commandParts => ['SRANDMEMBER', key, count.toString()];
 

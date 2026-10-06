@@ -15,17 +15,12 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `int` resolving to 0 or 1.
-enum UnblockType {
-  timeout,
-  error,
-}
+enum UnblockType { timeout, error }
 
-final class ClientUnblockCommand extends ValkeyCommand<int> {
-  ClientUnblockCommand(this.clientId, {this.unblockType});
-
-  final int clientId;
-  final UnblockType? unblockType;
-
+final class ClientUnblockCommand(
+  final int clientId, {
+  final UnblockType? unblockType,
+}) extends ValkeyCommand<int> {
   @override
   List<String> get commandParts {
     final parts = ['CLIENT', 'UNBLOCK', clientId.toString()];

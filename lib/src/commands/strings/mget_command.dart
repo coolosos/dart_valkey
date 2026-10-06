@@ -22,11 +22,9 @@ import '../command.dart';
 ///
 /// Parameters:
 /// - [keys]: A list of keys to retrieve values for.
-final class MGetCommand extends ValkeyCommand<List<String?>>
+final class MGetCommand(final List<String> keys)
+    extends ValkeyCommand<List<String?>>
     with KeyedCommand<List<String?>> {
-  MGetCommand(this.keys);
-  final List<String> keys;
-
   @override
   List<String> get commandParts => ['MGET', ...keys];
 

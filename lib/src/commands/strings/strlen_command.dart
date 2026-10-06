@@ -19,10 +19,9 @@ import '../command.dart';
 ///
 /// Parameters:
 /// - [key]: The key to get the length of.
-final class StrLenCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  StrLenCommand(this.key);
-  final String key;
-
+final class StrLenCommand(final String key)
+    extends ValkeyCommand<int>
+    with KeyedCommand<int> {
   @override
   List<String> get commandParts => ['STRLEN', key];
 

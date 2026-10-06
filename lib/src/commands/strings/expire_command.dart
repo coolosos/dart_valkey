@@ -6,10 +6,9 @@ enum ExpireStrategyTypes {
   onlyIfExists('XX'),
   greaterThanCurrent('GT'),
   lessThanCurrent('LT'),
-  always(''),
-  ;
+  always('');
 
-  const ExpireStrategyTypes(this.command);
+  new(this.command);
 
   final String command;
 }
@@ -33,16 +32,11 @@ enum ExpireStrategyTypes {
 /// - [key]: The key to set the expiration for.
 /// - [seconds]: The time to live in seconds.
 /// - [strategyType]: Set expire strategy.
-final class ExpireCommand extends ValkeyCommand<bool> with KeyedCommand<bool> {
-  ExpireCommand(
-    this.key,
-    this.seconds, {
-    this.strategyType = ExpireStrategyTypes.always,
-  });
-  final String key;
-  final int seconds;
-  final ExpireStrategyTypes strategyType;
-
+final class ExpireCommand(
+  final String key,
+  final int seconds, {
+  final ExpireStrategyTypes strategyType = ExpireStrategyTypes.always,
+}) extends ValkeyCommand<bool> with KeyedCommand<bool> {
   @override
   List<String> get commandParts {
     final parts = ['EXPIRE', key, seconds.toString()];
@@ -66,10 +60,6 @@ final class ExpireCommand extends ValkeyCommand<bool> with KeyedCommand<bool> {
 
   @override
   ValkeyCommand<bool> applyPrefix(String prefix) {
-    return ExpireCommand(
-      '$prefix$key',
-      seconds,
-      strategyType: strategyType,
-    );
+    return ExpireCommand('$prefix$key', seconds, strategyType: strategyType);
   }
 }

@@ -11,15 +11,15 @@ void main() {
 
     test('should parse list of strings correctly', () {
       final command = PubsubHelpCommand();
-      expect(
-        command.parse(['help text 1', 'help text 2']),
-        ['help text 1', 'help text 2'],
-      );
+      expect(command.parse(['help text 1', 'help text 2']), [
+        'help text 1',
+        'help text 2',
+      ]);
     });
 
     test('should parse empty list correctly', () {
       final command = PubsubHelpCommand();
-      expect(command.parse([]), []);
+      expect(command.parse(<dynamic>[]), <String>[]);
     });
 
     test('should throw an exception for invalid response', () {

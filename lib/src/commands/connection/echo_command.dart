@@ -2,10 +2,7 @@ import '../../codec/valkey_exception.dart';
 import '../command.dart';
 
 /// Represents the 'ECHO message' command.
-final class EchoCommand extends ValkeyCommand<String> {
-  EchoCommand(this.message);
-  final String message;
-
+final class EchoCommand(final String message) extends ValkeyCommand<String> {
   @override
   List<String> get commandParts => ['ECHO', message];
 

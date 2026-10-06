@@ -23,10 +23,12 @@ void main() {
     test('should apply prefix to key', () {
       final command = HIncrByFloatCommand('mykey', 'myfield', 1.5);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['HINCRBYFLOAT', 'myprefix:mykey', 'myfield', '1.5'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'HINCRBYFLOAT',
+        'myprefix:mykey',
+        'myfield',
+        '1.5',
+      ]);
     });
   });
 }

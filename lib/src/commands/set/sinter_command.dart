@@ -18,11 +18,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `List<String>` resolving to `['member1']`
-final class SInterCommand extends ValkeyCommand<List<String>>
+final class SInterCommand(final List<String> keys)
+    extends ValkeyCommand<List<String>>
     with KeyedCommand<List<String>> {
-  SInterCommand(this.keys);
-  final List<String> keys;
-
   @override
   List<String> get commandParts => ['SINTER', ...keys];
 

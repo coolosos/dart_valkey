@@ -7,16 +7,18 @@ mixin ShardSubscriptionMixin on BaseValkeyClient {
 
   void ssubscribe(List<String> channels) {
     if (channels.isEmpty) return;
-    final newChannels =
-        channels.where((c) => !_subscribedShardChannels.contains(c)).toList();
+    final newChannels = channels
+        .where((c) => !_subscribedShardChannels.contains(c))
+        .toList();
     if (newChannels.isEmpty) return;
     _sendSsubscribeCommand(newChannels);
     _subscribedShardChannels.addAll(newChannels);
   }
 
   void sunsubscribe([List<String> channels = const []]) {
-    final channelsToUnsubscribe =
-        channels.isEmpty ? _subscribedShardChannels.toList() : channels;
+    final channelsToUnsubscribe = channels.isEmpty
+        ? _subscribedShardChannels.toList()
+        : channels;
     if (channelsToUnsubscribe.isEmpty) return;
 
     _sendSunsubscribeCommand(channelsToUnsubscribe);

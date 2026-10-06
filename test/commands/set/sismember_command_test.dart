@@ -21,10 +21,11 @@ void main() {
     test('should apply prefix to key', () {
       final command = SIsMemberCommand('myset', 'member1');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['SISMEMBER', 'myprefix:myset', 'member1'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'SISMEMBER',
+        'myprefix:myset',
+        'member1',
+      ]);
     });
   });
 }

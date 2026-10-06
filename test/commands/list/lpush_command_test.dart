@@ -22,10 +22,11 @@ void main() {
     test('should apply prefix to key', () {
       final command = LPushCommand('mylist', ['item1']);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['LPUSH', 'myprefix:mylist', 'item1'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'LPUSH',
+        'myprefix:mylist',
+        'item1',
+      ]);
     });
   });
 }

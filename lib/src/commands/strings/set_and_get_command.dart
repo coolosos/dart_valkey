@@ -26,7 +26,7 @@ import 'set_command.dart';
 /// - [key]: The key to set.
 /// - [value]: The value to set.
 final class SetAndGetCommand extends BaseSetCommand<String?> {
-  SetAndGetCommand(
+  new(
     super.key,
     super.value, {
     super.expire,
@@ -35,11 +35,7 @@ final class SetAndGetCommand extends BaseSetCommand<String?> {
 
   @override
   List<String> get commandParts {
-    final parts = <String>[
-      'SET',
-      key,
-      value,
-    ];
+    final parts = <String>['SET', key, value];
 
     if (strategyType != SetStrategyTypes.always) {
       parts.add(strategyType.command);

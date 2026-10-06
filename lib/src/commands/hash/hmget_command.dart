@@ -22,12 +22,9 @@ import '../command.dart';
 /// Parameters:
 /// - [key]: The key of the hash.
 /// - [fields]: A list of fields to retrieve values for.
-final class HMGetCommand extends ValkeyCommand<List<String?>>
+final class HMGetCommand(final String key, final List<String> fields)
+    extends ValkeyCommand<List<String?>>
     with KeyedCommand<List<String?>> {
-  HMGetCommand(this.key, this.fields);
-  final String key;
-  final List<String> fields;
-
   @override
   List<String> get commandParts => ['HMGET', key, ...fields];
 

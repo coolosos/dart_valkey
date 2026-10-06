@@ -16,16 +16,18 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `double` resolving to `2.5`
-final class ZIncrByCommand extends ValkeyCommand<double>
-    with KeyedCommand<double> {
-  ZIncrByCommand(this.key, this.increment, this.member);
-  final String key;
-  final double increment;
-  final String member;
-
+final class ZIncrByCommand(
+  final String key,
+  final double increment,
+  final String member,
+) extends ValkeyCommand<double> with KeyedCommand<double> {
   @override
-  List<String> get commandParts =>
-      ['ZINCRBY', key, increment.toString(), member];
+  List<String> get commandParts => [
+    'ZINCRBY',
+    key,
+    increment.toString(),
+    member,
+  ];
 
   @override
   double parse(dynamic data) {

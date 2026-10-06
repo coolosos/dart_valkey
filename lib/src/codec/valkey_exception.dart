@@ -1,5 +1,5 @@
 class ValkeyException implements Exception {
-  ValkeyException(this.message);
+  new(this.message);
   final String message;
   @override
   String toString() => 'ValkeyException: $message';

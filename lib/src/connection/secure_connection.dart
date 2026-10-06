@@ -3,7 +3,7 @@ import 'dart:io';
 import 'base_connection.dart';
 
 class SecureConnection extends BaseConnection {
-  SecureConnection({
+  new({
     required super.respDecoder,
     super.host,
     super.port,
@@ -21,9 +21,9 @@ class SecureConnection extends BaseConnection {
 
   @override
   Future<Socket> performSocketConnection() => SecureSocket.connect(
-        host,
-        port,
-        timeout: connectionTimeout,
-        onBadCertificate: onBadCertificate,
-      );
+    host,
+    port,
+    timeout: connectionTimeout,
+    onBadCertificate: onBadCertificate,
+  );
 }

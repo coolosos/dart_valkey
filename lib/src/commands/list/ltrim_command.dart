@@ -19,22 +19,16 @@ import '../command.dart';
 /// - [key]: The key of the list.
 /// - [start]: The starting offset.
 /// - [stop]: The ending offset (inclusive).
-final class LTrimCommand extends ValkeyCommand<bool> with KeyedCommand<bool> {
-  LTrimCommand(this.key, this.start, this.stop);
-  final String key;
-  final int start;
-  final int stop;
-
+final class LTrimCommand(final String key, final int start, final int stop)
+    extends ValkeyCommand<bool>
+    with KeyedCommand<bool>, OkBoolResponse {
   @override
-  List<String> get commandParts =>
-      ['LTRIM', key, start.toString(), stop.toString()];
-
-  @override
-  bool parse(dynamic data) {
-    return data == 'OK';
-    // throw ValkeyException(
-    //     'Invalid response for LTRIM: expected "OK", got "$data"');
-  }
+  List<String> get commandParts => [
+    'LTRIM',
+    key,
+    start.toString(),
+    stop.toString(),
+  ];
 
   @override
   ValkeyCommand<bool> applyPrefix(String prefix) {

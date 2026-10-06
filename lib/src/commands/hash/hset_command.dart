@@ -19,11 +19,9 @@ import '../command.dart';
 /// Parameters:
 /// - [key]: The key of the hash.
 /// - [fields]: A map of field-value pairs to set.
-final class HSetCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  HSetCommand(this.key, this.fields);
-  final String key;
-  final Map<String, Object> fields;
-
+final class HSetCommand(final String key, final Map<String, Object> fields)
+    extends ValkeyCommand<int>
+    with KeyedCommand<int> {
   @override
   List<String> get commandParts {
     final parts = <String>['HSET', key];

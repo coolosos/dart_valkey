@@ -1,4 +1,3 @@
-import '../../codec/valkey_exception.dart';
 import '../command.dart';
 
 /// Represents the 'CLIENT CACHING' command.
@@ -15,20 +14,13 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `String` resolving to `'OK'`
-final class ClientCachingCommand extends ValkeyCommand<String> {
-  ClientCachingCommand({required this.enable});
-
-  final bool enable;
-
+final class ClientCachingCommand({required final bool enable})
+    extends ValkeyCommand<String>
+    with OkStringResponse {
   @override
-  List<String> get commandParts =>
-      ['CLIENT', 'CACHING', if (enable) 'YES' else 'NO'];
-
-  @override
-  String parse(dynamic data) {
-    if (data is String && data == 'OK') return data;
-    throw ValkeyException(
-      'Invalid response for CLIENT CACHING: expected OK, got ${data.runtimeType}',
-    );
-  }
+  List<String> get commandParts => [
+    'CLIENT',
+    'CACHING',
+    if (enable) 'YES' else 'NO',
+  ];
 }

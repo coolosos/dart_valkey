@@ -24,7 +24,7 @@ part 'valkey_subscription_client.dart';
 
 /// Base class for Valkey and Valkey Pub/Sub clients, providing common connection management.
 sealed class BaseValkeyClient {
-  BaseValkeyClient({
+  new({
     required String host,
     required int port,
     bool secure = false,
@@ -37,7 +37,8 @@ sealed class BaseValkeyClient {
     Connection? connection,
     bool disableNagle = true,
   }) {
-    _connection = connection ??
+    _connection =
+        connection ??
         (secure
             ? SecureConnection(
                 host: host,
@@ -74,10 +75,7 @@ sealed class BaseValkeyClient {
   /// Establishes the network connection to the Valkey/Redis server.
   Future<void> connect() async {
     if (!_connection.isConnected) {
-      await _connection.connect(
-        username: username,
-        password: password,
-      );
+      await _connection.connect(username: username, password: password);
     }
   }
 

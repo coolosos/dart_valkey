@@ -20,11 +20,9 @@ import '../command.dart';
 /// Parameters:
 /// - [key]: The key to append to.
 /// - [value]: The string to append.
-final class AppendCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  AppendCommand(this.key, this.value);
-  final String key;
-  final String value;
-
+final class AppendCommand(final String key, final String value)
+    extends ValkeyCommand<int>
+    with KeyedCommand<int> {
   @override
   List<String> get commandParts => ['APPEND', key, value];
 

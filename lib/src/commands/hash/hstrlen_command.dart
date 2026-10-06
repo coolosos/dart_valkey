@@ -35,11 +35,9 @@ import '../command.dart';
 /// Parameters:
 /// - [key]: The key of the hash.
 /// - [field]: The field to get the length of.
-final class HStrLenCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  HStrLenCommand(this.key, this.field);
-  final String key;
-  final String field;
-
+final class HStrLenCommand(final String key, final String field)
+    extends ValkeyCommand<int>
+    with KeyedCommand<int> {
   @override
   List<String> get commandParts => ['HSTRLEN', key, field];
 

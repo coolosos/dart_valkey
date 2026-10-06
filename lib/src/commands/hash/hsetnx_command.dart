@@ -21,12 +21,11 @@ import '../command.dart';
 /// - [key]: The key of the hash.
 /// - [field]: The field to set.
 /// - [value]: The value to set.
-final class HSetNxCommand extends ValkeyCommand<bool> with KeyedCommand<bool> {
-  HSetNxCommand(this.key, this.field, this.value);
-  final String key;
-  final String field;
-  final String value;
-
+final class HSetNxCommand(
+  final String key,
+  final String field,
+  final String value,
+) extends ValkeyCommand<bool> with KeyedCommand<bool> {
   @override
   List<String> get commandParts => ['HSETNX', key, field, value];
 

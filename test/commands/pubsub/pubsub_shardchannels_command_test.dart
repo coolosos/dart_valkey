@@ -21,7 +21,7 @@ void main() {
 
     test('should parse empty list correctly', () {
       final command = PubsubShardchannelsCommand();
-      expect(command.parse([]), []);
+      expect(command.parse(<dynamic>[]), <String>[]);
     });
 
     test('should throw an exception for invalid response', () {

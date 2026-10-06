@@ -16,11 +16,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `int?` resolving to `0` or `null`
-final class ZRankCommand extends ValkeyCommand<int?> with KeyedCommand<int?> {
-  ZRankCommand(this.key, this.member);
-  final String key;
-  final String member;
-
+final class ZRankCommand(final String key, final String member)
+    extends ValkeyCommand<int?>
+    with KeyedCommand<int?> {
   @override
   List<String> get commandParts => ['ZRANK', key, member];
 

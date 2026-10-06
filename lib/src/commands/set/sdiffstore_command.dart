@@ -16,12 +16,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `int` resolving to `1` (number of elements in the resulting set)
-final class SDiffStoreCommand extends ValkeyCommand<int>
+final class SDiffStoreCommand(final String destination, final List<String> keys)
+    extends ValkeyCommand<int>
     with KeyedCommand<int> {
-  SDiffStoreCommand(this.destination, this.keys);
-  final String destination;
-  final List<String> keys;
-
   @override
   List<String> get commandParts => ['SDIFFSTORE', destination, ...keys];
 

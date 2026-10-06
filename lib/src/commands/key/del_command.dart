@@ -16,10 +16,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `int` resolving to `2` (number of keys deleted)
-final class DelCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  DelCommand(this.keys);
-  final List<String> keys;
-
+final class DelCommand(final List<String> keys)
+    extends ValkeyCommand<int>
+    with KeyedCommand<int> {
   @override
   List<String> get commandParts => ['DEL', ...keys];
 

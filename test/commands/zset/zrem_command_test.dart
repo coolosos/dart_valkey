@@ -22,10 +22,11 @@ void main() {
     test('should apply prefix to key', () {
       final command = ZRemCommand('myzset', ['member1']);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['ZREM', 'myprefix:myzset', 'member1'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'ZREM',
+        'myprefix:myzset',
+        'member1',
+      ]);
     });
   });
 }

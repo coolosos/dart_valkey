@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:io';
+
 import 'package:dart_valkey/dart_valkey.dart';
 import 'package:dart_valkey/src/connection/base_connection.dart';
 import 'package:mockito/annotations.dart';
@@ -19,12 +20,8 @@ import 'package:mockito/annotations.dart';
 void main() {}
 
 class TestConnection extends BaseConnection {
-  TestConnection({
-    super.onConnected,
-    super.onData,
-    super.onDone,
-    super.onError,
-  }) : super(respDecoder: const Resp3Decoder());
+  new({super.onConnected, super.onData, super.onDone, super.onError})
+    : super(respDecoder: const Resp3Decoder());
 
   late Socket socketToReturn;
 
@@ -35,10 +32,7 @@ class TestConnection extends BaseConnection {
 }
 
 base class FakeCommand<T> extends ValkeyCommand<T> {
-  FakeCommand({
-    required this.fakeEncoded,
-    required this.fakeResult,
-  });
+  new({required this.fakeEncoded, required this.fakeResult});
 
   /// The encoded bytes that will be sent via _send.
   final List<int> fakeEncoded;

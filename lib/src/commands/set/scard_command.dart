@@ -15,10 +15,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `int` resolving to `2`
-final class SCardCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  SCardCommand(this.key);
-  final String key;
-
+final class SCardCommand(final String key)
+    extends ValkeyCommand<int>
+    with KeyedCommand<int> {
   @override
   List<String> get commandParts => ['SCARD', key];
 

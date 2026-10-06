@@ -21,7 +21,7 @@ void main() {
 
     test('should parse null response correctly', () {
       final command = LPopCommand('mylist');
-      expect(command.parse(null), []);
+      expect(command.parse(null), <String>[]);
     });
 
     test('should parse list response correctly', () {

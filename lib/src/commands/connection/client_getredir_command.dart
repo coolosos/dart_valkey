@@ -18,7 +18,7 @@ import '../command.dart';
 /// **Dart Result (from parse method):**
 /// `int` resolving to the client ID, 0, or -1.
 final class ClientGetredirCommand extends ValkeyCommand<int> {
-  ClientGetredirCommand();
+  new();
 
   @override
   List<String> get commandParts => ['CLIENT', 'GETREDIR'];

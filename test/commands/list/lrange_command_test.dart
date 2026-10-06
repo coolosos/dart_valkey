@@ -16,7 +16,7 @@ void main() {
 
     test('should parse empty list correctly', () {
       final command = LRangeCommand('mylist', 0, -1);
-      expect(command.parse([]), []);
+      expect(command.parse(<dynamic>[]), <String>[]);
     });
 
     test('should throw an exception for invalid response', () {
@@ -27,10 +27,12 @@ void main() {
     test('should apply prefix to key', () {
       final command = LRangeCommand('mylist', 0, -1);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['LRANGE', 'myprefix:mylist', '0', '-1'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'LRANGE',
+        'myprefix:mylist',
+        '0',
+        '-1',
+      ]);
     });
   });
 }

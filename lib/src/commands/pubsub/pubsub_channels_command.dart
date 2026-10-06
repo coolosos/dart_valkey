@@ -3,13 +3,10 @@ import '../command.dart';
 
 /// Represents the 'PUBSUB CHANNELS [pattern]' command.
 /// Lists the currently active channels.
-final class PubsubChannelsCommand extends ValkeyCommand<List<String>> {
-  PubsubChannelsCommand([this.pattern]);
-  final String? pattern;
-
+final class PubsubChannelsCommand([final String? pattern])
+    extends ValkeyCommand<List<String>> {
   @override
-  List<String> get commandParts =>
-      ['PUBSUB', 'CHANNELS', if (pattern != null) pattern!];
+  List<String> get commandParts => ['PUBSUB', 'CHANNELS', ?pattern];
 
   @override
   List<String> parse(dynamic data) {

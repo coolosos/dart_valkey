@@ -16,12 +16,10 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `int` resolving to `1` (number of elements in the resulting set)
-final class SInterStoreCommand extends ValkeyCommand<int>
-    with KeyedCommand<int> {
-  SInterStoreCommand(this.destination, this.keys);
-  final String destination;
-  final List<String> keys;
-
+final class SInterStoreCommand(
+  final String destination,
+  final List<String> keys,
+) extends ValkeyCommand<int> with KeyedCommand<int> {
   @override
   List<String> get commandParts => ['SINTERSTORE', destination, ...keys];
 

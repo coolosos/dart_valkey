@@ -14,7 +14,7 @@ class ValkeySubscriptionClient extends BaseValkeyClient
   ///
   /// This constructor initializes the client but does not establish a connection.
   /// Call [connect] to establish the network connection to the server.
-  ValkeySubscriptionClient({
+  new({
     required super.host,
     required super.port,
     super.secure,
@@ -78,7 +78,6 @@ class ValkeySubscriptionClient extends BaseValkeyClient
               ),
             );
           }
-          break;
         case 'message':
           if (data.length == 3) {
             _messageController.add(
@@ -89,7 +88,6 @@ class ValkeySubscriptionClient extends BaseValkeyClient
               ),
             );
           }
-          break;
         case 'pmessage':
           if (data.length == 4) {
             _messageController.add(
@@ -101,7 +99,6 @@ class ValkeySubscriptionClient extends BaseValkeyClient
               ),
             );
           }
-          break;
         case 'subscribe':
         case 'psubscribe':
         case 'ssubscribe':
@@ -114,7 +111,7 @@ class ValkeySubscriptionClient extends BaseValkeyClient
               final command = _pendingCompleters.remove(completer);
               if (command != null) {
                 try {
-                  completer.complete(command.parse(data));
+                  completer.complete(command.parse(data) as Object?);
                 } catch (e, s) {
                   completer.completeError(e, s);
                 }
@@ -128,12 +125,10 @@ class ValkeySubscriptionClient extends BaseValkeyClient
               ),
             );
           }
-          break;
         default:
           _messageController.addError(
             ValkeyException('Unknown Pub/Sub message type: $data'),
           );
-          break;
       }
     }
   }

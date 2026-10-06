@@ -20,11 +20,10 @@ extension ValkeyCommands on ValkeyCommandClient {
     required String password,
     String? username,
     Duration? timeout,
-  }) =>
-      execute(
-        AuthCommand(username: username, password: password),
-        timeout: timeout,
-      );
+  }) => execute(
+    AuthCommand(username: username, password: password),
+    timeout: timeout,
+  );
   Future<String> clientSetname(String name, {Duration? timeout}) =>
       execute(ClientSetnameCommand(name), timeout: timeout);
   Future<void> quit({Duration? timeout}) async {
@@ -49,11 +48,10 @@ extension ValkeyCommands on ValkeyCommandClient {
     int clientId, {
     UnblockType? unblockType,
     Duration? timeout,
-  }) =>
-      execute(
-        ClientUnblockCommand(clientId, unblockType: unblockType),
-        timeout: timeout,
-      );
+  }) => execute(
+    ClientUnblockCommand(clientId, unblockType: unblockType),
+    timeout: timeout,
+  );
   Future<String> clientUnpause({Duration? timeout}) =>
       execute(ClientUnpauseCommand(), timeout: timeout);
   Future<Map<String, dynamic>> hello({
@@ -62,24 +60,22 @@ extension ValkeyCommands on ValkeyCommandClient {
     String? password,
     String? clientName,
     Duration? timeout,
-  }) =>
-      execute(
-        HelloCommand(
-          protocolVersion: protocolVersion,
-          username: username,
-          password: password,
-          clientName: clientName,
-        ),
-        timeout: timeout,
-      );
+  }) => execute(
+    HelloCommand(
+      protocolVersion: protocolVersion,
+      username: username,
+      password: password,
+      clientName: clientName,
+    ),
+    timeout: timeout,
+  );
 
   // Hashes
   Future<int> hset(
     String key,
     Map<String, Object> fields, {
     Duration? timeout,
-  }) =>
-      execute(HSetCommand(key, fields), timeout: timeout);
+  }) => execute(HSetCommand(key, fields), timeout: timeout);
   Future<String?> hget(String key, String field, {Duration? timeout}) =>
       execute(HGetCommand(key, field), timeout: timeout);
   Future<Map<String, String>> hgetall(String key, {Duration? timeout}) =>
@@ -93,23 +89,20 @@ extension ValkeyCommands on ValkeyCommandClient {
     String field,
     int increment, {
     Duration? timeout,
-  }) =>
-      execute(HIncrByCommand(key, field, increment), timeout: timeout);
+  }) => execute(HIncrByCommand(key, field, increment), timeout: timeout);
   Future<int> hlen(String key, {Duration? timeout}) =>
       execute(HLenCommand(key), timeout: timeout);
   Future<List<String?>> hmget(
     String key,
     List<String> fields, {
     Duration? timeout,
-  }) =>
-      execute(HMGetCommand(key, fields), timeout: timeout);
+  }) => execute(HMGetCommand(key, fields), timeout: timeout);
   Future<bool> hsetnx(
     String key,
     String field,
     String value, {
     Duration? timeout,
-  }) =>
-      execute(HSetNxCommand(key, field, value), timeout: timeout);
+  }) => execute(HSetNxCommand(key, field, value), timeout: timeout);
   Future<List<String>> hkeys(String key, {Duration? timeout}) =>
       execute(HKeysCommand(key), timeout: timeout);
   Future<List<String>> hvals(String key, {Duration? timeout}) =>
@@ -119,8 +112,7 @@ extension ValkeyCommands on ValkeyCommandClient {
     String field,
     double increment, {
     Duration? timeout,
-  }) =>
-      execute(HIncrByFloatCommand(key, field, increment), timeout: timeout);
+  }) => execute(HIncrByFloatCommand(key, field, increment), timeout: timeout);
   Future<int> hstrlen(String key, String field, {Duration? timeout}) =>
       execute(HStrLenCommand(key, field), timeout: timeout);
 
@@ -144,11 +136,10 @@ extension ValkeyCommands on ValkeyCommandClient {
     int seconds, {
     ExpireStrategyTypes strategyType = ExpireStrategyTypes.always,
     Duration? timeout,
-  }) =>
-      execute(
-        ExpireCommand(key, seconds, strategyType: strategyType),
-        timeout: timeout,
-      );
+  }) => execute(
+    ExpireCommand(key, seconds, strategyType: strategyType),
+    timeout: timeout,
+  );
 
   // Lists
   Future<int> lpush(String key, List<String> values, {Duration? timeout}) =>
@@ -166,8 +157,7 @@ extension ValkeyCommands on ValkeyCommandClient {
     int start,
     int stop, {
     Duration? timeout,
-  }) =>
-      execute(LRangeCommand(key, start, stop), timeout: timeout);
+  }) => execute(LRangeCommand(key, start, stop), timeout: timeout);
   Future<String?> lindex(String key, int index, {Duration? timeout}) =>
       execute(LIndexCommand(key, index), timeout: timeout);
   Future<bool> ltrim(String key, int start, int stop, {Duration? timeout}) =>
@@ -178,19 +168,17 @@ extension ValkeyCommands on ValkeyCommandClient {
     String value, {
     required bool before,
     Duration? timeout,
-  }) =>
-      execute(
-        LInsertCommand(key, pivot, value, before: before),
-        timeout: timeout,
-      );
+  }) => execute(
+    LInsertCommand(key, pivot, value, before: before),
+    timeout: timeout,
+  );
   Future<int> lrem(String key, int count, String value, {Duration? timeout}) =>
       execute(LRemCommand(key, count, value), timeout: timeout);
   Future<String?> rpoplpush(
     String source,
     String destination, {
     Duration? timeout,
-  }) =>
-      execute(RPopLPushCommand(source, destination), timeout: timeout);
+  }) => execute(RPopLPushCommand(source, destination), timeout: timeout);
 
   // Sets
   Future<int> sadd(String key, List<String> members, {Duration? timeout}) =>
@@ -209,8 +197,7 @@ extension ValkeyCommands on ValkeyCommandClient {
     String key,
     int count, {
     Duration? timeout,
-  }) =>
-      execute(SRandMemberCountCommand(key, count), timeout: timeout);
+  }) => execute(SRandMemberCountCommand(key, count), timeout: timeout);
   Future<String?> spop(String key, {Duration? timeout}) =>
       execute(SPopCommand(key), timeout: timeout);
   Future<List<String>> spopCount(String key, int count, {Duration? timeout}) =>
@@ -226,26 +213,22 @@ extension ValkeyCommands on ValkeyCommandClient {
     String destination,
     String member, {
     Duration? timeout,
-  }) =>
-      execute(SMoveCommand(source, destination, member), timeout: timeout);
+  }) => execute(SMoveCommand(source, destination, member), timeout: timeout);
   Future<int> sunionstore(
     String destination,
     List<String> keys, {
     Duration? timeout,
-  }) =>
-      execute(SUnionStoreCommand(destination, keys), timeout: timeout);
+  }) => execute(SUnionStoreCommand(destination, keys), timeout: timeout);
   Future<int> sinterstore(
     String destination,
     List<String> keys, {
     Duration? timeout,
-  }) =>
-      execute(SInterStoreCommand(destination, keys), timeout: timeout);
+  }) => execute(SInterStoreCommand(destination, keys), timeout: timeout);
   Future<int> sdiffstore(
     String destination,
     List<String> keys, {
     Duration? timeout,
-  }) =>
-      execute(SDiffStoreCommand(destination, keys), timeout: timeout);
+  }) => execute(SDiffStoreCommand(destination, keys), timeout: timeout);
 
   // Strings
   Future<String?> get(String key, {Duration? timeout}) =>
@@ -256,32 +239,20 @@ extension ValkeyCommands on ValkeyCommandClient {
     ExpireOption? expire,
     SetStrategyTypes strategyType = SetStrategyTypes.always,
     Duration? timeout,
-  }) =>
-      execute(
-        SetCommand(
-          key,
-          value,
-          expire: expire,
-          strategyType: strategyType,
-        ),
-        timeout: timeout,
-      );
+  }) => execute(
+    SetCommand(key, value, expire: expire, strategyType: strategyType),
+    timeout: timeout,
+  );
   Future<String?> setAndGet(
     String key,
     String value, {
     ExpireOption? expire,
     SetStrategyTypes strategyType = SetStrategyTypes.always,
     Duration? timeout,
-  }) =>
-      execute(
-        SetAndGetCommand(
-          key,
-          value,
-          expire: expire,
-          strategyType: strategyType,
-        ),
-        timeout: timeout,
-      );
+  }) => execute(
+    SetAndGetCommand(key, value, expire: expire, strategyType: strategyType),
+    timeout: timeout,
+  );
   Future<int> incr(String key, {Duration? timeout}) =>
       execute(IncrCommand(key), timeout: timeout);
   Future<int> decr(String key, {Duration? timeout}) =>
@@ -301,15 +272,13 @@ extension ValkeyCommands on ValkeyCommandClient {
     int start,
     int end, {
     Duration? timeout,
-  }) =>
-      execute(GetRangeCommand(key, start, end), timeout: timeout);
+  }) => execute(GetRangeCommand(key, start, end), timeout: timeout);
   Future<int> setrange(
     String key,
     int offset,
     String value, {
     Duration? timeout,
-  }) =>
-      execute(SetRangeCommand(key, offset, value), timeout: timeout);
+  }) => execute(SetRangeCommand(key, offset, value), timeout: timeout);
   Future<String?> getset(String key, String value, {Duration? timeout}) =>
       execute(GetSetCommand(key, value), timeout: timeout);
   Future<int> strlen(String key, {Duration? timeout}) =>
@@ -324,18 +293,17 @@ extension ValkeyCommands on ValkeyCommandClient {
     bool changed = false,
     bool incr = false,
     Duration? timeout,
-  }) =>
-      execute(
-        ZAddCommand(
-          key,
-          membersWithScores,
-          onlyIfNotExists: onlyIfNotExists,
-          onlyIfAlreadyExists: onlyIfAlreadyExists,
-          changed: changed,
-          incr: incr,
-        ),
-        timeout: timeout,
-      );
+  }) => execute(
+    ZAddCommand(
+      key,
+      membersWithScores,
+      onlyIfNotExists: onlyIfNotExists,
+      onlyIfAlreadyExists: onlyIfAlreadyExists,
+      changed: changed,
+      incr: incr,
+    ),
+    timeout: timeout,
+  );
   Future<dynamic> zrange(
     String key,
     String start,
@@ -347,22 +315,21 @@ extension ValkeyCommands on ValkeyCommandClient {
     int? limitCount,
     bool withScores = false,
     Duration? timeout,
-  }) =>
-      execute(
-        ZRangeCommand(
-          key,
-          start,
-          stop,
-          byLex: byLex,
-          byScore: byScore,
-          rev: rev,
-          limitOffset: limitOffset,
-          limitCount: limitCount,
-          withScores: withScores,
-        ),
-        timeout: timeout,
-      );
-  Future<List> zrangeWithScores(
+  }) => execute(
+    ZRangeCommand(
+      key,
+      start,
+      stop,
+      byLex: byLex,
+      byScore: byScore,
+      rev: rev,
+      limitOffset: limitOffset,
+      limitCount: limitCount,
+      withScores: withScores,
+    ),
+    timeout: timeout,
+  );
+  Future<List<dynamic>> zrangeWithScores(
     String key,
     String start,
     String stop, {
@@ -372,21 +339,20 @@ extension ValkeyCommands on ValkeyCommandClient {
     int? limitOffset,
     int? limitCount,
     Duration? timeout,
-  }) =>
-      execute(
-        ZRangeCommand(
-          key,
-          start,
-          stop,
-          byLex: byLex,
-          byScore: byScore,
-          rev: rev,
-          limitOffset: limitOffset,
-          limitCount: limitCount,
-          withScores: true,
-        ),
-        timeout: timeout,
-      );
+  }) => execute(
+    ZRangeCommand(
+      key,
+      start,
+      stop,
+      byLex: byLex,
+      byScore: byScore,
+      rev: rev,
+      limitOffset: limitOffset,
+      limitCount: limitCount,
+      withScores: true,
+    ),
+    timeout: timeout,
+  );
   Future<dynamic> zrangebyscore(
     String key,
     String min,
@@ -395,36 +361,34 @@ extension ValkeyCommands on ValkeyCommandClient {
     int? limitOffset,
     int? limitCount,
     Duration? timeout,
-  }) =>
-      execute(
-        ZRangeByScoreCommand(
-          key,
-          min,
-          max,
-          withScores: withScores,
-          limitOffset: limitOffset,
-          limitCount: limitCount,
-        ),
-        timeout: timeout,
-      );
-  Future<List> zrangebyscoreWithScores(
+  }) => execute(
+    ZRangeByScoreCommand(
+      key,
+      min,
+      max,
+      withScores: withScores,
+      limitOffset: limitOffset,
+      limitCount: limitCount,
+    ),
+    timeout: timeout,
+  );
+  Future<List<dynamic>> zrangebyscoreWithScores(
     String key,
     String min,
     String max, {
     int? limitOffset,
     int? limitCount,
     Duration? timeout,
-  }) =>
-      execute(
-        ZRangeByScoreWithScoresCommand(
-          key,
-          min,
-          max,
-          limitOffset: limitOffset,
-          limitCount: limitCount,
-        ),
-        timeout: timeout,
-      );
+  }) => execute(
+    ZRangeByScoreWithScoresCommand(
+      key,
+      min,
+      max,
+      limitOffset: limitOffset,
+      limitCount: limitCount,
+    ),
+    timeout: timeout,
+  );
   Future<int> zrem(String key, List<String> members, {Duration? timeout}) =>
       execute(ZRemCommand(key, members), timeout: timeout);
   Future<int> zcard(String key, {Duration? timeout}) =>
@@ -436,8 +400,7 @@ extension ValkeyCommands on ValkeyCommandClient {
     double increment,
     String member, {
     Duration? timeout,
-  }) =>
-      execute(ZIncrByCommand(key, increment, member), timeout: timeout);
+  }) => execute(ZIncrByCommand(key, increment, member), timeout: timeout);
   Future<int> zcount(String key, String min, String max, {Duration? timeout}) =>
       execute(ZCountCommand(key, min, max), timeout: timeout);
   Future<int?> zrank(String key, String member, {Duration? timeout}) =>
@@ -454,21 +417,20 @@ extension ValkeyCommands on ValkeyCommandClient {
     int? limitCount,
     bool withScores = false,
     Duration? timeout,
-  }) =>
-      execute(
-        ZRevRangeCommand(
-          key,
-          start,
-          stop,
-          byLex: byLex,
-          byScore: byScore,
-          limitOffset: limitOffset,
-          limitCount: limitCount,
-          withScores: withScores,
-        ),
-        timeout: timeout,
-      );
-  Future<List> zrevrangeWithScores(
+  }) => execute(
+    ZRevRangeCommand(
+      key,
+      start,
+      stop,
+      byLex: byLex,
+      byScore: byScore,
+      limitOffset: limitOffset,
+      limitCount: limitCount,
+      withScores: withScores,
+    ),
+    timeout: timeout,
+  );
+  Future<List<dynamic>> zrevrangeWithScores(
     String key,
     String start,
     String stop, {
@@ -477,20 +439,19 @@ extension ValkeyCommands on ValkeyCommandClient {
     int? limitOffset,
     int? limitCount,
     Duration? timeout,
-  }) =>
-      execute(
-        ZRevRangeCommand(
-          key,
-          start,
-          stop,
-          byLex: byLex,
-          byScore: byScore,
-          limitOffset: limitOffset,
-          limitCount: limitCount,
-          withScores: true,
-        ),
-        timeout: timeout,
-      );
+  }) => execute(
+    ZRevRangeCommand(
+      key,
+      start,
+      stop,
+      byLex: byLex,
+      byScore: byScore,
+      limitOffset: limitOffset,
+      limitCount: limitCount,
+      withScores: true,
+    ),
+    timeout: timeout,
+  );
   Future<dynamic> zrevrangebyscore(
     String key,
     String max,
@@ -499,36 +460,34 @@ extension ValkeyCommands on ValkeyCommandClient {
     int? limitOffset,
     int? limitCount,
     Duration? timeout,
-  }) =>
-      execute(
-        ZRevRangeByScoreCommand(
-          key,
-          max,
-          min,
-          withScores: withScores,
-          limitOffset: limitOffset,
-          limitCount: limitCount,
-        ),
-        timeout: timeout,
-      );
-  Future<List> zrevrangebyscoreWithScores(
+  }) => execute(
+    ZRevRangeByScoreCommand(
+      key,
+      max,
+      min,
+      withScores: withScores,
+      limitOffset: limitOffset,
+      limitCount: limitCount,
+    ),
+    timeout: timeout,
+  );
+  Future<List<dynamic>> zrevrangebyscoreWithScores(
     String key,
     String max,
     String min, {
     int? limitOffset,
     int? limitCount,
     Duration? timeout,
-  }) =>
-      execute(
-        ZRevRangeByScoreWithScoresCommand(
-          key,
-          max,
-          min,
-          limitOffset: limitOffset,
-          limitCount: limitCount,
-        ),
-        timeout: timeout,
-      );
+  }) => execute(
+    ZRevRangeByScoreWithScoresCommand(
+      key,
+      max,
+      min,
+      limitOffset: limitOffset,
+      limitCount: limitCount,
+    ),
+    timeout: timeout,
+  );
 
   // Pub/Sub
   /// Posts a [message] to a given [channel].
@@ -551,8 +510,7 @@ extension ValkeyCommands on ValkeyCommandClient {
   Future<Map<String, int>> pubsubNumsub([
     List<String> channels = const [],
     Duration? timeout,
-  ]) =>
-      execute(PubsubNumsubCommand(channels), timeout: timeout);
+  ]) => execute(PubsubNumsubCommand(channels), timeout: timeout);
 
   /// Returns the help text for the PUBSUB command.
   Future<List<String>> pubsubHelp({Duration? timeout}) =>
@@ -566,13 +524,11 @@ extension ValkeyCommands on ValkeyCommandClient {
   Future<List<String>> pubsubShardChannels([
     String? pattern,
     Duration? timeout,
-  ]) =>
-      execute(PubsubShardchannelsCommand(pattern), timeout: timeout);
+  ]) => execute(PubsubShardchannelsCommand(pattern), timeout: timeout);
 
   /// Returns the number of subscribers for the specified shard channels.
   Future<Map<String, int>> pubsubShardNumsub([
     List<String> channels = const [],
     Duration? timeout,
-  ]) =>
-      execute(PubsubShardnumsubCommand(channels), timeout: timeout);
+  ]) => execute(PubsubShardnumsubCommand(channels), timeout: timeout);
 }

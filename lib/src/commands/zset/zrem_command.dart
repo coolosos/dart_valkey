@@ -15,11 +15,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `int` resolving to `1` (number of members removed)
-final class ZRemCommand extends ValkeyCommand<int> with KeyedCommand<int> {
-  ZRemCommand(this.key, this.members);
-  final String key;
-  final List<String> members;
-
+final class ZRemCommand(final String key, final List<String> members)
+    extends ValkeyCommand<int>
+    with KeyedCommand<int> {
   @override
   List<String> get commandParts => ['ZREM', key, ...members];
 

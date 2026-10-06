@@ -17,7 +17,7 @@ import '../command.dart';
 /// `int` resolving to `2` (number of elements added) or `double` (if INCR is true)
 final class ZAddCommand extends ValkeyCommand<dynamic>
     with KeyedCommand<dynamic> {
-  ZAddCommand(
+  new(
     this.key,
     this.membersWithScores, {
     this.onlyIfNotExists = false,
@@ -25,9 +25,9 @@ final class ZAddCommand extends ValkeyCommand<dynamic>
     this.changed = false,
     this.incr = false,
   }) : assert(
-          !(onlyIfNotExists && onlyIfAlreadyExists),
-          'Only one of onlyIfNotExists or onlyIfAlreadyExists can be specified.',
-        );
+         !(onlyIfNotExists && onlyIfAlreadyExists),
+         'Only one of onlyIfNotExists or onlyIfAlreadyExists can be specified.',
+       );
   final String key;
   final Map<String, double> membersWithScores;
 

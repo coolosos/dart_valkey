@@ -16,12 +16,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `double?` resolving to `1.0` or `null`
-final class ZScoreCommand extends ValkeyCommand<double?>
+final class ZScoreCommand(final String key, final String member)
+    extends ValkeyCommand<double?>
     with KeyedCommand<double?> {
-  ZScoreCommand(this.key, this.member);
-  final String key;
-  final String member;
-
   @override
   List<String> get commandParts => ['ZSCORE', key, member];
 

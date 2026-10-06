@@ -20,12 +20,9 @@ import '../command.dart';
 /// Parameters:
 /// - [key]: The key of the list.
 /// - [index]: The zero-based index of the element to retrieve.
-final class LIndexCommand extends ValkeyCommand<String?>
+final class LIndexCommand(final String key, final int index)
+    extends ValkeyCommand<String?>
     with KeyedCommand<String?> {
-  LIndexCommand(this.key, this.index);
-  final String key;
-  final int index;
-
   @override
   List<String> get commandParts => ['LINDEX', key, index.toString()];
 

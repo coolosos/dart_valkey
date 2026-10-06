@@ -4,14 +4,23 @@ import 'package:test/test.dart';
 
 void main() {
   group('ZRangeByScoreWithScoresCommand', () {
-    test('should build the correct command for basic ZRANGEBYSCORE WITHSCORES',
-        () {
-      final command = ZRangeByScoreWithScoresCommand('myzset', '-inf', '+inf');
-      expect(
-        command.commandParts,
-        ['ZRANGEBYSCORE', 'myzset', '-inf', '+inf', 'WITHSCORES'],
-      );
-    });
+    test(
+      'should build the correct command for basic ZRANGEBYSCORE WITHSCORES',
+      () {
+        final command = ZRangeByScoreWithScoresCommand(
+          'myzset',
+          '-inf',
+          '+inf',
+        );
+        expect(command.commandParts, [
+          'ZRANGEBYSCORE',
+          'myzset',
+          '-inf',
+          '+inf',
+          'WITHSCORES',
+        ]);
+      },
+    );
 
     test('should build the correct command with LIMIT', () {
       final command = ZRangeByScoreWithScoresCommand(
@@ -43,7 +52,7 @@ void main() {
 
     test('should parse empty list correctly', () {
       final command = ZRangeByScoreWithScoresCommand('myzset', '-inf', '+inf');
-      expect(command.parse([]), []);
+      expect(command.parse(<dynamic>[]), <Map<String, String>>[]);
     });
 
     test('should throw an exception for invalid response', () {
@@ -54,10 +63,13 @@ void main() {
     test('should apply prefix to key', () {
       final command = ZRangeByScoreWithScoresCommand('myzset', '-inf', '+inf');
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['ZRANGEBYSCORE', 'myprefix:myzset', '-inf', '+inf', 'WITHSCORES'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'ZRANGEBYSCORE',
+        'myprefix:myzset',
+        '-inf',
+        '+inf',
+        'WITHSCORES',
+      ]);
     });
   });
 }

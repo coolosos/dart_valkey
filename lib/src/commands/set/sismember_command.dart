@@ -14,12 +14,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `bool` resolving to `true`
-final class SIsMemberCommand extends ValkeyCommand<bool>
+final class SIsMemberCommand(final String key, final String member)
+    extends ValkeyCommand<bool>
     with KeyedCommand<bool> {
-  SIsMemberCommand(this.key, this.member);
-  final String key;
-  final String member;
-
   @override
   List<String> get commandParts => ['SISMEMBER', key, member];
 

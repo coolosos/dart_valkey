@@ -17,12 +17,9 @@ import '../command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `String?` resolving to `'itemX'` or `null`
-final class RPopLPushCommand extends ValkeyCommand<String?>
+final class RPopLPushCommand(final String source, final String destination)
+    extends ValkeyCommand<String?>
     with KeyedCommand<String?> {
-  RPopLPushCommand(this.source, this.destination);
-  final String source;
-  final String destination;
-
   @override
   List<String> get commandParts => ['RPOPLPUSH', source, destination];
 

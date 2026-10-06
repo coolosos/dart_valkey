@@ -1,27 +1,15 @@
-import '../../codec/valkey_exception.dart';
 import '../command.dart';
 
-enum ClientTrackingMode {
-  on,
-  off,
-}
+enum ClientTrackingMode { on, off }
 
 /// Represents the 'CLIENT TRACKING ON|OFF' command.
-final class ClientTrackingCommand extends ValkeyCommand<bool> {
-  ClientTrackingCommand(this.mode);
-  final ClientTrackingMode mode;
-
+final class ClientTrackingCommand(final ClientTrackingMode mode)
+    extends ValkeyCommand<bool>
+    with ExpectOkBoolResponse {
   @override
-  List<String> get commandParts =>
-      ['CLIENT', 'TRACKING', mode.name.toUpperCase()];
-
-  @override
-  bool parse(dynamic data) {
-    if (data is String) {
-      if (data == 'OK') return true;
-    }
-    throw ValkeyException(
-      'Invalid response for CLIENT TRACKING: expected OK, got ${data.runtimeType} "$data"',
-    );
-  }
+  List<String> get commandParts => [
+    'CLIENT',
+    'TRACKING',
+    mode.name.toUpperCase(),
+  ];
 }

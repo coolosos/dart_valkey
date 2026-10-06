@@ -31,14 +31,16 @@ void main() {
       verify(mockConnection.connect()).called(1);
     });
 
-    test('connect should not call connection.connect when already connected',
-        () async {
-      when(mockConnection.isConnected).thenReturn(true);
+    test(
+      'connect should not call connection.connect when already connected',
+      () async {
+        when(mockConnection.isConnected).thenReturn(true);
 
-      await client.connect();
+        await client.connect();
 
-      verifyNever(mockConnection.connect());
-    });
+        verifyNever(mockConnection.connect());
+      },
+    );
 
     test('close should call connection.close', () async {
       when(mockConnection.close()).thenAnswer((_) async {});

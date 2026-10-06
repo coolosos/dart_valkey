@@ -25,26 +25,29 @@ import 'zrange_command.dart';
 ///
 /// **Dart Result (from parse method):**
 /// `List<Map<String, String>>` resolving to `[{'member': 'member1', 'score': '1.0'}, {'member': 'member2', 'score': '2.0'}]`
-final class ZRangeWithScoresCommand
-    extends ValkeyCommand<List<Map<String, String>>>
+final class ZRangeWithScoresCommand(
+  final String key,
+  final int start,
+  final int stop,
+) extends ValkeyCommand<List<Map<String, String>>>
     with KeyedCommand<List<Map<String, String>>> {
-  ZRangeWithScoresCommand(this.key, this.start, this.stop);
-  final String key;
-  final int start;
-  final int stop;
-
   @override
-  List<String> get commandParts =>
-      ZRangeCommand(key, start.toString(), stop.toString(), withScores: true)
-          .commandParts;
+  List<String> get commandParts => ZRangeCommand(
+    key,
+    start.toString(),
+    stop.toString(),
+    withScores: true,
+  ).commandParts;
 
   @override
   List<Map<String, String>> parse(dynamic data) {
     if (data is List) {
       final result = <Map<String, String>>[];
       for (var i = 0; i < data.length; i += 2) {
-        result
-            .add({'member': data[i] as String, 'score': data[i + 1] as String});
+        result.add({
+          'member': data[i] as String,
+          'score': data[i + 1] as String,
+        });
       }
       return result;
     }

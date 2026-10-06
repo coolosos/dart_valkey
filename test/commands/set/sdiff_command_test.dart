@@ -16,7 +16,7 @@ void main() {
 
     test('should parse empty list correctly', () {
       final command = SDiffCommand(['set1']);
-      expect(command.parse([]), []);
+      expect(command.parse(<dynamic>[]), <String>[]);
     });
 
     test('should throw an exception for invalid response', () {
@@ -27,10 +27,11 @@ void main() {
     test('should apply prefix to keys', () {
       final command = SDiffCommand(['set1', 'set2']);
       final prefixedCommand = command.applyPrefix('myprefix:');
-      expect(
-        prefixedCommand.commandParts,
-        ['SDIFF', 'myprefix:set1', 'myprefix:set2'],
-      );
+      expect(prefixedCommand.commandParts, [
+        'SDIFF',
+        'myprefix:set1',
+        'myprefix:set2',
+      ]);
     });
   });
 }

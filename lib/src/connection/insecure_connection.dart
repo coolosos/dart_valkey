@@ -3,7 +3,7 @@ import 'dart:io';
 import 'base_connection.dart';
 
 class InsecureConnection extends BaseConnection {
-  InsecureConnection({
+  new({
     required super.respDecoder,
     super.host,
     super.port,

@@ -22,16 +22,18 @@ import '../command.dart';
 /// - [key]: The key of the hash.
 /// - [field]: The field to increment.
 /// - [increment]: The amount to increment by.
-final class HIncrByFloatCommand extends ValkeyCommand<double>
-    with KeyedCommand<double> {
-  HIncrByFloatCommand(this.key, this.field, this.increment);
-  final String key;
-  final String field;
-  final double increment;
-
+final class HIncrByFloatCommand(
+  final String key,
+  final String field,
+  final double increment,
+) extends ValkeyCommand<double> with KeyedCommand<double> {
   @override
-  List<String> get commandParts =>
-      ['HINCRBYFLOAT', key, field, increment.toString()];
+  List<String> get commandParts => [
+    'HINCRBYFLOAT',
+    key,
+    field,
+    increment.toString(),
+  ];
 
   @override
   double parse(dynamic data) {
