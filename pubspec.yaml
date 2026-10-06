@@ -1,6 +1,6 @@
 name: dart_valkey
 description: Dart client for Valkey (and Redis-compatible servers)
-version: 0.0.6
+version: 0.1.0
 
 repository: https://github.com/coolosos/dart_valkey
 issue_tracker: https://github.com/coolosos/dart_valkey/issues
@@ -13,13 +13,13 @@ topics:
   - pubsub
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.13.0 <4.0.0"
 
 dependencies:
-  meta: ^1.17.0
+  meta: ^1.19.0
 dev_dependencies:
-  mockito: ^5.5.0
-  build_runner: ^2.7.0
-  test: ^1.19.2
-  coolint: ^2.1.2
-  coverage: ^1.15.0
+  mockito: ^5.8.1
+  build_runner: ^2.16.1
+  test: ^1.32.0
+  coolint: ^3.0.0
+  coverage: ^1.15.1

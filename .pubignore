@@ -1,0 +1,4 @@
+# Excluded from published package on pub.dev
+/benchmark/
+/coverage/
+.DS_Store

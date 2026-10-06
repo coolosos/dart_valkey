@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.0 - 2026-10-06
+
+### Changed
+- Upgraded minimum Dart SDK constraint to `>=3.13.0 <4.0.0`.
+- Upgraded dev dependencies (`coolint: ^3.0.0`, `meta: ^1.19.0`, `mockito: ^5.8.1`, `build_runner: ^2.16.1`, `test: ^1.32.0`, `coverage: ^1.15.1`).
+- Migrated all command and model classes to **Dart 3.13 Primary Constructors** for clean, declarative, and concise code.
+- Refactored command response parsing using reusable base mixins (`OkStringResponse`, `OkBoolResponse`, `ExpectOkBoolResponse`, `PongBoolResponse`, `ResetStringResponse`).
+- Enhanced error reporting to use human-readable `commandName` derived directly from command parts instead of minified `runtimeType`.
+
+### Documentation
+- Updated `README.md` with complete documentation for TLS / self-signed certificate handling (`onBadCertificate`), client configuration options (`db`, `keyPrefix`, `commandTimeout`, `respDecoder`), and custom command execution.
+- Added package publishing configuration (`.pubignore`).
+
 ## 0.0.6 - 2026-06-09
 
 ### Added
