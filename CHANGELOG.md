@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Seamless interoperability with Dart 3 Pattern Matching, custom model factories (`fromJson`), and pluggable serialization / streaming libraries like [`coolson`](https://github.com/coolosos/coolson).
   - Achieved **100% test coverage** on all JSON commands, repository store, builders, and helpers.
 
+### Fixed
+- Fixed an issue where a null `keyPrefix` in `ValkeyCommandClient` was stringified as `'null:'`.
+- Fixed error propagation in `ValkeyCommandClient._onData` to directly reject command futures with `RespException` when the server returns a protocol error.
+
 ## 0.1.0 - 2026-10-06
 
 ### Changed
