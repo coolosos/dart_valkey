@@ -862,4 +862,97 @@ extension ValkeyCommands on ValkeyCommandClient {
     String path = r'$',
     Duration? timeout,
   }) => execute(JsonRespCommand(key, path: path), timeout: timeout);
+
+  /// Creates a typed [ValkeyJsonStore] repository for managing documents of type [T].
+  ///
+  /// Example:
+  /// ```dart
+  /// final users = client.jsonStore<User>(
+  ///   prefix: 'users',
+  ///   fromJson: User.fromJson,
+  ///   toJson: (u) => u.toJson(),
+  /// );
+  /// await users.save('100', user);
+  /// final u = await users.find('100');
+  /// ```
+  ValkeyJsonStore<T> jsonStore<T>({
+    required String prefix,
+    required T Function(dynamic json) fromJson,
+    Object? Function(T value)? toJson,
+    String Function(String id)? keyBuilder,
+    JsonEncoderFn encoder = defaultJsonEncoder,
+    JsonDecoderFn decoder = defaultJsonDecoder,
+  }) => ValkeyJsonStore<T>(
+    this,
+    prefix: prefix,
+    fromJson: fromJson,
+    toJson: toJson,
+    keyBuilder: keyBuilder,
+    encoder: encoder,
+    decoder: decoder,
+  );
+
+  /// Performs multiple updates on a JSON document at [key] using a fluent builder.
+  ///
+  /// Example:
+  /// ```dart
+  /// await client.jsonUpdate('user:100', (doc) {
+  ///   doc.increment('$.age', 1)
+  ///      .appendToArray('$.roles', ['admin'])
+  ///      .toggle('$.active');
+  /// });
+  /// ```
+  Future<List<dynamic>> jsonUpdate(
+    String key,
+    void Function(JsonUpdateBuilder updater) updateFn, {
+    JsonEncoderFn encoder = defaultJsonEncoder,
+    Duration? timeout,
+  }) {
+    final updater = JsonUpdateBuilder(key, encoder: encoder);
+    updateFn(updater);
+    return updater.executeOn(this, timeout: timeout);
+  }
+
+  /// Streams elements of a large JSON array stored at [key] and [path], fetching in chunks of [chunkSize].
+  ///
+  /// Example:
+  /// ```dart
+  /// await for (final item in client.jsonStreamArray<User>('huge_array', fromJson: User.fromJson)) {
+  ///   print(item);
+  /// }
+  /// ```
+  Stream<T> jsonStreamArray<T>(
+    String key, {
+    String path = r'$',
+    int chunkSize = 100,
+    T Function(dynamic json)? fromJson,
+    JsonDecoderFn decoder = defaultJsonDecoder,
+    Duration? timeout,
+  }) async* {
+    final lens = await jsonArrLen(key, path: path, timeout: timeout);
+    final totalLen = lens.isNotEmpty ? (lens.first ?? 0) : 0;
+    if (totalLen <= 0) return;
+
+    for (var start = 0; start < totalLen; start += chunkSize) {
+      final end = (start + chunkSize < totalLen) ? start + chunkSize : totalLen;
+      final slicePath = '$path[$start:$end]';
+      final raw = await jsonGetRaw(key, paths: [slicePath], timeout: timeout);
+      if (raw == null) continue;
+      final decoded = decoder(raw);
+      if (decoded is List) {
+        final items = (decoded.isNotEmpty && decoded.first is List)
+            ? decoded.first as List
+            : decoded;
+        for (final item in items) {
+          if (fromJson case final fj?) {
+            yield fj(item);
+          } else if (item is T) {
+            yield item;
+          } else {
+            yield item as T;
+          }
+        }
+      }
+    }
+  }
 }

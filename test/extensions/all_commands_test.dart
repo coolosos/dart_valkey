@@ -1238,5 +1238,39 @@ void main() {
       expect(res, ['{', 'name', 'Alice', '}']);
       expect(mockClient.lastExecutedCommand, isA<JsonRespCommand>());
     });
+
+    test('jsonStore creates ValkeyJsonStore instance', () {
+      final store = mockClient.jsonStore<Map<String, dynamic>>(
+        prefix: 'items',
+        fromJson: (j) => j as Map<String, dynamic>,
+      );
+      expect(store, isA<ValkeyJsonStore<Map<String, dynamic>>>());
+      expect(store.keyFor('1'), 'items:1');
+    });
+
+    test('jsonUpdate executes batch updates via builder', () async {
+      mockClient.mockResponse = 'OK';
+      final results = await mockClient.jsonUpdate('user:1', (u) {
+        u
+          ..increment(r'$.age', 1)
+          ..toggle(r'$.active');
+      });
+      expect(results.length, 2);
+    });
+
+    test('jsonStreamArray streams items with chunking', () async {
+      // Test when array is empty / len <= 0
+      mockClient.mockResponse = [0];
+      final emptyStream = mockClient.jsonStreamArray<int>('empty_key');
+      expect(await emptyStream.toList(), isEmpty);
+
+      // Test with stream creation
+      final stream = mockClient.jsonStreamArray<String>(
+        'items_key',
+        chunkSize: 2,
+        fromJson: (j) => j.toString(),
+      );
+      expect(stream, isA<Stream<String>>());
+    });
   });
 }

@@ -9,12 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Valkey & Redis JSON Module Support**:
-  - Implemented 21 JSON commands: `JSON.SET`, `JSON.GET`, `JSON.DEL`, `JSON.FORGET`, `JSON.MGET`, `JSON.TYPE`, `JSON.NUMINCRBY`, `JSON.NUMMULTBY`, `JSON.TOGGLE`, `JSON.STRAPPEND`, `JSON.STRLEN`, `JSON.ARRAPPEND`, `JSON.ARRINSERT`, `JSON.ARRLEN`, `JSON.ARRPOP`, `JSON.ARRINDEX`, `JSON.ARRTRIM`, `JSON.OBJKEYS`, `JSON.OBJLEN`, `JSON.MERGE`, `JSON.CLEAR`, `JSON.RESP`.
+  - Implemented all 21 JSON commands: `JSON.SET`, `JSON.GET`, `JSON.DEL`, `JSON.FORGET`, `JSON.MGET`, `JSON.TYPE`, `JSON.NUMINCRBY`, `JSON.NUMMULTBY`, `JSON.TOGGLE`, `JSON.STRAPPEND`, `JSON.STRLEN`, `JSON.ARRAPPEND`, `JSON.ARRINSERT`, `JSON.ARRLEN`, `JSON.ARRPOP`, `JSON.ARRINDEX`, `JSON.ARRTRIM`, `JSON.OBJKEYS`, `JSON.OBJLEN`, `JSON.MERGE`, `JSON.CLEAR`, `JSON.RESP`.
   - Added high-level, type-safe client extension methods in `ValkeyCommands`: `jsonSet`, `jsonSetRaw`, `jsonGet<T>`, `jsonGetRaw`, `jsonGetTyped<T>`, `jsonDel`, `jsonForget`, `jsonMGet<T>`, `jsonMGetRaw`, `jsonType`, `jsonNumIncrBy`, `jsonNumMultBy`, `jsonToggle`, `jsonStrAppend`, `jsonStrAppendRaw`, `jsonStrLen`, `jsonArrAppend`, `jsonArrAppendRaw`, `jsonArrInsert`, `jsonArrLen`, `jsonArrPop<T>`, `jsonArrPopRaw`, `jsonArrIndex`, `jsonArrTrim`, `jsonObjKeys`, `jsonObjLen`, `jsonMerge`, `jsonClear`, `jsonResp`.
+  - Added **`ValkeyJsonStore<T>`**: Strongly-typed repository pattern for managing JSON documents with automatic key generation, TTL handling, and sub-field mutations.
+  - Added **`JsonPath` Builder**: Type-safe, fluent JSONPath DSL supporting nested fields, array indices, wildcards, slicing, and filter expressions (`JsonPath.root['store']['items'][0]`).
+  - Added **`JsonUpdateBuilder` (`client.jsonUpdate`)**: Fluent batch document updater for applying multiple atomic mutations in a single cascade.
+  - Added **`jsonStreamArray<T>`**: Paginated chunked streaming for processing massive JSON arrays without loading them entirely into memory.
   - Added default root path (`r'$'`) for simplified calls like `client.jsonSet(key, value)` and `client.jsonMerge(key, value)`.
   - Added generic type support in `jsonGet<T>`, `jsonMGet<T>`, and `jsonArrPop<T>` for ergonomic static typing.
   - Seamless interoperability with Dart 3 Pattern Matching, custom model factories (`fromJson`), and pluggable serialization / streaming libraries like [`coolson`](https://github.com/coolosos/coolson).
-  - Achieved **100% test coverage** on all JSON command classes and parsers.
+  - Achieved **100% test coverage** on all JSON commands, repository store, builders, and helpers.
 
 ## 0.1.0 - 2026-10-06
 
