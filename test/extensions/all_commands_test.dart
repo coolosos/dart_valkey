@@ -112,10 +112,14 @@ class MockValkeyCommandClient extends ValkeyCommandClient {
 
   Command<dynamic>? lastExecutedCommand;
   dynamic mockResponse;
+  dynamic Function(ValkeyCommand<dynamic> command)? commandHandler;
 
   @override
   Future<T> execute<T>(ValkeyCommand<T> command, {Duration? timeout}) async {
     lastExecutedCommand = command;
+    if (commandHandler case final handler?) {
+      return command.parse(handler(command));
+    }
     return command.parse(mockResponse);
   }
 
@@ -1114,7 +1118,11 @@ void main() {
       'jsonStrAppendRaw calls JsonStrAppendCommand with raw string',
       () async {
         mockClient.mockResponse = [12];
-        final res = await mockClient.jsonStrAppendRaw('doc:1', '" world"');
+        final res = await mockClient.jsonStrAppendRaw(
+          'doc:1',
+          '" world"',
+          path: r'$.str',
+        );
         expect(res, [12]);
         expect(mockClient.lastExecutedCommand, isA<JsonStrAppendCommand>());
       },
@@ -1304,19 +1312,58 @@ void main() {
       expect(results.length, 2);
     });
 
-    test('jsonStreamArray streams items with chunking', () async {
-      // Test when array is empty / len <= 0
+    test('jsonStreamArray streams items with chunking and mapping', () async {
+      // 1. Test when array is empty / len <= 0
       mockClient.mockResponse = [0];
       final emptyStream = mockClient.jsonStreamArray<int>('empty_key');
       expect(await emptyStream.toList(), isEmpty);
 
-      // Test with stream creation
-      final stream = mockClient.jsonStreamArray<String>(
+      // 2. Test chunked streaming with fromJson
+      mockClient.commandHandler = (cmd) {
+        if (cmd is JsonArrLenCommand) return [3];
+        if (cmd is JsonGetCommand) {
+          final path = cmd.paths.first;
+          if (path.contains('[0:2]')) return '[{"id": 1}, {"id": 2}]';
+          if (path.contains('[2:3]')) return '[{"id": 3}]';
+        }
+        return null;
+      };
+
+      final items = await mockClient.jsonStreamArray<int>(
         'items_key',
         chunkSize: 2,
-        fromJson: (j) => j.toString(),
-      );
-      expect(stream, isA<Stream<String>>());
+        fromJson: (json) => (json as Map<String, dynamic>)['id'] as int,
+      ).toList();
+
+      expect(items, [1, 2, 3]);
+
+      // 3. Test chunked streaming without fromJson (direct cast)
+      mockClient.commandHandler = (cmd) {
+        if (cmd is JsonArrLenCommand) return [2];
+        if (cmd is JsonGetCommand) {
+          return '[["alpha", "beta"]]';
+        }
+        return null;
+      };
+
+      final stringItems = await mockClient.jsonStreamArray<String>(
+        'strings_key',
+        chunkSize: 2,
+      ).toList();
+
+      expect(stringItems, ['alpha', 'beta']);
+
+      // 4. Test when raw response is null
+      mockClient.commandHandler = (cmd) {
+        if (cmd is JsonArrLenCommand) return [2];
+        return null;
+      };
+
+      final nullItems = await mockClient.jsonStreamArray<String>('null_key').toList();
+      expect(nullItems, isEmpty);
+
+      // Reset handler
+      mockClient.commandHandler = null;
     });
   });
 }
