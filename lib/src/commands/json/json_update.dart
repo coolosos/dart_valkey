@@ -100,12 +100,12 @@ final class JsonUpdateBuilder {
   }
 
   /// Toggles a boolean value at [path].
-  void toggle([Object path = r'$']) {
+  void toggle([Object path = JsonPath.root]) {
     _commands.add(JsonToggleCommand(key, path: resolveJsonPath(path)));
   }
 
   /// Merges [value] into the JSON document at [path] (defaults to root).
-  void merge(Object value, {Object path = r'$'}) {
+  void merge(Object value, {Object path = JsonPath.root}) {
     _commands.add(JsonMergeCommand(key, resolveJsonPath(path), encoder(value)));
   }
 
@@ -145,7 +145,7 @@ final class JsonUpdateBuilder {
   }
 
   /// Clears container values (arrays/objects) or sets numeric values to 0 at [path].
-  void clear([Object path = r'$']) {
+  void clear([Object path = JsonPath.root]) {
     _commands.add(JsonClearCommand(key, path: resolveJsonPath(path)));
   }
 

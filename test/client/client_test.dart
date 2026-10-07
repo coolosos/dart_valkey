@@ -97,6 +97,25 @@ void main() {
       expect(future, throwsA(isA<Exception>()));
     });
 
+    test('_onData should complete with error if server returns RespException', () {
+      final command = FakeCommand(fakeEncoded: [1], fakeResult: 'OK');
+      final future = client.execute(command);
+
+      const serverError = RespException('ERR unknown command');
+      client.handleDataMock(serverError);
+
+      expect(
+        future,
+        throwsA(
+          isA<RespException>().having(
+            (e) => e.message,
+            'message',
+            'ERR unknown command',
+          ),
+        ),
+      );
+    });
+
     group('with keyPrefix', () {
       late ValkeyCommandClient clientWithPrefix;
 

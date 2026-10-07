@@ -535,38 +535,48 @@ extension ValkeyCommands on ValkeyCommandClient {
   // JSON
   /// Sets the JSON value at [path] in [key].
   ///
-  /// [path] defaults to the root document `$` (`r'$'`).
+  /// [path] defaults to the root document [JsonPath.root].
   /// [value] is serialized using [encoder] (defaults to [defaultJsonEncoder]).
   Future<bool> jsonSet(
     String key,
     Object? value, {
-    String path = r'$',
+    Object path = JsonPath.root,
     SetStrategyTypes strategyType = SetStrategyTypes.always,
     JsonEncoderFn encoder = defaultJsonEncoder,
     Duration? timeout,
   }) => execute(
-    JsonSetCommand(key, path, encoder(value), strategyType: strategyType),
+    JsonSetCommand(
+      key,
+      resolveJsonPath(path),
+      encoder(value),
+      strategyType: strategyType,
+    ),
     timeout: timeout,
   );
 
   /// Sets raw pre-encoded JSON string at [path] in [key].
   ///
-  /// [path] defaults to the root document `$` (`r'$'`).
+  /// [path] defaults to the root document [JsonPath.root].
   Future<bool> jsonSetRaw(
     String key,
     String jsonString, {
-    String path = r'$',
+    Object path = JsonPath.root,
     SetStrategyTypes strategyType = SetStrategyTypes.always,
     Duration? timeout,
   }) => execute(
-    JsonSetCommand(key, path, jsonString, strategyType: strategyType),
+    JsonSetCommand(
+      key,
+      resolveJsonPath(path),
+      jsonString,
+      strategyType: strategyType,
+    ),
     timeout: timeout,
   );
 
   /// Returns raw JSON string from [key] at specified [paths].
   Future<String?> jsonGetRaw(
     String key, {
-    List<String> paths = const [],
+    List<Object> paths = const [],
     String? indent,
     String? newline,
     String? space,
@@ -574,7 +584,7 @@ extension ValkeyCommands on ValkeyCommandClient {
   }) => execute(
     JsonGetCommand(
       key,
-      paths: paths,
+      paths: paths.map(resolveJsonPath).toList(),
       indent: indent,
       newline: newline,
       space: space,
@@ -587,7 +597,7 @@ extension ValkeyCommands on ValkeyCommandClient {
   /// If `T` is specified, attempts to cast the decoded value to `T`.
   Future<T?> jsonGet<T>(
     String key, {
-    List<String> paths = const [],
+    List<Object> paths = const [],
     String? indent,
     String? newline,
     String? space,
@@ -617,7 +627,7 @@ extension ValkeyCommands on ValkeyCommandClient {
   Future<T?> jsonGetTyped<T>(
     String key, {
     required T Function(dynamic json) fromJson,
-    List<String> paths = const [],
+    List<Object> paths = const [],
     String? indent,
     String? newline,
     String? space,
@@ -638,24 +648,33 @@ extension ValkeyCommands on ValkeyCommandClient {
   }
 
   /// Deletes the JSON value at [path] in [key].
-  Future<int> jsonDel(String key, {String? path, Duration? timeout}) =>
-      execute(JsonDelCommand(key, path: path), timeout: timeout);
+  Future<int> jsonDel(String key, {Object? path, Duration? timeout}) =>
+      execute(
+        JsonDelCommand(
+          key,
+          path: path != null ? resolveJsonPath(path) : null,
+        ),
+        timeout: timeout,
+      );
 
   /// Alias for [jsonDel].
-  Future<int> jsonForget(String key, {String? path, Duration? timeout}) =>
+  Future<int> jsonForget(String key, {Object? path, Duration? timeout}) =>
       jsonDel(key, path: path, timeout: timeout);
 
   /// Gets the values of [keys] at [path] as raw JSON strings.
   Future<List<String?>> jsonMGetRaw(
     List<String> keys, {
-    String path = r'$',
+    Object path = JsonPath.root,
     Duration? timeout,
-  }) => execute(JsonMGetCommand(keys, path: path), timeout: timeout);
+  }) => execute(
+    JsonMGetCommand(keys, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
 
   /// Gets and decodes the values of [keys] at [path].
   Future<List<T?>> jsonMGet<T>(
     List<String> keys, {
-    String path = r'$',
+    Object path = JsonPath.root,
     JsonDecoderFn decoder = defaultJsonDecoder,
     Duration? timeout,
   }) async {
@@ -671,42 +690,61 @@ extension ValkeyCommands on ValkeyCommandClient {
   /// Gets the JSON types of elements at [path] in [key].
   Future<List<String?>> jsonType(
     String key, {
-    String? path = r'$',
+    Object? path = JsonPath.root,
     Duration? timeout,
-  }) => execute(JsonTypeCommand(key, path: path), timeout: timeout);
+  }) => execute(
+    JsonTypeCommand(
+      key,
+      path: path != null ? resolveJsonPath(path) : null,
+    ),
+    timeout: timeout,
+  );
 
   /// Increments the numeric value at [path] in [key] by [value].
   Future<String?> jsonNumIncrBy(
     String key,
-    String path,
+    Object path,
     num value, {
     Duration? timeout,
-  }) => execute(JsonNumIncrByCommand(key, path, value), timeout: timeout);
+  }) => execute(
+    JsonNumIncrByCommand(key, resolveJsonPath(path), value),
+    timeout: timeout,
+  );
 
   /// Multiplies the numeric value at [path] in [key] by [value].
   Future<String?> jsonNumMultBy(
     String key,
-    String path,
+    Object path,
     num value, {
     Duration? timeout,
-  }) => execute(JsonNumMultByCommand(key, path, value), timeout: timeout);
+  }) => execute(
+    JsonNumMultByCommand(key, resolveJsonPath(path), value),
+    timeout: timeout,
+  );
 
   /// Toggles a boolean value at [path] in [key].
   Future<List<bool?>> jsonToggle(
     String key, {
-    String path = r'$',
+    Object path = JsonPath.root,
     Duration? timeout,
-  }) => execute(JsonToggleCommand(key, path: path), timeout: timeout);
+  }) => execute(
+    JsonToggleCommand(key, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
 
   /// Appends the JSON-encoded string [value] to the string at [path] in [key].
   Future<List<int?>> jsonStrAppend(
     String key,
     String value, {
-    String? path,
+    Object? path,
     JsonEncoderFn encoder = defaultJsonEncoder,
     Duration? timeout,
   }) => execute(
-    JsonStrAppendCommand(key, encoder(value), path: path),
+    JsonStrAppendCommand(
+      key,
+      encoder(value),
+      path: path != null ? resolveJsonPath(path) : null,
+    ),
     timeout: timeout,
   );
 
@@ -714,29 +752,40 @@ extension ValkeyCommands on ValkeyCommandClient {
   Future<List<int?>> jsonStrAppendRaw(
     String key,
     String rawJsonString, {
-    String? path,
+    Object? path,
     Duration? timeout,
   }) => execute(
-    JsonStrAppendCommand(key, rawJsonString, path: path),
+    JsonStrAppendCommand(
+      key,
+      rawJsonString,
+      path: path != null ? resolveJsonPath(path) : null,
+    ),
     timeout: timeout,
   );
 
   /// Returns the length of the string at [path] in [key].
   Future<List<int?>> jsonStrLen(
     String key, {
-    String path = r'$',
+    Object path = JsonPath.root,
     Duration? timeout,
-  }) => execute(JsonStrLenCommand(key, path: path), timeout: timeout);
+  }) => execute(
+    JsonStrLenCommand(key, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
 
   /// Appends [values] to the array at [path] in [key].
   Future<List<int?>> jsonArrAppend(
     String key,
     List<Object?> values, {
-    String path = r'$',
+    Object path = JsonPath.root,
     JsonEncoderFn encoder = defaultJsonEncoder,
     Duration? timeout,
   }) => execute(
-    JsonArrAppendCommand(key, values.map(encoder).toList(), path: path),
+    JsonArrAppendCommand(
+      key,
+      values.map(encoder).toList(),
+      path: resolveJsonPath(path),
+    ),
     timeout: timeout,
   );
 
@@ -744,48 +793,64 @@ extension ValkeyCommands on ValkeyCommandClient {
   Future<List<int?>> jsonArrAppendRaw(
     String key,
     List<String> rawJsonValues, {
-    String path = r'$',
+    Object path = JsonPath.root,
     Duration? timeout,
   }) => execute(
-    JsonArrAppendCommand(key, rawJsonValues, path: path),
+    JsonArrAppendCommand(
+      key,
+      rawJsonValues,
+      path: resolveJsonPath(path),
+    ),
     timeout: timeout,
   );
 
   /// Inserts [values] into the array at [path] at [index] in [key].
   Future<List<int?>> jsonArrInsert(
     String key,
-    String path,
+    Object path,
     int index,
     List<Object?> values, {
     JsonEncoderFn encoder = defaultJsonEncoder,
     Duration? timeout,
   }) => execute(
-    JsonArrInsertCommand(key, path, index, values.map(encoder).toList()),
+    JsonArrInsertCommand(
+      key,
+      resolveJsonPath(path),
+      index,
+      values.map(encoder).toList(),
+    ),
     timeout: timeout,
   );
 
   /// Returns the length of the array at [path] in [key].
   Future<List<int?>> jsonArrLen(
     String key, {
-    String path = r'$',
+    Object path = JsonPath.root,
     Duration? timeout,
-  }) => execute(JsonArrLenCommand(key, path: path), timeout: timeout);
+  }) => execute(
+    JsonArrLenCommand(key, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
 
   /// Pops an element from the array at [path] in [key].
   Future<List<String?>> jsonArrPopRaw(
     String key, {
-    String path = r'$',
+    Object path = JsonPath.root,
     int? index,
     Duration? timeout,
   }) => execute(
-    JsonArrPopCommand(key, path: path, index: index),
+    JsonArrPopCommand(
+      key,
+      path: resolveJsonPath(path),
+      index: index,
+    ),
     timeout: timeout,
   );
 
   /// Pops and decodes an element from the array at [path] in [key].
   Future<List<T?>> jsonArrPop<T>(
     String key, {
-    String path = r'$',
+    Object path = JsonPath.root,
     int? index,
     JsonDecoderFn decoder = defaultJsonDecoder,
     Duration? timeout,
@@ -807,61 +872,88 @@ extension ValkeyCommands on ValkeyCommandClient {
   /// Searches for [value] in the array at [path] in [key].
   Future<List<int?>> jsonArrIndex(
     String key,
-    String path,
+    Object path,
     Object? value, {
     int? start,
     int? stop,
     JsonEncoderFn encoder = defaultJsonEncoder,
     Duration? timeout,
   }) => execute(
-    JsonArrIndexCommand(key, path, encoder(value), start: start, stop: stop),
+    JsonArrIndexCommand(
+      key,
+      resolveJsonPath(path),
+      encoder(value),
+      start: start,
+      stop: stop,
+    ),
     timeout: timeout,
   );
 
   /// Trims the array at [path] in [key] to between [start] and [stop] indices.
   Future<List<int?>> jsonArrTrim(
     String key,
-    String path,
+    Object path,
     int start,
     int stop, {
     Duration? timeout,
-  }) => execute(JsonArrTrimCommand(key, path, start, stop), timeout: timeout);
+  }) => execute(
+    JsonArrTrimCommand(key, resolveJsonPath(path), start, stop),
+    timeout: timeout,
+  );
 
   /// Returns the object keys at [path] in [key].
   Future<List<List<String>?>> jsonObjKeys(
     String key, {
-    String path = r'$',
+    Object path = JsonPath.root,
     Duration? timeout,
-  }) => execute(JsonObjKeysCommand(key, path: path), timeout: timeout);
+  }) => execute(
+    JsonObjKeysCommand(key, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
 
   /// Returns the number of keys in the object at [path] in [key].
   Future<List<int?>> jsonObjLen(
     String key, {
-    String path = r'$',
+    Object path = JsonPath.root,
     Duration? timeout,
-  }) => execute(JsonObjLenCommand(key, path: path), timeout: timeout);
+  }) => execute(
+    JsonObjLenCommand(key, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
 
   /// Merges [value] into the JSON document at [path] in [key].
   ///
-  /// [path] defaults to the root document `$` (`r'$'`).
+  /// [path] defaults to the root document [JsonPath.root].
   Future<bool> jsonMerge(
     String key,
     Object? value, {
-    String path = r'$',
+    Object path = JsonPath.root,
     JsonEncoderFn encoder = defaultJsonEncoder,
     Duration? timeout,
-  }) => execute(JsonMergeCommand(key, path, encoder(value)), timeout: timeout);
+  }) => execute(
+    JsonMergeCommand(key, resolveJsonPath(path), encoder(value)),
+    timeout: timeout,
+  );
 
   /// Clears container values (arrays/objects) or sets numeric values to 0 at [path] in [key].
-  Future<int> jsonClear(String key, {String path = r'$', Duration? timeout}) =>
-      execute(JsonClearCommand(key, path: path), timeout: timeout);
+  Future<int> jsonClear(
+    String key, {
+    Object path = JsonPath.root,
+    Duration? timeout,
+  }) => execute(
+    JsonClearCommand(key, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
 
   /// Returns the JSON value at [path] in [key] represented in RESP format.
   Future<dynamic> jsonResp(
     String key, {
-    String path = r'$',
+    Object path = JsonPath.root,
     Duration? timeout,
-  }) => execute(JsonRespCommand(key, path: path), timeout: timeout);
+  }) => execute(
+    JsonRespCommand(key, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
 
   /// Creates a typed [ValkeyJsonStore] repository for managing documents of type [T].
   ///
@@ -923,19 +1015,20 @@ extension ValkeyCommands on ValkeyCommandClient {
   /// ```
   Stream<T> jsonStreamArray<T>(
     String key, {
-    String path = r'$',
+    Object path = JsonPath.root,
     int chunkSize = 100,
     T Function(dynamic json)? fromJson,
     JsonDecoderFn decoder = defaultJsonDecoder,
     Duration? timeout,
   }) async* {
-    final lens = await jsonArrLen(key, path: path, timeout: timeout);
+    final resolvedPath = resolveJsonPath(path);
+    final lens = await jsonArrLen(key, path: resolvedPath, timeout: timeout);
     final totalLen = lens.isNotEmpty ? (lens.first ?? 0) : 0;
     if (totalLen <= 0) return;
 
     for (var start = 0; start < totalLen; start += chunkSize) {
       final end = (start + chunkSize < totalLen) ? start + chunkSize : totalLen;
-      final slicePath = '$path[$start:$end]';
+      final slicePath = '$resolvedPath[$start:$end]';
       final raw = await jsonGetRaw(key, paths: [slicePath], timeout: timeout);
       if (raw == null) continue;
       final decoded = decoder(raw);

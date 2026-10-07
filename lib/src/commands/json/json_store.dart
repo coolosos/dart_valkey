@@ -162,7 +162,7 @@ final class ValkeyJsonStore<T>(
   Future<bool> merge(
     String id,
     Object value, {
-    Object path = r'$',
+    Object path = JsonPath.root,
     Duration? timeout,
   }) => client.jsonMerge(
     keyFor(id),
@@ -187,12 +187,15 @@ final class ValkeyJsonStore<T>(
   );
 
   /// Clears container values (arrays/objects) or sets numeric values to 0 at [path].
-  Future<int> clear(String id, {Object path = r'$', Duration? timeout}) =>
-      client.jsonClear(
-        keyFor(id),
-        path: resolveJsonPath(path),
-        timeout: timeout,
-      );
+  Future<int> clear(
+    String id, {
+    Object path = JsonPath.root,
+    Duration? timeout,
+  }) => client.jsonClear(
+    keyFor(id),
+    path: resolveJsonPath(path),
+    timeout: timeout,
+  );
 
   /// Performs multiple updates on document [id] using a fluent builder.
   Future<List<dynamic>> update(
