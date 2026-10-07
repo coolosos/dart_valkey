@@ -192,29 +192,30 @@ This document shows the implementation status of Valkey/Redis commands in dart_v
 
 | Command | Status |
 |---------|--------|
-| JSON.ARRAPPEND | ❌ |
-| JSON.ARRINDEX | ❌ |
-| JSON.ARRINSERT | ❌ |
-| JSON.ARRLEN | ❌ |
-| JSON.ARRPOP | ❌ |
-| JSON.ARRTRIM | ❌ |
-| JSON.CLEAR | ❌ |
+| JSON.ARRAPPEND | ✅ |
+| JSON.ARRINDEX | ✅ |
+| JSON.ARRINSERT | ✅ |
+| JSON.ARRLEN | ✅ |
+| JSON.ARRPOP | ✅ |
+| JSON.ARRTRIM | ✅ |
+| JSON.CLEAR | ✅ |
 | JSON.DEBUG | ❌ |
-| JSON.DEL | ❌ |
-| JSON.FORGET | ❌ |
-| JSON.GET | ❌ |
-| JSON.MGET | ❌ |
+| JSON.DEL | ✅ |
+| JSON.FORGET | ✅ |
+| JSON.GET | ✅ |
+| JSON.MERGE | ✅ |
+| JSON.MGET | ✅ |
 | JSON.MSET | ❌ |
-| JSON.NUMINCRBY | ❌ |
-| JSON.NUMMULTBY | ❌ |
-| JSON.OBJKEYS | ❌ |
-| JSON.OBJLEN | ❌ |
-| JSON.RESP | ❌ |
-| JSON.SET | ❌ |
-| JSON.STRAPPEND | ❌ |
-| JSON.STRLEN | ❌ |
-| JSON.TOGGLE | ❌ |
-| JSON.TYPE | ❌ |
+| JSON.NUMINCRBY | ✅ |
+| JSON.NUMMULTBY | ✅ |
+| JSON.OBJKEYS | ✅ |
+| JSON.OBJLEN | ✅ |
+| JSON.RESP | ✅ |
+| JSON.SET | ✅ |
+| JSON.STRAPPEND | ✅ |
+| JSON.STRLEN | ✅ |
+| JSON.TOGGLE | ✅ |
+| JSON.TYPE | ✅ |
 
 ## List Operations
 

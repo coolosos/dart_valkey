@@ -122,6 +122,49 @@ Future<void> main() async {
 }
 ```
 
+### JSON Operations (Valkey & RedisJSON)
+
+Full support for the Valkey and Redis JSON module with Dart 3 Pattern Matching, custom models, atomic sub-path queries, and pluggable serialization (e.g. [`coolson`](https://github.com/coolosos/coolson)):
+
+```dart
+import 'package:dart_valkey/dart_valkey.dart';
+
+Future<void> main() async {
+  final client = ValkeyCommandClient(host: 'localhost', port: 6379);
+  await client.connect();
+
+  // 1. Store documents (path defaults to root '$')
+  await client.jsonSet('user:100', {
+    'name': 'Alice',
+    'age': 28,
+    'roles': ['developer'],
+    'active': true,
+  });
+
+  // 2. Query and map to typed object using Dart 3 Pattern Matching
+  final user = await client.jsonGetTyped<(String, int)>(
+    'user:100',
+    fromJson: (json) => switch (json) {
+      {'name': final String name, 'age': final int age} => (name, age),
+      _ => throw const FormatException('Invalid user schema'),
+    },
+  );
+  print('User: $user');
+
+  // 3. Sub-path modifications in the database
+  await client.jsonNumIncrBy('user:100', r'$.age', 1);
+  await client.jsonArrAppend('user:100', ['lead'], path: r'$.roles');
+  await client.jsonToggle('user:100', path: r'$.active');
+  await client.jsonMerge('user:100', {'department': 'Engineering'});
+
+  // 4. Raw JSON queries (zero decoding overhead)
+  final String? rawJson = await client.jsonGetRaw('user:100');
+  print('Raw JSON: $rawJson');
+
+  await client.close();
+}
+```
+
 ### SSL / TLS & Self-Signed Certificates
 
 Connect securely using TLS/SSL with optional certificate verification override (ideal for internal environments, staging, or self-signed certs):
