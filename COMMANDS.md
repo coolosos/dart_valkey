@@ -199,13 +199,13 @@ This document shows the implementation status of Valkey/Redis commands in dart_v
 | JSON.ARRPOP | ✅ |
 | JSON.ARRTRIM | ✅ |
 | JSON.CLEAR | ✅ |
-| JSON.DEBUG | ❌ |
+| JSON.DEBUG | ✅ |
 | JSON.DEL | ✅ |
 | JSON.FORGET | ✅ |
 | JSON.GET | ✅ |
 | JSON.MERGE | ✅ |
 | JSON.MGET | ✅ |
-| JSON.MSET | ❌ |
+| JSON.MSET | ✅ |
 | JSON.NUMINCRBY | ✅ |
 | JSON.NUMMULTBY | ✅ |
 | JSON.OBJKEYS | ✅ |

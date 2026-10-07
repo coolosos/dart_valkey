@@ -1050,6 +1050,24 @@ void main() {
       },
     );
 
+    test('jsonMSetRaw calls JsonMSetCommand with raw entries', () async {
+      mockClient.mockResponse = 'OK';
+      final res = await mockClient.jsonMSetRaw(const [
+        JsonMSetEntry(key: 'doc:1', path: r'$', value: '{"a":1}'),
+      ]);
+      expect(res, isTrue);
+      expect(mockClient.lastExecutedCommand, isA<JsonMSetCommand>());
+    });
+
+    test('jsonMSet calls JsonMSetCommand with encoded items', () async {
+      mockClient.mockResponse = 'OK';
+      final res = await mockClient.jsonMSet([
+        (key: 'doc:1', path: JsonPath.root, value: {'a': 1}),
+      ]);
+      expect(res, isTrue);
+      expect(mockClient.lastExecutedCommand, isA<JsonMSetCommand>());
+    });
+
     test('jsonType calls JsonTypeCommand', () async {
       mockClient.mockResponse = ['object'];
       final res = await mockClient.jsonType('doc:1');
@@ -1237,6 +1255,34 @@ void main() {
       final res = await mockClient.jsonResp('doc:1');
       expect(res, ['{', 'name', 'Alice', '}']);
       expect(mockClient.lastExecutedCommand, isA<JsonRespCommand>());
+    });
+
+    test('jsonDebugMemory calls JsonDebugMemoryCommand', () async {
+      mockClient.mockResponse = [128];
+      final res = await mockClient.jsonDebugMemory('doc:1', path: r'$.name');
+      expect(res, [128]);
+      expect(mockClient.lastExecutedCommand, isA<JsonDebugMemoryCommand>());
+    });
+
+    test('jsonDebugDepth calls JsonDebugDepthCommand', () async {
+      mockClient.mockResponse = [3];
+      final res = await mockClient.jsonDebugDepth('doc:1', path: r'$.items');
+      expect(res, [3]);
+      expect(mockClient.lastExecutedCommand, isA<JsonDebugDepthCommand>());
+    });
+
+    test('jsonDebugFields calls JsonDebugFieldsCommand', () async {
+      mockClient.mockResponse = [5];
+      final res = await mockClient.jsonDebugFields('doc:1', path: r'$.user');
+      expect(res, [5]);
+      expect(mockClient.lastExecutedCommand, isA<JsonDebugFieldsCommand>());
+    });
+
+    test('jsonDebugHelp calls JsonDebugHelpCommand', () async {
+      mockClient.mockResponse = ['MEMORY <key> [path]', 'HELP'];
+      final res = await mockClient.jsonDebugHelp();
+      expect(res, ['MEMORY <key> [path]', 'HELP']);
+      expect(mockClient.lastExecutedCommand, isA<JsonDebugHelpCommand>());
     });
 
     test('jsonStore creates ValkeyJsonStore instance', () {

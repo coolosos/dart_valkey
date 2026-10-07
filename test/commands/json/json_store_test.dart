@@ -86,6 +86,46 @@ void main() {
       expect(cmd.value, '{"key":"value"}');
     });
 
+    test(
+      'saveMany saves multiple documents atomically with JSON.MSET',
+      () async {
+        mockClient.mockResponse = 'OK';
+        expect(await store.saveMany({}), isTrue);
+
+        final ok = await store.saveMany({
+          '1': User(id: '1', name: 'Alice', age: 30),
+          '2': User(id: '2', name: 'Bob', age: 25),
+        });
+        expect(ok, isTrue);
+        final cmd = mockClient.lastExecutedCommand! as JsonMSetCommand;
+        expect(cmd.commandParts, [
+          'JSON.MSET',
+          'users:1',
+          r'$',
+          '{"id":"1","name":"Alice","age":30}',
+          'users:2',
+          r'$',
+          '{"id":"2","name":"Bob","age":25}',
+        ]);
+      },
+    );
+
+    test('saveMany without toJson uses item directly', () async {
+      mockClient.mockResponse = 'OK';
+      final mapStore = ValkeyJsonStore<Map<String, dynamic>>(
+        mockClient,
+        prefix: 'maps',
+        fromJson: (j) => j as Map<String, dynamic>,
+      );
+
+      final ok = await mapStore.saveMany({
+        '1': {'k': 'v'},
+      });
+      expect(ok, isTrue);
+      final cmd = mockClient.lastExecutedCommand! as JsonMSetCommand;
+      expect(cmd.commandParts, ['JSON.MSET', 'maps:1', r'$', '{"k":"v"}']);
+    });
+
     test('find returns document or null', () async {
       mockClient.mockResponse = '{"id":"1","name":"Alice","age":30}';
       final user = await store.find('1');

@@ -648,14 +648,10 @@ extension ValkeyCommands on ValkeyCommandClient {
   }
 
   /// Deletes the JSON value at [path] in [key].
-  Future<int> jsonDel(String key, {Object? path, Duration? timeout}) =>
-      execute(
-        JsonDelCommand(
-          key,
-          path: path != null ? resolveJsonPath(path) : null,
-        ),
-        timeout: timeout,
-      );
+  Future<int> jsonDel(String key, {Object? path, Duration? timeout}) => execute(
+    JsonDelCommand(key, path: path != null ? resolveJsonPath(path) : null),
+    timeout: timeout,
+  );
 
   /// Alias for [jsonDel].
   Future<int> jsonForget(String key, {Object? path, Duration? timeout}) =>
@@ -687,16 +683,46 @@ extension ValkeyCommands on ValkeyCommandClient {
     }).toList();
   }
 
+  /// Sets or updates JSON values at the specified paths across multiple keys atomically.
+  ///
+  /// Takes a list of raw [JsonMSetEntry]s.
+  Future<bool> jsonMSetRaw(List<JsonMSetEntry> entries, {Duration? timeout}) =>
+      execute(JsonMSetCommand(entries), timeout: timeout);
+
+  /// Sets or updates JSON values at the specified paths across multiple keys atomically.
+  ///
+  /// Encodes values using [encoder].
+  ///
+  /// ```dart
+  /// await client.jsonMSet([
+  ///   (key: 'doc:1', path: JsonPath.root, value: {'name': 'Alice'}),
+  ///   (key: 'doc:2', path: JsonPath.root, value: {'name': 'Bob'}),
+  /// ]);
+  /// ```
+  Future<bool> jsonMSet(
+    List<({String key, Object path, Object? value})> items, {
+    JsonEncoderFn encoder = defaultJsonEncoder,
+    Duration? timeout,
+  }) => jsonMSetRaw(
+    items
+        .map(
+          (item) => JsonMSetEntry(
+            key: item.key,
+            path: resolveJsonPath(item.path),
+            value: encoder(item.value),
+          ),
+        )
+        .toList(),
+    timeout: timeout,
+  );
+
   /// Gets the JSON types of elements at [path] in [key].
   Future<List<String?>> jsonType(
     String key, {
     Object? path = JsonPath.root,
     Duration? timeout,
   }) => execute(
-    JsonTypeCommand(
-      key,
-      path: path != null ? resolveJsonPath(path) : null,
-    ),
+    JsonTypeCommand(key, path: path != null ? resolveJsonPath(path) : null),
     timeout: timeout,
   );
 
@@ -796,11 +822,7 @@ extension ValkeyCommands on ValkeyCommandClient {
     Object path = JsonPath.root,
     Duration? timeout,
   }) => execute(
-    JsonArrAppendCommand(
-      key,
-      rawJsonValues,
-      path: resolveJsonPath(path),
-    ),
+    JsonArrAppendCommand(key, rawJsonValues, path: resolveJsonPath(path)),
     timeout: timeout,
   );
 
@@ -839,11 +861,7 @@ extension ValkeyCommands on ValkeyCommandClient {
     int? index,
     Duration? timeout,
   }) => execute(
-    JsonArrPopCommand(
-      key,
-      path: resolveJsonPath(path),
-      index: index,
-    ),
+    JsonArrPopCommand(key, path: resolveJsonPath(path), index: index),
     timeout: timeout,
   );
 
@@ -954,6 +972,55 @@ extension ValkeyCommands on ValkeyCommandClient {
     JsonRespCommand(key, path: resolveJsonPath(path)),
     timeout: timeout,
   );
+
+  /// Reports the memory usage in bytes of a JSON element at [path] in [key].
+  ///
+  /// Returns a list of memory sizes for matched elements.
+  Future<List<int?>> jsonDebugMemory(
+    String key, {
+    Object? path,
+    Duration? timeout,
+  }) => execute(
+    JsonDebugMemoryCommand(
+      key,
+      path: path != null ? resolveJsonPath(path) : null,
+    ),
+    timeout: timeout,
+  );
+
+  /// Reports the maximum nesting depth of a JSON element at [path] in [key].
+  ///
+  /// Returns a list of depth values for matched elements.
+  Future<List<int?>> jsonDebugDepth(
+    String key, {
+    Object? path,
+    Duration? timeout,
+  }) => execute(
+    JsonDebugDepthCommand(
+      key,
+      path: path != null ? resolveJsonPath(path) : null,
+    ),
+    timeout: timeout,
+  );
+
+  /// Reports the number of fields in a JSON element at [path] in [key].
+  ///
+  /// Returns a list of field count values for matched elements.
+  Future<List<int?>> jsonDebugFields(
+    String key, {
+    Object? path,
+    Duration? timeout,
+  }) => execute(
+    JsonDebugFieldsCommand(
+      key,
+      path: path != null ? resolveJsonPath(path) : null,
+    ),
+    timeout: timeout,
+  );
+
+  /// Returns helpful documentation for JSON.DEBUG subcommands.
+  Future<List<String>> jsonDebugHelp({Duration? timeout}) =>
+      execute(JsonDebugHelpCommand(), timeout: timeout);
 
   /// Creates a typed [ValkeyJsonStore] repository for managing documents of type [T].
   ///

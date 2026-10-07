@@ -59,7 +59,7 @@ Or with a specific version:
 
 ```yaml
 dependencies:
-  dart_valkey: ^0.0.6
+  dart_valkey: ^0.2.0
 ```
 
 Then run:
@@ -124,11 +124,11 @@ Future<void> main() async {
 
 ### JSON Operations (Valkey & RedisJSON)
 
-Full support for all 21 Valkey and Redis JSON module commands with Dart 3 Pattern Matching, strongly typed document repositories, fluent batch updates, type-safe JSONPath DSL, and pluggable serialization (e.g. [`coolson`](https://github.com/coolosos/coolson)):
+Full support for all 23 Valkey and Redis JSON module commands with Dart 3 Pattern Matching, strongly typed document repositories, fluent batch updates, type-safe JSONPath DSL, and pluggable serialization (e.g. [`coolson`](https://github.com/coolosos/coolson)):
 
 #### 1. Typed Document Store (`ValkeyJsonStore<T>`)
 
-Manage documents using the repository pattern with automatic key generation, serialization, and sub-field mutations:
+Manage documents using the repository pattern with automatic key generation, serialization, atomic batch saving, and sub-field mutations:
 
 ```dart
 final users = client.jsonStore<User>(
@@ -139,6 +139,7 @@ final users = client.jsonStore<User>(
 
 // CRUD operations
 await users.save('100', alice, ttl: const Duration(hours: 1));
+await users.saveMany({'101': bob, '102': charlie});
 final User? user = await users.find('100');
 final List<User?> team = await users.findMany(['100', '101', '102']);
 await users.delete('100');
@@ -188,7 +189,7 @@ await for (final user in client.jsonStreamArray<User>('huge_user_list', chunkSiz
 
 #### 5. Direct JSON Commands
 
-All 21 low-level JSON commands are supported with default root path `$` (`r'$'`):
+All 23 low-level JSON commands are supported with default root path `$` (`r'$'`):
 
 ```dart
 // Store document
@@ -198,6 +199,12 @@ await client.jsonSet('user:100', {
   'roles': ['developer'],
   'active': true,
 });
+
+// Atomic multi-document set (JSON.MSET)
+await client.jsonMSet([
+  (key: 'user:101', path: JsonPath.root, value: {'name': 'Bob'}),
+  (key: 'user:102', path: JsonPath.root, value: {'name': 'Charlie'}),
+]);
 
 // Map to typed object using Dart 3 Pattern Matching
 final user = await client.jsonGetTyped<(String, int)>(
@@ -213,6 +220,9 @@ await client.jsonNumIncrBy('user:100', r'$.age', 1);
 await client.jsonArrAppend('user:100', ['lead'], path: r'$.roles');
 await client.jsonToggle('user:100', path: r'$.active');
 await client.jsonMerge('user:100', {'department': 'Engineering'});
+
+// Inspect memory footprint (JSON.DEBUG)
+final memory = await client.jsonDebugMemory('user:100');
 
 // Zero-decoding raw queries
 final String? rawJson = await client.jsonGetRaw('user:100');

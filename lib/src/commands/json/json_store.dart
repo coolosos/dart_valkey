@@ -1,6 +1,7 @@
 import '../../client/valkey_client.dart';
 import '../../extensions/all_commands.dart';
 import '../strings/set_command.dart';
+import 'json_mset_command.dart';
 import 'json_path.dart';
 import 'json_types.dart';
 import 'json_update.dart';
@@ -62,6 +63,20 @@ final class ValkeyJsonStore<T>(
       await client.expire(key, ttl.inSeconds, timeout: timeout);
     }
     return ok;
+  }
+
+  /// Saves multiple documents in a single atomic operation using `JSON.MSET`.
+  Future<bool> saveMany(Map<String, T> items, {Duration? timeout}) {
+    if (items.isEmpty) return Future.value(true);
+    final entries = items.entries.map((entry) {
+      final key = keyFor(entry.key);
+      final payload = switch (toJson) {
+        final tj? => tj(entry.value),
+        _ => entry.value,
+      };
+      return JsonMSetEntry(key: key, path: r'$', value: encoder(payload));
+    }).toList();
+    return client.jsonMSetRaw(entries, timeout: timeout);
   }
 
   /// Retrieves and deserializes the document stored at [id].

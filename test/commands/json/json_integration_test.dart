@@ -56,7 +56,9 @@ void main() {
       try {
         await client.connect();
         // Probe if server has JSON module loaded
-        final probeResult = await client.jsonSet('__test:probe__', {'ok': true});
+        final probeResult = await client.jsonSet('__test:probe__', {
+          'ok': true,
+        });
         jsonModuleAvailable = probeResult;
         await client.del(['__test:probe__']);
       } catch (e) {
@@ -129,15 +131,18 @@ void main() {
         expect(rawAge, '[30]');
       });
 
-      jsonTest('JSON.NUMINCRBY and JSON.NUMMULTBY numeric modifications', () async {
-        const key = 'test:json:doc1';
+      jsonTest(
+        'JSON.NUMINCRBY and JSON.NUMMULTBY numeric modifications',
+        () async {
+          const key = 'test:json:doc1';
 
-        final incremented = await client.jsonNumIncrBy(key, r'$.age', 5);
-        expect(incremented, '[35]');
+          final incremented = await client.jsonNumIncrBy(key, r'$.age', 5);
+          expect(incremented, '[35]');
 
-        final multiplied = await client.jsonNumMultBy(key, r'$.age', 2);
-        expect(multiplied, '[70]');
-      });
+          final multiplied = await client.jsonNumMultBy(key, r'$.age', 2);
+          expect(multiplied, '[70]');
+        },
+      );
 
       jsonTest('JSON.TOGGLE boolean modification', () async {
         const key = 'test:json:doc1';
@@ -242,59 +247,71 @@ void main() {
         expect(afterDel, isNull);
       });
 
-      jsonTest('ValkeyJsonStore typed repository CRUD and sub-operations', () async {
-        final userStore = client.jsonStore<TestUser>(
-          prefix: 'test:json:store',
-          fromJson: TestUser.fromJson,
-          toJson: (u) => u.toJson(),
-        );
+      jsonTest(
+        'ValkeyJsonStore typed repository CRUD and sub-operations',
+        () async {
+          final userStore = client.jsonStore<TestUser>(
+            prefix: 'test:json:store',
+            fromJson: TestUser.fromJson,
+            toJson: (u) => u.toJson(),
+          );
 
-        final alice = TestUser(
-          id: '100',
-          name: 'Alice',
-          age: 28,
-          roles: ['dev'],
-          active: true,
-        );
+          final alice = TestUser(
+            id: '100',
+            name: 'Alice',
+            age: 28,
+            roles: ['dev'],
+            active: true,
+          );
 
-        // Save
-        final saveOk = await userStore.save('100', alice, ttl: const Duration(seconds: 120));
-        expect(saveOk, isTrue);
+          // Save
+          final saveOk = await userStore.save(
+            '100',
+            alice,
+            ttl: const Duration(seconds: 120),
+          );
+          expect(saveOk, isTrue);
 
-        // Exists
-        expect(await userStore.exists('100'), isTrue);
+          // Exists
+          expect(await userStore.exists('100'), isTrue);
 
-        // Find
-        final found = await userStore.find('100');
-        expect(found, isNotNull);
-        expect(found!.name, 'Alice');
-        expect(found.age, 28);
-        expect(found.roles, ['dev']);
+          // Find
+          final found = await userStore.find('100');
+          expect(found, isNotNull);
+          expect(found!.name, 'Alice');
+          expect(found.age, 28);
+          expect(found.roles, ['dev']);
 
-        // Find sub-path
-        final name = await userStore.findPath<List<dynamic>>('100', JsonPath.root['name']);
-        expect(name, ['Alice']);
+          // Find sub-path
+          final name = await userStore.findPath<List<dynamic>>(
+            '100',
+            JsonPath.root['name'],
+          );
+          expect(name, ['Alice']);
 
-        // Increment sub-path
-        await userStore.increment('100', JsonPath.root['age'], 1);
+          // Increment sub-path
+          await userStore.increment('100', JsonPath.root['age'], 1);
 
-        // Toggle sub-path
-        await userStore.toggle('100', JsonPath.root['active']);
+          // Toggle sub-path
+          await userStore.toggle('100', JsonPath.root['active']);
 
-        // Append to array sub-path
-        await userStore.appendToArray('100', JsonPath.root['roles'], ['lead']);
+          // Append to array sub-path
+          await userStore.appendToArray('100', JsonPath.root['roles'], [
+            'lead',
+          ]);
 
-        // Verify updated
-        final updated = await userStore.find('100');
-        expect(updated!.age, 29);
-        expect(updated.active, isFalse);
-        expect(updated.roles, ['dev', 'lead']);
+          // Verify updated
+          final updated = await userStore.find('100');
+          expect(updated!.age, 29);
+          expect(updated.active, isFalse);
+          expect(updated.roles, ['dev', 'lead']);
 
-        // Delete
-        final deleteOk = await userStore.delete('100');
-        expect(deleteOk, isTrue);
-        expect(await userStore.find('100'), isNull);
-      });
+          // Delete
+          final deleteOk = await userStore.delete('100');
+          expect(deleteOk, isTrue);
+          expect(await userStore.find('100'), isNull);
+        },
+      );
 
       jsonTest('jsonUpdate fluent builder execution', () async {
         const key = 'test:json:update';
@@ -323,13 +340,68 @@ void main() {
         await client.jsonSet(key, initialItems);
 
         final streamed = <String>[];
-        await for (final item in client.jsonStreamArray<String>(key, chunkSize: 6)) {
+        await for (final item in client.jsonStreamArray<String>(
+          key,
+          chunkSize: 6,
+        )) {
           streamed.add(item);
         }
 
         expect(streamed.length, 20);
         expect(streamed, equals(initialItems));
       });
+
+      jsonTest('JSON.MSET atomic multi-key set', () async {
+        const key1 = 'test:json:mset1';
+        const key2 = 'test:json:mset2';
+
+        final ok = await client.jsonMSet([
+          (key: key1, path: JsonPath.root, value: {'title': 'Doc 1'}),
+          (key: key2, path: JsonPath.root, value: {'title': 'Doc 2'}),
+        ]);
+        expect(ok, isTrue);
+
+        final mgetResults = await client.jsonMGet<Map<String, dynamic>>([
+          key1,
+          key2,
+        ]);
+        expect(mgetResults.length, 2);
+        expect(mgetResults[0]!['title'], 'Doc 1');
+        expect(mgetResults[1]!['title'], 'Doc 2');
+
+        await client.del([key1, key2]);
+      });
+
+      jsonTest(
+        'JSON.DEBUG MEMORY, DEPTH, FIELDS and HELP operations',
+        () async {
+          const key = 'test:json:doc1';
+          await client.jsonSet(key, {
+            'foo': 'bar',
+            'count': 42,
+            'nested': {'a': 1},
+          });
+
+          final memoryList = await client.jsonDebugMemory(key);
+          expect(memoryList, isNotEmpty);
+          expect(memoryList.first, greaterThan(0));
+
+          final memoryPath = await client.jsonDebugMemory(key, path: r'$.foo');
+          expect(memoryPath, isNotEmpty);
+          expect(memoryPath.first, greaterThan(0));
+
+          final depthList = await client.jsonDebugDepth(key);
+          expect(depthList, isNotEmpty);
+          expect(depthList.first, greaterThanOrEqualTo(2));
+
+          final fieldsList = await client.jsonDebugFields(key);
+          expect(fieldsList, isNotEmpty);
+          expect(fieldsList.first, greaterThanOrEqualTo(3));
+
+          final help = await client.jsonDebugHelp();
+          expect(help, isNotEmpty);
+        },
+      );
     });
   });
 }
