@@ -1,7 +1,7 @@
 import '../../codec/valkey_exception.dart';
 import '../command.dart';
 
-/// Represents the 'ZADD key [NX|XX] [CH] [INCR] score member [score member ...]' command.
+/// Represents the `ZADD key [NX|XX] [CH] [INCR] score member [score member ...]` command.
 ///
 /// **Redis Command:**
 /// ```text
