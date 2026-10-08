@@ -531,4 +531,588 @@ extension ValkeyCommands on ValkeyCommandClient {
     List<String> channels = const [],
     Duration? timeout,
   ]) => execute(PubsubShardnumsubCommand(channels), timeout: timeout);
+
+  // JSON
+  /// Sets the JSON value at [path] in [key].
+  ///
+  /// [path] defaults to the root document [JsonPath.root].
+  /// [value] is serialized using [encoder] (defaults to [defaultJsonEncoder]).
+  Future<bool> jsonSet(
+    String key,
+    Object? value, {
+    Object path = JsonPath.root,
+    SetStrategyTypes strategyType = SetStrategyTypes.always,
+    JsonEncoderFn encoder = defaultJsonEncoder,
+    Duration? timeout,
+  }) => execute(
+    JsonSetCommand(
+      key,
+      resolveJsonPath(path),
+      encoder(value),
+      strategyType: strategyType,
+    ),
+    timeout: timeout,
+  );
+
+  /// Sets raw pre-encoded JSON string at [path] in [key].
+  ///
+  /// [path] defaults to the root document [JsonPath.root].
+  Future<bool> jsonSetRaw(
+    String key,
+    String jsonString, {
+    Object path = JsonPath.root,
+    SetStrategyTypes strategyType = SetStrategyTypes.always,
+    Duration? timeout,
+  }) => execute(
+    JsonSetCommand(
+      key,
+      resolveJsonPath(path),
+      jsonString,
+      strategyType: strategyType,
+    ),
+    timeout: timeout,
+  );
+
+  /// Returns raw JSON string from [key] at specified [paths].
+  Future<String?> jsonGetRaw(
+    String key, {
+    List<Object> paths = const [],
+    String? indent,
+    String? newline,
+    String? space,
+    Duration? timeout,
+  }) => execute(
+    JsonGetCommand(
+      key,
+      paths: paths.map(resolveJsonPath).toList(),
+      indent: indent,
+      newline: newline,
+      space: space,
+    ),
+    timeout: timeout,
+  );
+
+  /// Gets and decodes the JSON value at [paths] in [key].
+  ///
+  /// If `T` is specified, attempts to cast the decoded value to `T`.
+  Future<T?> jsonGet<T>(
+    String key, {
+    List<Object> paths = const [],
+    String? indent,
+    String? newline,
+    String? space,
+    JsonDecoderFn decoder = defaultJsonDecoder,
+    Duration? timeout,
+  }) async {
+    final raw = await jsonGetRaw(
+      key,
+      paths: paths,
+      indent: indent,
+      newline: newline,
+      space: space,
+      timeout: timeout,
+    );
+    if (raw == null) return null;
+    final decoded = decoder(raw);
+    if (decoded is T) return decoded;
+    return decoded as T?;
+  }
+
+  /// Gets and decodes the JSON value from [key], mapped to type [T] using [fromJson].
+  ///
+  /// Works seamlessly with Dart 3 Pattern Matching and model constructors:
+  /// ```dart
+  /// final user = await client.jsonGetTyped('user:1', fromJson: (json) => json);
+  /// ```
+  Future<T?> jsonGetTyped<T>(
+    String key, {
+    required T Function(dynamic json) fromJson,
+    List<Object> paths = const [],
+    String? indent,
+    String? newline,
+    String? space,
+    JsonDecoderFn decoder = defaultJsonDecoder,
+    Duration? timeout,
+  }) async {
+    final raw = await jsonGetRaw(
+      key,
+      paths: paths,
+      indent: indent,
+      newline: newline,
+      space: space,
+      timeout: timeout,
+    );
+    if (raw == null) return null;
+    final decoded = decoder(raw);
+    return fromJson(decoded);
+  }
+
+  /// Deletes the JSON value at [path] in [key].
+  Future<int> jsonDel(String key, {Object? path, Duration? timeout}) => execute(
+    JsonDelCommand(key, path: path != null ? resolveJsonPath(path) : null),
+    timeout: timeout,
+  );
+
+  /// Alias for [jsonDel].
+  Future<int> jsonForget(String key, {Object? path, Duration? timeout}) =>
+      jsonDel(key, path: path, timeout: timeout);
+
+  /// Gets the values of [keys] at [path] as raw JSON strings.
+  Future<List<String?>> jsonMGetRaw(
+    List<String> keys, {
+    Object path = JsonPath.root,
+    Duration? timeout,
+  }) => execute(
+    JsonMGetCommand(keys, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
+
+  /// Gets and decodes the values of [keys] at [path].
+  Future<List<T?>> jsonMGet<T>(
+    List<String> keys, {
+    Object path = JsonPath.root,
+    JsonDecoderFn decoder = defaultJsonDecoder,
+    Duration? timeout,
+  }) async {
+    final rawList = await jsonMGetRaw(keys, path: path, timeout: timeout);
+    return rawList.map((raw) {
+      if (raw == null) return null;
+      final decoded = decoder(raw);
+      if (decoded is T) return decoded;
+      return decoded as T?;
+    }).toList();
+  }
+
+  /// Sets or updates JSON values at the specified paths across multiple keys atomically.
+  ///
+  /// Takes a list of raw [JsonMSetEntry]s.
+  Future<bool> jsonMSetRaw(List<JsonMSetEntry> entries, {Duration? timeout}) =>
+      execute(JsonMSetCommand(entries), timeout: timeout);
+
+  /// Sets or updates JSON values at the specified paths across multiple keys atomically.
+  ///
+  /// Encodes values using [encoder].
+  ///
+  /// ```dart
+  /// await client.jsonMSet([
+  ///   (key: 'doc:1', path: JsonPath.root, value: {'name': 'Alice'}),
+  ///   (key: 'doc:2', path: JsonPath.root, value: {'name': 'Bob'}),
+  /// ]);
+  /// ```
+  Future<bool> jsonMSet(
+    List<({String key, Object path, Object? value})> items, {
+    JsonEncoderFn encoder = defaultJsonEncoder,
+    Duration? timeout,
+  }) => jsonMSetRaw(
+    items
+        .map(
+          (item) => JsonMSetEntry(
+            key: item.key,
+            path: resolveJsonPath(item.path),
+            value: encoder(item.value),
+          ),
+        )
+        .toList(),
+    timeout: timeout,
+  );
+
+  /// Gets the JSON types of elements at [path] in [key].
+  Future<List<String?>> jsonType(
+    String key, {
+    Object? path = JsonPath.root,
+    Duration? timeout,
+  }) => execute(
+    JsonTypeCommand(key, path: path != null ? resolveJsonPath(path) : null),
+    timeout: timeout,
+  );
+
+  /// Increments the numeric value at [path] in [key] by [value].
+  Future<String?> jsonNumIncrBy(
+    String key,
+    Object path,
+    num value, {
+    Duration? timeout,
+  }) => execute(
+    JsonNumIncrByCommand(key, resolveJsonPath(path), value),
+    timeout: timeout,
+  );
+
+  /// Multiplies the numeric value at [path] in [key] by [value].
+  Future<String?> jsonNumMultBy(
+    String key,
+    Object path,
+    num value, {
+    Duration? timeout,
+  }) => execute(
+    JsonNumMultByCommand(key, resolveJsonPath(path), value),
+    timeout: timeout,
+  );
+
+  /// Toggles a boolean value at [path] in [key].
+  Future<List<bool?>> jsonToggle(
+    String key, {
+    Object path = JsonPath.root,
+    Duration? timeout,
+  }) => execute(
+    JsonToggleCommand(key, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
+
+  /// Appends the JSON-encoded string [value] to the string at [path] in [key].
+  Future<List<int?>> jsonStrAppend(
+    String key,
+    String value, {
+    Object? path,
+    JsonEncoderFn encoder = defaultJsonEncoder,
+    Duration? timeout,
+  }) => execute(
+    JsonStrAppendCommand(
+      key,
+      encoder(value),
+      path: path != null ? resolveJsonPath(path) : null,
+    ),
+    timeout: timeout,
+  );
+
+  /// Appends raw pre-formatted JSON string to the string at [path] in [key].
+  Future<List<int?>> jsonStrAppendRaw(
+    String key,
+    String rawJsonString, {
+    Object? path,
+    Duration? timeout,
+  }) => execute(
+    JsonStrAppendCommand(
+      key,
+      rawJsonString,
+      path: path != null ? resolveJsonPath(path) : null,
+    ),
+    timeout: timeout,
+  );
+
+  /// Returns the length of the string at [path] in [key].
+  Future<List<int?>> jsonStrLen(
+    String key, {
+    Object path = JsonPath.root,
+    Duration? timeout,
+  }) => execute(
+    JsonStrLenCommand(key, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
+
+  /// Appends [values] to the array at [path] in [key].
+  Future<List<int?>> jsonArrAppend(
+    String key,
+    List<Object?> values, {
+    Object path = JsonPath.root,
+    JsonEncoderFn encoder = defaultJsonEncoder,
+    Duration? timeout,
+  }) => execute(
+    JsonArrAppendCommand(
+      key,
+      values.map(encoder).toList(),
+      path: resolveJsonPath(path),
+    ),
+    timeout: timeout,
+  );
+
+  /// Appends raw JSON strings to the array at [path] in [key].
+  Future<List<int?>> jsonArrAppendRaw(
+    String key,
+    List<String> rawJsonValues, {
+    Object path = JsonPath.root,
+    Duration? timeout,
+  }) => execute(
+    JsonArrAppendCommand(key, rawJsonValues, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
+
+  /// Inserts [values] into the array at [path] at [index] in [key].
+  Future<List<int?>> jsonArrInsert(
+    String key,
+    Object path,
+    int index,
+    List<Object?> values, {
+    JsonEncoderFn encoder = defaultJsonEncoder,
+    Duration? timeout,
+  }) => execute(
+    JsonArrInsertCommand(
+      key,
+      resolveJsonPath(path),
+      index,
+      values.map(encoder).toList(),
+    ),
+    timeout: timeout,
+  );
+
+  /// Returns the length of the array at [path] in [key].
+  Future<List<int?>> jsonArrLen(
+    String key, {
+    Object path = JsonPath.root,
+    Duration? timeout,
+  }) => execute(
+    JsonArrLenCommand(key, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
+
+  /// Pops an element from the array at [path] in [key].
+  Future<List<String?>> jsonArrPopRaw(
+    String key, {
+    Object path = JsonPath.root,
+    int? index,
+    Duration? timeout,
+  }) => execute(
+    JsonArrPopCommand(key, path: resolveJsonPath(path), index: index),
+    timeout: timeout,
+  );
+
+  /// Pops and decodes an element from the array at [path] in [key].
+  Future<List<T?>> jsonArrPop<T>(
+    String key, {
+    Object path = JsonPath.root,
+    int? index,
+    JsonDecoderFn decoder = defaultJsonDecoder,
+    Duration? timeout,
+  }) async {
+    final rawList = await jsonArrPopRaw(
+      key,
+      path: path,
+      index: index,
+      timeout: timeout,
+    );
+    return rawList.map((raw) {
+      if (raw == null) return null;
+      final decoded = decoder(raw);
+      if (decoded is T) return decoded;
+      return decoded as T?;
+    }).toList();
+  }
+
+  /// Searches for [value] in the array at [path] in [key].
+  Future<List<int?>> jsonArrIndex(
+    String key,
+    Object path,
+    Object? value, {
+    int? start,
+    int? stop,
+    JsonEncoderFn encoder = defaultJsonEncoder,
+    Duration? timeout,
+  }) => execute(
+    JsonArrIndexCommand(
+      key,
+      resolveJsonPath(path),
+      encoder(value),
+      start: start,
+      stop: stop,
+    ),
+    timeout: timeout,
+  );
+
+  /// Trims the array at [path] in [key] to between [start] and [stop] indices.
+  Future<List<int?>> jsonArrTrim(
+    String key,
+    Object path,
+    int start,
+    int stop, {
+    Duration? timeout,
+  }) => execute(
+    JsonArrTrimCommand(key, resolveJsonPath(path), start, stop),
+    timeout: timeout,
+  );
+
+  /// Returns the object keys at [path] in [key].
+  Future<List<List<String>?>> jsonObjKeys(
+    String key, {
+    Object path = JsonPath.root,
+    Duration? timeout,
+  }) => execute(
+    JsonObjKeysCommand(key, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
+
+  /// Returns the number of keys in the object at [path] in [key].
+  Future<List<int?>> jsonObjLen(
+    String key, {
+    Object path = JsonPath.root,
+    Duration? timeout,
+  }) => execute(
+    JsonObjLenCommand(key, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
+
+  /// Merges [value] into the JSON document at [path] in [key].
+  ///
+  /// [path] defaults to the root document [JsonPath.root].
+  Future<bool> jsonMerge(
+    String key,
+    Object? value, {
+    Object path = JsonPath.root,
+    JsonEncoderFn encoder = defaultJsonEncoder,
+    Duration? timeout,
+  }) => execute(
+    JsonMergeCommand(key, resolveJsonPath(path), encoder(value)),
+    timeout: timeout,
+  );
+
+  /// Clears container values (arrays/objects) or sets numeric values to 0 at [path] in [key].
+  Future<int> jsonClear(
+    String key, {
+    Object path = JsonPath.root,
+    Duration? timeout,
+  }) => execute(
+    JsonClearCommand(key, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
+
+  /// Returns the JSON value at [path] in [key] represented in RESP format.
+  Future<dynamic> jsonResp(
+    String key, {
+    Object path = JsonPath.root,
+    Duration? timeout,
+  }) => execute(
+    JsonRespCommand(key, path: resolveJsonPath(path)),
+    timeout: timeout,
+  );
+
+  /// Reports the memory usage in bytes of a JSON element at [path] in [key].
+  ///
+  /// Returns a list of memory sizes for matched elements.
+  Future<List<int?>> jsonDebugMemory(
+    String key, {
+    Object? path,
+    Duration? timeout,
+  }) => execute(
+    JsonDebugMemoryCommand(
+      key,
+      path: path != null ? resolveJsonPath(path) : null,
+    ),
+    timeout: timeout,
+  );
+
+  /// Reports the maximum nesting depth of a JSON element at [path] in [key].
+  ///
+  /// Returns a list of depth values for matched elements.
+  Future<List<int?>> jsonDebugDepth(
+    String key, {
+    Object? path,
+    Duration? timeout,
+  }) => execute(
+    JsonDebugDepthCommand(
+      key,
+      path: path != null ? resolveJsonPath(path) : null,
+    ),
+    timeout: timeout,
+  );
+
+  /// Reports the number of fields in a JSON element at [path] in [key].
+  ///
+  /// Returns a list of field count values for matched elements.
+  Future<List<int?>> jsonDebugFields(
+    String key, {
+    Object? path,
+    Duration? timeout,
+  }) => execute(
+    JsonDebugFieldsCommand(
+      key,
+      path: path != null ? resolveJsonPath(path) : null,
+    ),
+    timeout: timeout,
+  );
+
+  /// Returns helpful documentation for JSON.DEBUG subcommands.
+  Future<List<String>> jsonDebugHelp({Duration? timeout}) =>
+      execute(JsonDebugHelpCommand(), timeout: timeout);
+
+  /// Creates a typed [ValkeyJsonStore] repository for managing documents of type [T].
+  ///
+  /// Example:
+  /// ```dart
+  /// final users = client.jsonStore<User>(
+  ///   prefix: 'users',
+  ///   fromJson: User.fromJson,
+  ///   toJson: (u) => u.toJson(),
+  /// );
+  /// await users.save('100', user);
+  /// final u = await users.find('100');
+  /// ```
+  ValkeyJsonStore<T> jsonStore<T>({
+    required String prefix,
+    required T Function(dynamic json) fromJson,
+    Object? Function(T value)? toJson,
+    String Function(String id)? keyBuilder,
+    JsonEncoderFn encoder = defaultJsonEncoder,
+    JsonDecoderFn decoder = defaultJsonDecoder,
+  }) => ValkeyJsonStore<T>(
+    this,
+    prefix: prefix,
+    fromJson: fromJson,
+    toJson: toJson,
+    keyBuilder: keyBuilder,
+    encoder: encoder,
+    decoder: decoder,
+  );
+
+  /// Performs multiple updates on a JSON document at [key] using a fluent builder.
+  ///
+  /// Example:
+  /// ```dart
+  /// await client.jsonUpdate('user:100', (doc) {
+  ///   doc.increment('$.age', 1)
+  ///      .appendToArray('$.roles', ['admin'])
+  ///      .toggle('$.active');
+  /// });
+  /// ```
+  Future<List<dynamic>> jsonUpdate(
+    String key,
+    void Function(JsonUpdateBuilder updater) updateFn, {
+    JsonEncoderFn encoder = defaultJsonEncoder,
+    Duration? timeout,
+  }) {
+    final updater = JsonUpdateBuilder(key, encoder: encoder);
+    updateFn(updater);
+    return updater.executeOn(this, timeout: timeout);
+  }
+
+  /// Streams elements of a large JSON array stored at [key] and [path], fetching in chunks of [chunkSize].
+  ///
+  /// Example:
+  /// ```dart
+  /// await for (final item in client.jsonStreamArray<User>('huge_array', fromJson: User.fromJson)) {
+  ///   print(item);
+  /// }
+  /// ```
+  Stream<T> jsonStreamArray<T>(
+    String key, {
+    Object path = JsonPath.root,
+    int chunkSize = 100,
+    T Function(dynamic json)? fromJson,
+    JsonDecoderFn decoder = defaultJsonDecoder,
+    Duration? timeout,
+  }) async* {
+    final resolvedPath = resolveJsonPath(path);
+    final lens = await jsonArrLen(key, path: resolvedPath, timeout: timeout);
+    final totalLen = lens.isNotEmpty ? (lens.first ?? 0) : 0;
+    if (totalLen <= 0) return;
+
+    for (var start = 0; start < totalLen; start += chunkSize) {
+      final end = (start + chunkSize < totalLen) ? start + chunkSize : totalLen;
+      final slicePath = '$resolvedPath[$start:$end]';
+      final raw = await jsonGetRaw(key, paths: [slicePath], timeout: timeout);
+      if (raw == null) continue;
+      final decoded = decoder(raw);
+      if (decoded is List) {
+        final items = (decoded.isNotEmpty && decoded.first is List)
+            ? decoded.first as List
+            : decoded;
+        for (final item in items) {
+          if (fromJson case final fj?) {
+            yield fj(item);
+          } else if (item is T) {
+            yield item;
+          } else {
+            yield item as T;
+          }
+        }
+      }
+    }
+  }
 }

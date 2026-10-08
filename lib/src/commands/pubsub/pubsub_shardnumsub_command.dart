@@ -10,6 +10,12 @@ final class PubsubShardnumsubCommand([final List<String> channels = const []])
 
   @override
   Map<String, int> parse(dynamic data) {
+    if (data is Map) {
+      return data.map(
+        (k, v) =>
+            MapEntry(k.toString(), v is int ? v : int.parse(v.toString())),
+      );
+    }
     if (data is List) {
       final result = <String, int>{};
       for (var i = 0; i < data.length; i += 2) {
@@ -18,7 +24,7 @@ final class PubsubShardnumsubCommand([final List<String> channels = const []])
       return result;
     }
     throw ValkeyException(
-      'Invalid response for PUBSUB SHARDNUMSUB: expected a list, got ${data.runtimeType}',
+      'Invalid response for PUBSUB SHARDNUMSUB: expected a list or map, got ${data.runtimeType}',
     );
   }
 }

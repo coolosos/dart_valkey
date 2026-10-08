@@ -17,6 +17,14 @@ void main() {
       });
     });
 
+    test('should parse map response correctly', () {
+      final command = HGetAllCommand('mykey');
+      expect(command.parse({'name': 'Alice', 'age': '30'}), {
+        'name': 'Alice',
+        'age': '30',
+      });
+    });
+
     test('should parse empty list response correctly', () {
       final command = HGetAllCommand('mykey');
       expect(command.parse(<dynamic>[]), <String, String>{});

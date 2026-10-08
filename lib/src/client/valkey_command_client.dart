@@ -49,9 +49,10 @@ class ValkeyCommandClient extends BaseValkeyClient {
     super.respDecoder = const Resp3Decoder(),
     super.disableNagle = true,
     this.commandTimeout = const Duration(seconds: 1),
-  }) : keyPrefix = (keyPrefix?.endsWith(':') ?? false)
-           ? keyPrefix
-           : '$keyPrefix:';
+  }) : keyPrefix = switch (keyPrefix) {
+         final p? when p.isNotEmpty => p.endsWith(':') ? p : '$p:',
+         _ => null,
+       };
 
   final int _db;
   final String? keyPrefix;
@@ -107,6 +108,10 @@ class ValkeyCommandClient extends BaseValkeyClient {
       final completer = _commandQueue.removeFirst();
       final command = _pendingCompleters.remove(completer);
       if (command != null) {
+        if (data is RespException) {
+          completer.completeError(data);
+          return;
+        }
         try {
           completer.complete(command.parse(data) as Object?);
         } catch (e, s) {

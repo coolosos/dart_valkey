@@ -31,6 +31,7 @@ import 'package:dart_valkey/src/commands/hash/hset_command.dart';
 import 'package:dart_valkey/src/commands/hash/hsetnx_command.dart';
 import 'package:dart_valkey/src/commands/hash/hstrlen_command.dart';
 import 'package:dart_valkey/src/commands/hash/hvals_command.dart';
+import 'package:dart_valkey/src/commands/json/json.dart';
 import 'package:dart_valkey/src/commands/key/del_command.dart';
 import 'package:dart_valkey/src/commands/key/exists_command.dart';
 import 'package:dart_valkey/src/commands/key/persist_command.dart';
@@ -111,10 +112,14 @@ class MockValkeyCommandClient extends ValkeyCommandClient {
 
   Command<dynamic>? lastExecutedCommand;
   dynamic mockResponse;
+  dynamic Function(ValkeyCommand<dynamic> command)? commandHandler;
 
   @override
   Future<T> execute<T>(ValkeyCommand<T> command, {Duration? timeout}) async {
     lastExecutedCommand = command;
+    if (commandHandler case final handler?) {
+      return command.parse(handler(command));
+    }
     return command.parse(mockResponse);
   }
 
@@ -944,6 +949,421 @@ void main() {
         (mockClient.lastExecutedCommand! as PubsubShardnumsubCommand).channels,
         ['channel'],
       );
+    });
+
+    // JSON Commands
+    test('jsonSet calls JsonSetCommand with default root path', () async {
+      mockClient.mockResponse = 'OK';
+      final res = await mockClient.jsonSet('doc:1', {'name': 'Alice'});
+      expect(res, isTrue);
+      expect(mockClient.lastExecutedCommand, isA<JsonSetCommand>());
+      final cmd = mockClient.lastExecutedCommand! as JsonSetCommand;
+      expect(cmd.commandParts, ['JSON.SET', 'doc:1', r'$', '{"name":"Alice"}']);
+    });
+
+    test('jsonSet calls JsonSetCommand with custom path', () async {
+      mockClient.mockResponse = 'OK';
+      final res = await mockClient.jsonSet('doc:1', 30, path: r'$.age');
+      expect(res, isTrue);
+      final cmd = mockClient.lastExecutedCommand! as JsonSetCommand;
+      expect(cmd.commandParts, ['JSON.SET', 'doc:1', r'$.age', '30']);
+    });
+
+    test('jsonSetRaw calls JsonSetCommand with raw string', () async {
+      mockClient.mockResponse = 'OK';
+      final res = await mockClient.jsonSetRaw('doc:1', '{"name":"Alice"}');
+      expect(res, isTrue);
+      expect(mockClient.lastExecutedCommand, isA<JsonSetCommand>());
+      final cmd = mockClient.lastExecutedCommand! as JsonSetCommand;
+      expect(cmd.commandParts, ['JSON.SET', 'doc:1', r'$', '{"name":"Alice"}']);
+    });
+
+    test('jsonGetRaw calls JsonGetCommand', () async {
+      mockClient.mockResponse = '{"name":"Alice"}';
+      final res = await mockClient.jsonGetRaw('doc:1', paths: const [r'$']);
+      expect(res, '{"name":"Alice"}');
+      expect(mockClient.lastExecutedCommand, isA<JsonGetCommand>());
+    });
+
+    test('jsonGet decodes JSON response with generic type', () async {
+      mockClient.mockResponse = '{"name":"Alice"}';
+      final res = await mockClient.jsonGet<Map<String, dynamic>>('doc:1');
+      expect(res, {'name': 'Alice'});
+    });
+
+    test('jsonGet returns null when jsonGetRaw returns null', () async {
+      mockClient.mockResponse = null;
+      final res = await mockClient.jsonGet<dynamic>('doc:1');
+      expect(res, isNull);
+    });
+
+    test('jsonGetTyped decodes and maps to typed object', () async {
+      mockClient.mockResponse = '{"name":"Alice","age":30}';
+      final res = await mockClient.jsonGetTyped<(String, int)>(
+        'doc:1',
+        fromJson: (json) => switch (json) {
+          {'name': final String name, 'age': final int age} => (name, age),
+          _ => throw const FormatException('Invalid JSON'),
+        },
+      );
+      expect(res, ('Alice', 30));
+    });
+
+    test('jsonGetTyped returns null when key not found', () async {
+      mockClient.mockResponse = null;
+      final res = await mockClient.jsonGetTyped<String>(
+        'doc:1',
+        fromJson: (json) => json.toString(),
+      );
+      expect(res, isNull);
+    });
+
+    test('jsonDel calls JsonDelCommand', () async {
+      mockClient.mockResponse = 1;
+      final res = await mockClient.jsonDel('doc:1', path: r'$.name');
+      expect(res, 1);
+      expect(mockClient.lastExecutedCommand, isA<JsonDelCommand>());
+    });
+
+    test('jsonForget calls JsonDelCommand', () async {
+      mockClient.mockResponse = 1;
+      final res = await mockClient.jsonForget('doc:1');
+      expect(res, 1);
+      expect(mockClient.lastExecutedCommand, isA<JsonDelCommand>());
+    });
+
+    test('jsonMGetRaw calls JsonMGetCommand', () async {
+      mockClient.mockResponse = ['{"a":1}', null];
+      final res = await mockClient.jsonMGetRaw(const ['doc:1', 'doc:2']);
+      expect(res, ['{"a":1}', null]);
+      expect(mockClient.lastExecutedCommand, isA<JsonMGetCommand>());
+    });
+
+    test(
+      'jsonMGet decodes multiple JSON responses with generic type',
+      () async {
+        mockClient.mockResponse = ['{"a":1}', null];
+        final res = await mockClient.jsonMGet<Map<String, dynamic>>(const [
+          'doc:1',
+          'doc:2',
+        ]);
+        expect(res, [
+          {'a': 1},
+          null,
+        ]);
+      },
+    );
+
+    test('jsonMSetRaw calls JsonMSetCommand with raw entries', () async {
+      mockClient.mockResponse = 'OK';
+      final res = await mockClient.jsonMSetRaw(const [
+        JsonMSetEntry(key: 'doc:1', path: r'$', value: '{"a":1}'),
+      ]);
+      expect(res, isTrue);
+      expect(mockClient.lastExecutedCommand, isA<JsonMSetCommand>());
+    });
+
+    test('jsonMSet calls JsonMSetCommand with encoded items', () async {
+      mockClient.mockResponse = 'OK';
+      final res = await mockClient.jsonMSet([
+        (key: 'doc:1', path: JsonPath.root, value: {'a': 1}),
+      ]);
+      expect(res, isTrue);
+      expect(mockClient.lastExecutedCommand, isA<JsonMSetCommand>());
+    });
+
+    test('jsonType calls JsonTypeCommand', () async {
+      mockClient.mockResponse = ['object'];
+      final res = await mockClient.jsonType('doc:1');
+      expect(res, ['object']);
+      expect(mockClient.lastExecutedCommand, isA<JsonTypeCommand>());
+    });
+
+    test('jsonNumIncrBy calls JsonNumIncrByCommand', () async {
+      mockClient.mockResponse = '[35]';
+      final res = await mockClient.jsonNumIncrBy('doc:1', r'$.age', 5);
+      expect(res, '[35]');
+      expect(mockClient.lastExecutedCommand, isA<JsonNumIncrByCommand>());
+    });
+
+    test('jsonNumMultBy calls JsonNumMultByCommand', () async {
+      mockClient.mockResponse = '[60]';
+      final res = await mockClient.jsonNumMultBy('doc:1', r'$.age', 2);
+      expect(res, '[60]');
+      expect(mockClient.lastExecutedCommand, isA<JsonNumMultByCommand>());
+    });
+
+    test('jsonToggle calls JsonToggleCommand', () async {
+      mockClient.mockResponse = [1];
+      final res = await mockClient.jsonToggle('doc:1', path: r'$.active');
+      expect(res, [true]);
+      expect(mockClient.lastExecutedCommand, isA<JsonToggleCommand>());
+    });
+
+    test(
+      'jsonStrAppend calls JsonStrAppendCommand with encoded value',
+      () async {
+        mockClient.mockResponse = [12];
+        final res = await mockClient.jsonStrAppend(
+          'doc:1',
+          ' world',
+          path: r'$.str',
+        );
+        expect(res, [12]);
+        expect(mockClient.lastExecutedCommand, isA<JsonStrAppendCommand>());
+      },
+    );
+
+    test(
+      'jsonStrAppendRaw calls JsonStrAppendCommand with raw string',
+      () async {
+        mockClient.mockResponse = [12];
+        final res = await mockClient.jsonStrAppendRaw(
+          'doc:1',
+          '" world"',
+          path: r'$.str',
+        );
+        expect(res, [12]);
+        expect(mockClient.lastExecutedCommand, isA<JsonStrAppendCommand>());
+      },
+    );
+
+    test('jsonStrLen calls JsonStrLenCommand', () async {
+      mockClient.mockResponse = [5];
+      final res = await mockClient.jsonStrLen('doc:1');
+      expect(res, [5]);
+      expect(mockClient.lastExecutedCommand, isA<JsonStrLenCommand>());
+    });
+
+    test(
+      'jsonArrAppend calls JsonArrAppendCommand with encoded values',
+      () async {
+        mockClient.mockResponse = [3];
+        final res = await mockClient.jsonArrAppend('doc:1', [
+          'item1',
+          {'id': 2},
+        ]);
+        expect(res, [3]);
+        expect(mockClient.lastExecutedCommand, isA<JsonArrAppendCommand>());
+      },
+    );
+
+    test(
+      'jsonArrAppendRaw calls JsonArrAppendCommand with raw strings',
+      () async {
+        mockClient.mockResponse = [3];
+        final res = await mockClient.jsonArrAppendRaw('doc:1', const [
+          '"item1"',
+        ]);
+        expect(res, [3]);
+        expect(mockClient.lastExecutedCommand, isA<JsonArrAppendCommand>());
+      },
+    );
+
+    test(
+      'jsonArrInsert calls JsonArrInsertCommand with encoded values',
+      () async {
+        mockClient.mockResponse = [4];
+        final res = await mockClient.jsonArrInsert('doc:1', r'$.items', 1, [
+          'item',
+        ]);
+        expect(res, [4]);
+        expect(mockClient.lastExecutedCommand, isA<JsonArrInsertCommand>());
+      },
+    );
+
+    test('jsonArrLen calls JsonArrLenCommand', () async {
+      mockClient.mockResponse = [3];
+      final res = await mockClient.jsonArrLen('doc:1');
+      expect(res, [3]);
+      expect(mockClient.lastExecutedCommand, isA<JsonArrLenCommand>());
+    });
+
+    test('jsonArrPopRaw calls JsonArrPopCommand', () async {
+      mockClient.mockResponse = ['"popped"'];
+      final res = await mockClient.jsonArrPopRaw('doc:1');
+      expect(res, ['"popped"']);
+      expect(mockClient.lastExecutedCommand, isA<JsonArrPopCommand>());
+    });
+
+    test('jsonArrPop decodes popped JSON values with generic type', () async {
+      mockClient.mockResponse = ['{"id":1}', null];
+      final res = await mockClient.jsonArrPop<Map<String, dynamic>>('doc:1');
+      expect(res, [
+        {'id': 1},
+        null,
+      ]);
+    });
+
+    test('jsonArrIndex calls JsonArrIndexCommand', () async {
+      mockClient.mockResponse = [2];
+      final res = await mockClient.jsonArrIndex('doc:1', r'$.items', 'target');
+      expect(res, [2]);
+      expect(mockClient.lastExecutedCommand, isA<JsonArrIndexCommand>());
+    });
+
+    test('jsonArrTrim calls JsonArrTrimCommand', () async {
+      mockClient.mockResponse = [2];
+      final res = await mockClient.jsonArrTrim('doc:1', r'$.items', 0, 1);
+      expect(res, [2]);
+      expect(mockClient.lastExecutedCommand, isA<JsonArrTrimCommand>());
+    });
+
+    test('jsonObjKeys calls JsonObjKeysCommand', () async {
+      mockClient.mockResponse = [
+        ['name', 'age'],
+      ];
+      final res = await mockClient.jsonObjKeys('doc:1');
+      expect(res, [
+        ['name', 'age'],
+      ]);
+      expect(mockClient.lastExecutedCommand, isA<JsonObjKeysCommand>());
+    });
+
+    test('jsonObjLen calls JsonObjLenCommand', () async {
+      mockClient.mockResponse = [2];
+      final res = await mockClient.jsonObjLen('doc:1');
+      expect(res, [2]);
+      expect(mockClient.lastExecutedCommand, isA<JsonObjLenCommand>());
+    });
+
+    test('jsonMerge calls JsonMergeCommand with default root path', () async {
+      mockClient.mockResponse = 'OK';
+      final res = await mockClient.jsonMerge('doc:1', {'age': 31});
+      expect(res, isTrue);
+      expect(mockClient.lastExecutedCommand, isA<JsonMergeCommand>());
+      final cmd = mockClient.lastExecutedCommand! as JsonMergeCommand;
+      expect(cmd.commandParts, ['JSON.MERGE', 'doc:1', r'$', '{"age":31}']);
+    });
+
+    test('jsonMerge calls JsonMergeCommand with custom path', () async {
+      mockClient.mockResponse = 'OK';
+      final res = await mockClient.jsonMerge('doc:1', {
+        'age': 31,
+      }, path: r'$.user');
+      expect(res, isTrue);
+      final cmd = mockClient.lastExecutedCommand! as JsonMergeCommand;
+      expect(cmd.commandParts, [
+        'JSON.MERGE',
+        'doc:1',
+        r'$.user',
+        '{"age":31}',
+      ]);
+    });
+
+    test('jsonClear calls JsonClearCommand', () async {
+      mockClient.mockResponse = 1;
+      final res = await mockClient.jsonClear('doc:1');
+      expect(res, 1);
+      expect(mockClient.lastExecutedCommand, isA<JsonClearCommand>());
+    });
+
+    test('jsonResp calls JsonRespCommand', () async {
+      mockClient.mockResponse = ['{', 'name', 'Alice', '}'];
+      final res = await mockClient.jsonResp('doc:1');
+      expect(res, ['{', 'name', 'Alice', '}']);
+      expect(mockClient.lastExecutedCommand, isA<JsonRespCommand>());
+    });
+
+    test('jsonDebugMemory calls JsonDebugMemoryCommand', () async {
+      mockClient.mockResponse = [128];
+      final res = await mockClient.jsonDebugMemory('doc:1', path: r'$.name');
+      expect(res, [128]);
+      expect(mockClient.lastExecutedCommand, isA<JsonDebugMemoryCommand>());
+    });
+
+    test('jsonDebugDepth calls JsonDebugDepthCommand', () async {
+      mockClient.mockResponse = [3];
+      final res = await mockClient.jsonDebugDepth('doc:1', path: r'$.items');
+      expect(res, [3]);
+      expect(mockClient.lastExecutedCommand, isA<JsonDebugDepthCommand>());
+    });
+
+    test('jsonDebugFields calls JsonDebugFieldsCommand', () async {
+      mockClient.mockResponse = [5];
+      final res = await mockClient.jsonDebugFields('doc:1', path: r'$.user');
+      expect(res, [5]);
+      expect(mockClient.lastExecutedCommand, isA<JsonDebugFieldsCommand>());
+    });
+
+    test('jsonDebugHelp calls JsonDebugHelpCommand', () async {
+      mockClient.mockResponse = ['MEMORY <key> [path]', 'HELP'];
+      final res = await mockClient.jsonDebugHelp();
+      expect(res, ['MEMORY <key> [path]', 'HELP']);
+      expect(mockClient.lastExecutedCommand, isA<JsonDebugHelpCommand>());
+    });
+
+    test('jsonStore creates ValkeyJsonStore instance', () {
+      final store = mockClient.jsonStore<Map<String, dynamic>>(
+        prefix: 'items',
+        fromJson: (j) => j as Map<String, dynamic>,
+      );
+      expect(store, isA<ValkeyJsonStore<Map<String, dynamic>>>());
+      expect(store.keyFor('1'), 'items:1');
+    });
+
+    test('jsonUpdate executes batch updates via builder', () async {
+      mockClient.mockResponse = 'OK';
+      final results = await mockClient.jsonUpdate('user:1', (u) {
+        u
+          ..increment(r'$.age', 1)
+          ..toggle(r'$.active');
+      });
+      expect(results.length, 2);
+    });
+
+    test('jsonStreamArray streams items with chunking and mapping', () async {
+      // 1. Test when array is empty / len <= 0
+      mockClient.mockResponse = [0];
+      final emptyStream = mockClient.jsonStreamArray<int>('empty_key');
+      expect(await emptyStream.toList(), isEmpty);
+
+      // 2. Test chunked streaming with fromJson
+      mockClient.commandHandler = (cmd) {
+        if (cmd is JsonArrLenCommand) return [3];
+        if (cmd is JsonGetCommand) {
+          final path = cmd.paths.first;
+          if (path.contains('[0:2]')) return '[{"id": 1}, {"id": 2}]';
+          if (path.contains('[2:3]')) return '[{"id": 3}]';
+        }
+        return null;
+      };
+
+      final items = await mockClient.jsonStreamArray<int>(
+        'items_key',
+        chunkSize: 2,
+        fromJson: (json) => (json as Map<String, dynamic>)['id'] as int,
+      ).toList();
+
+      expect(items, [1, 2, 3]);
+
+      // 3. Test chunked streaming without fromJson (direct cast)
+      mockClient.commandHandler = (cmd) {
+        if (cmd is JsonArrLenCommand) return [2];
+        if (cmd is JsonGetCommand) {
+          return '[["alpha", "beta"]]';
+        }
+        return null;
+      };
+
+      final stringItems = await mockClient.jsonStreamArray<String>(
+        'strings_key',
+        chunkSize: 2,
+      ).toList();
+
+      expect(stringItems, ['alpha', 'beta']);
+
+      // 4. Test when raw response is null
+      mockClient.commandHandler = (cmd) {
+        if (cmd is JsonArrLenCommand) return [2];
+        return null;
+      };
+
+      final nullItems = await mockClient.jsonStreamArray<String>('null_key').toList();
+      expect(nullItems, isEmpty);
+
+      // Reset handler
+      mockClient.commandHandler = null;
     });
   });
 }

@@ -27,6 +27,14 @@ void main() {
       });
     });
 
+    test('should parse map response correctly', () {
+      final command = PubsubNumsubCommand();
+      expect(command.parse({'channel1': 5, 'channel2': 10}), {
+        'channel1': 5,
+        'channel2': 10,
+      });
+    });
+
     test('should parse empty list response correctly', () {
       final command = PubsubNumsubCommand();
       expect(command.parse(<dynamic>[]), <String, int>{});

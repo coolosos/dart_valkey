@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.0 - 2026-10-07
+
+### Added
+- **Valkey & Redis JSON Module Support**:
+  - Implemented all 23 JSON commands: `JSON.SET`, `JSON.GET`, `JSON.DEL`, `JSON.FORGET`, `JSON.MGET`, `JSON.MSET`, `JSON.DEBUG` (`MEMORY` & `HELP`), `JSON.TYPE`, `JSON.NUMINCRBY`, `JSON.NUMMULTBY`, `JSON.TOGGLE`, `JSON.STRAPPEND`, `JSON.STRLEN`, `JSON.ARRAPPEND`, `JSON.ARRINSERT`, `JSON.ARRLEN`, `JSON.ARRPOP`, `JSON.ARRINDEX`, `JSON.ARRTRIM`, `JSON.OBJKEYS`, `JSON.OBJLEN`, `JSON.MERGE`, `JSON.CLEAR`, `JSON.RESP`.
+  - Added high-level, type-safe client extension methods in `ValkeyCommands`: `jsonSet`, `jsonSetRaw`, `jsonGet<T>`, `jsonGetRaw`, `jsonGetTyped<T>`, `jsonDel`, `jsonForget`, `jsonMGet<T>`, `jsonMGetRaw`, `jsonMSet`, `jsonMSetRaw`, `jsonDebugMemory`, `jsonDebugHelp`, `jsonType`, `jsonNumIncrBy`, `jsonNumMultBy`, `jsonToggle`, `jsonStrAppend`, `jsonStrAppendRaw`, `jsonStrLen`, `jsonArrAppend`, `jsonArrAppendRaw`, `jsonArrInsert`, `jsonArrLen`, `jsonArrPop<T>`, `jsonArrPopRaw`, `jsonArrIndex`, `jsonArrTrim`, `jsonObjKeys`, `jsonObjLen`, `jsonMerge`, `jsonClear`, `jsonResp`.
+  - Added **`ValkeyJsonStore<T>`**: Strongly-typed repository pattern for managing JSON documents with automatic key generation, TTL handling, atomic batch saving (`saveMany`), and sub-field mutations.
+  - Added **`JsonPath` Builder**: Type-safe, fluent JSONPath DSL supporting nested fields, array indices, wildcards, slicing, and filter expressions (`JsonPath.root['store']['items'][0]`).
+  - Added **`JsonUpdateBuilder` (`client.jsonUpdate`)**: Fluent batch document updater for applying multiple atomic mutations in a single cascade.
+  - Added **`jsonStreamArray<T>`**: Paginated chunked streaming for processing massive JSON arrays without loading them entirely into memory.
+  - Added default root path (`r'$'`) for simplified calls like `client.jsonSet(key, value)` and `client.jsonMerge(key, value)`.
+  - Added generic type support in `jsonGet<T>`, `jsonMGet<T>`, and `jsonArrPop<T>` for ergonomic static typing.
+  - Seamless interoperability with Dart 3 Pattern Matching, custom model factories (`fromJson`), and pluggable serialization / streaming libraries like [`coolson`](https://github.com/coolosos/coolson).
+  - Achieved **100% test coverage** on all JSON commands, repository store, builders, and helpers.
+
+### Fixed
+- Fixed an issue where a null `keyPrefix` in `ValkeyCommandClient` was stringified as `'null:'`.
+- Fixed error propagation in `ValkeyCommandClient._onData` to directly reject command futures with `RespException` when the server returns a protocol error.
+
 ## 0.1.0 - 2026-10-06
 
 ### Changed

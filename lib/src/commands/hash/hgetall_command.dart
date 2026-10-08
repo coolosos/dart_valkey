@@ -34,6 +34,9 @@ final class HGetAllCommand(final String key)
 
   @override
   Map<String, String> parse(dynamic data) {
+    if (data is Map) {
+      return data.map((k, v) => MapEntry(k.toString(), v.toString()));
+    }
     if (data is List) {
       if (data.isEmpty) return {};
       final map = <String, String>{};
@@ -43,7 +46,7 @@ final class HGetAllCommand(final String key)
       return map;
     }
     throw ValkeyException(
-      'Invalid response for HGETALL: expected a list, got ${data.runtimeType}',
+      'Invalid response for HGETALL: expected a list or map, got ${data.runtimeType}',
     );
   }
 

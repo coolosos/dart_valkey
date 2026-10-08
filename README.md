@@ -59,7 +59,7 @@ Or with a specific version:
 
 ```yaml
 dependencies:
-  dart_valkey: ^0.0.6
+  dart_valkey: ^0.2.0
 ```
 
 Then run:
@@ -120,6 +120,112 @@ Future<void> main() async {
   await Future.delayed(const Duration(seconds: 30));
   await subClient.close();
 }
+```
+
+### JSON Operations (Valkey & RedisJSON)
+
+Full support for all 23 Valkey and Redis JSON module commands with Dart 3 Pattern Matching, strongly typed document repositories, fluent batch updates, type-safe JSONPath DSL, and pluggable serialization (e.g. [`coolson`](https://github.com/coolosos/coolson)):
+
+#### 1. Typed Document Store (`ValkeyJsonStore<T>`)
+
+Manage documents using the repository pattern with automatic key generation, serialization, atomic batch saving, and sub-field mutations:
+
+```dart
+final users = client.jsonStore<User>(
+  prefix: 'users',
+  fromJson: User.fromJson,
+  toJson: (u) => u.toJson(),
+);
+
+// CRUD operations
+await users.save('100', alice, ttl: const Duration(hours: 1));
+await users.saveMany({'101': bob, '102': charlie});
+final User? user = await users.find('100');
+final List<User?> team = await users.findMany(['100', '101', '102']);
+await users.delete('100');
+
+// Sub-field operations
+await users.increment('100', JsonPath.root['age'], 1);
+await users.toggle('100', JsonPath.root['active']);
+await users.appendToArray('100', JsonPath.root['roles'], ['lead']);
+await users.merge('100', {'status': 'online'});
+```
+
+#### 2. Fluent Batch Document Updater (`jsonUpdate`)
+
+Apply multiple atomic transformations to a JSON document in a clean, readable cascade:
+
+```dart
+await client.jsonUpdate('users:100', (doc) {
+  doc
+    ..increment(r'$.loginCount', 1)
+    ..appendToArray(r'$.roles', ['admin', 'reviewer'])
+    ..toggle(r'$.verified')
+    ..merge({'theme': 'dark'}, path: r'$.settings');
+});
+```
+
+#### 3. Type-Safe `JsonPath` Builder
+
+Avoid manual string concatenation and syntax typos with the fluent `JsonPath` DSL:
+
+```dart
+final path = JsonPath.root['store']['inventory'][0]['price'];
+print(path); // $.store.inventory[0].price
+
+final activeUsers = JsonPath.root['users'].filter('@.age >= 18');
+print(activeUsers); // $.users[?(@.age >= 18)]
+```
+
+#### 4. Streaming Large JSON Arrays (`jsonStreamArray`)
+
+Stream and process massive JSON arrays stored in Valkey/Redis in chunks without loading everything into memory at once:
+
+```dart
+await for (final user in client.jsonStreamArray<User>('huge_user_list', chunkSize: 100, fromJson: User.fromJson)) {
+  print('Processing user: ${user.name}');
+}
+```
+
+#### 5. Direct JSON Commands
+
+All 23 low-level JSON commands are supported with default root path `$` (`r'$'`):
+
+```dart
+// Store document
+await client.jsonSet('user:100', {
+  'name': 'Alice',
+  'age': 28,
+  'roles': ['developer'],
+  'active': true,
+});
+
+// Atomic multi-document set (JSON.MSET)
+await client.jsonMSet([
+  (key: 'user:101', path: JsonPath.root, value: {'name': 'Bob'}),
+  (key: 'user:102', path: JsonPath.root, value: {'name': 'Charlie'}),
+]);
+
+// Map to typed object using Dart 3 Pattern Matching
+final user = await client.jsonGetTyped<(String, int)>(
+  'user:100',
+  fromJson: (json) => switch (json) {
+    {'name': final String name, 'age': final int age} => (name, age),
+    _ => throw const FormatException('Invalid user schema'),
+  },
+);
+
+// Atomic mutations in Valkey / Redis
+await client.jsonNumIncrBy('user:100', r'$.age', 1);
+await client.jsonArrAppend('user:100', ['lead'], path: r'$.roles');
+await client.jsonToggle('user:100', path: r'$.active');
+await client.jsonMerge('user:100', {'department': 'Engineering'});
+
+// Inspect memory footprint (JSON.DEBUG)
+final memory = await client.jsonDebugMemory('user:100');
+
+// Zero-decoding raw queries
+final String? rawJson = await client.jsonGetRaw('user:100');
 ```
 
 ### SSL / TLS & Self-Signed Certificates
